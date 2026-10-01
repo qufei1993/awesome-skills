@@ -198,6 +198,7 @@ function applyPresentation(data,presentation) {
 }
 async function translations(rootDir,directory,parsed) {
   const data=parsed.document,localized={...data.localizations};
+  const directoryPresentations={ [parsed.language]:{title:data.title,description:data.description} };
   for (const language of ['en','zh']) {
     const file=path.join(directory,`README.${language}.md`);
     let source;
@@ -210,6 +211,11 @@ async function translations(rootDir,directory,parsed) {
     localized[language]=mergePresentation(localized[language],translated.presentation);
   }
   for (const presentation of Object.values(localized)) checkPresentation(presentation,data,directory);
+  for (const language of ['en','zh']) if (language !== parsed.language && localized[language]) {
+    const presentation=localized[language];
+    directoryPresentations[language]={title:presentation.title,description:presentation.description};
+  }
+  const baseLanguage=parsed.language === 'en' && localized.zh ? 'zh' : parsed.language;
   if (parsed.language === 'en' && localized.zh) {
     const original=presentationOf(data);
     applyPresentation(data,localized.zh);
@@ -220,6 +226,7 @@ async function translations(rootDir,directory,parsed) {
   delete localized.zh;
   if (Object.keys(localized).length) data.localizations=localized;
   else delete data.localizations;
+  return {baseLanguage,directoryPresentations};
 }
 function curatorFields(curator,file) {
   if (curator === undefined) return;
@@ -294,7 +301,7 @@ async function readCatalog(rootDir, mode, {allowMissingCollections=false}={}) {
     const data=parsed.document;
     const curator=curatorFields(parsed.curator ?? data.curator,filename);
     if (curator !== undefined) data.curator=curator;
-    await translations(rootDir,directory,parsed);
+    const {baseLanguage,directoryPresentations}=await translations(rootDir,directory,parsed);
     if (data.slug !== entry.name) fail(filename,'slug','must match its collection directory');
     ownedFields(data,filename);
     sourcePaths(data,filename);
@@ -314,7 +321,7 @@ async function readCatalog(rootDir, mode, {allowMissingCollections=false}={}) {
     }
     let complete=true;
     try { await validateCollection(data,`${data.id}.json`,rootDir,{validateLocalCover:async()=>asset.info}); } catch { complete=false; }
-    records.push({document:data,file:filename,language:parsed.language,curator,asset,complete});
+    records.push({document:data,file:filename,language:parsed.language,baseLanguage,directoryPresentations,curator,asset,complete});
   }
   return records;
 }
@@ -330,15 +337,49 @@ export async function validateCatalog(options) {
   return {records, count:records.length, incomplete:records.filter(r=>!r.complete).map(r=>r.file)};
 }
 function markdownText(value) { return value.replace(/[\[\]<>\r\n]/g,' ').replace(/\|/g,'\\|'); }
-async function readmeUpdate(rootDir,records) {
-  const filename=path.join(rootDir,'README.md');
-  let source;
-  try { source=await readFile(filename,'utf8'); } catch (error) { if (error.code !== 'ENOENT') throw error; source='# Awesome Skills\n'; }
-  const start=source.indexOf(START), end=source.indexOf(END);
-  if ((start < 0) !== (end < 0) || (start >=0 && end < start) || source.indexOf(START,start+START.length) >= 0 || source.indexOf(END,end+END.length) >=0) throw new Error('README.md: malformed catalog markers');
-  const lines=records.filter(r=>r.document.status !== 'archived').map(({document:c})=>`- [${markdownText(c.title)}](collections/${c.slug}/README.md) — ${markdownText(c.description)}${c.review?.status === 'approved' ? '' : ' (pending review)'}`);
-  const block=`${START}\n${lines.join('\n')}\n${END}`;
-  return {filename,source:start <0 ? `${source.trimEnd()}\n\n${block}\n` : `${source.slice(0,start)}${block}${source.slice(end+END.length)}`};
+function directoryLine(record,language) {
+  const data=record.document;
+  const display=record.directoryPresentations[language];
+  const translated=typeof display?.title === 'string' && typeof display?.description === 'string';
+  const label=translated ? display.title : data.slug;
+  const description=translated ? ` — ${markdownText(display.description)}` : ` — ${language === 'en' ? 'Translation pending' : '待翻译'}`;
+  const review=data.review?.status === 'approved' ? '' : language === 'en' ? ' (pending review)' : '（待审核）';
+  return `- [${markdownText(label)}](collections/${data.slug}/README.md)${description}${review}`;
+}
+async function readmeUpdates(rootDir,records) {
+  const updates=[];
+  for (const [name,language] of [['README.md','en'],['README.zh.md','zh']]) {
+    const filename=path.join(rootDir,name);
+    let original;
+    try {original=await readFile(filename,'utf8'); await contained(rootDir,filename,name,'README');}
+    catch (error) {if (error.code !== 'ENOENT') throw error; if (language === 'zh') continue;}
+    const source=original ?? '# Awesome Skills\n';
+    const start=source.indexOf(START),end=source.indexOf(END);
+    if ((start < 0) !== (end < 0) || (start >=0 && end < start) || source.indexOf(START,start+START.length) >= 0 || source.indexOf(END,end+END.length) >=0) throw new Error(`${name}: malformed catalog markers`);
+    const lines=records.filter(r=>r.document.status !== 'archived').map(record=>directoryLine(record,language));
+    const block=`${START}\n${lines.join('\n')}\n${END}`;
+    const updated=start <0 ? `${source.trimEnd()}\n\n${block}\n` : `${source.slice(0,start)}${block}${source.slice(end+END.length)}`;
+    updates.push({filename,source:updated,existed:original !== undefined});
+  }
+  return updates;
+}
+async function replaceReadmes(updates) {
+  try {
+    for (const update of updates) {
+      if (update.existed) {await rename(update.filename,update.backup); update.backedUp=true;}
+      await rename(update.temporary,update.filename); update.installed=true;
+    }
+  } catch (error) {
+    const failures=[];
+    for (const update of [...updates].reverse()) {
+      try {
+        if (update.installed) await rm(update.filename,{force:true});
+        if (update.backedUp) {await rename(update.backup,update.filename); update.backedUp=false;}
+      } catch (rollback) {failures.push(`${update.filename}: ${rollback.message}; original retained at ${update.backup}`);}
+    }
+    if (failures.length) throw new Error(`${error.message}; README rollback failed: ${failures.join('; ')}`);
+    throw error;
+  }
 }
 async function replaceDirectory(staged,outputDir,commitAdditional) {
   const backup=`${staged}-previous`;
@@ -381,7 +422,7 @@ export async function buildCatalog({rootDir,outputDir=path.join(rootDir,'dist/co
   const selected=all.filter(r=>r.complete && r.document.status === 'active' && (preview || r.document.review.status === 'approved')).sort((a,b)=>(a.document.sortOrder ?? 0)-(b.document.sortOrder ?? 0)||a.document.slug.localeCompare(b.document.slug));
   const records=selected.map(r=>r.document);
   const index={schemaVersion:1,collections:records.map(indexItem)};
-  const readme=await readmeUpdate(rootDir,all);
+  const readmes=await readmeUpdates(rootDir,all);
   outputDir=path.resolve(outputDir);
   const root=await realpath(rootDir),lexicalRoot=path.resolve(rootDir);
   if (inside(lexicalRoot,outputDir)) outputDir=path.join(root,path.relative(lexicalRoot,outputDir));
@@ -391,7 +432,11 @@ export async function buildCatalog({rootDir,outputDir=path.join(rootDir,'dist/co
   const parentReal=await realpath(path.dirname(outputDir));
   if (inside(root,path.dirname(outputDir)) && !inside(root,parentReal)) throw new Error('outputDir symbolic link escapes the repository');
   const staged=await mkdtemp(path.join(path.dirname(outputDir),'.catalog-'));
-  const readmeTemporary=path.join(root,`.catalog-readme-${path.basename(staged)}.tmp`);
+  for (const [index,readme] of readmes.entries()) {
+    readme.temporary=path.join(root,`.catalog-readme-${path.basename(staged)}-${index}.tmp`);
+    readme.backup=path.join(root,`.catalog-readme-${path.basename(staged)}-${index}.previous`);
+  }
+  let readmesCommitted=false;
   const files=[];
   async function add(filename,bytes) {
     safePath(filename,'manifest','path');
@@ -407,8 +452,14 @@ export async function buildCatalog({rootDir,outputDir=path.join(rootDir,'dist/co
     await add('index.json',JSON.stringify(index,null,2)+'\n');
     const manifest={schemaVersion:1,preview,sourceRevision:sourceRevision ?? null,files:files.sort((a,b)=>a.path.localeCompare(b.path))};
     await writeFile(path.join(staged,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
-    await writeFile(readmeTemporary,readme.source,{flag:'wx'});
-    await replaceDirectory(staged,outputDir,()=>rename(readmeTemporary,readme.filename));
+    for (const readme of readmes) await writeFile(readme.temporary,readme.source,{flag:'wx'});
+    await replaceDirectory(staged,outputDir,async()=>{await replaceReadmes(readmes); readmesCommitted=true;});
     return {index,records,manifest,incomplete:all.filter(r=>!r.complete).map(r=>r.file),outputDir};
-  } finally { await rm(staged,{recursive:true,force:true}); await rm(readmeTemporary,{force:true}); }
+  } finally {
+    await rm(staged,{recursive:true,force:true});
+    for (const readme of readmes) {
+      await rm(readme.temporary,{force:true});
+      if (readmesCommitted && readme.backedUp) await rm(readme.backup,{force:true});
+    }
+  }
 }

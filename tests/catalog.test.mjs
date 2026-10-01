@@ -249,3 +249,93 @@ test('optional website curator requires a name, safe optional URL and supported 
     await assert.rejects(validateCollection(data,`${data.id}.json`,'/unused'),/curator/);
   }
 });
+test('generated English and Chinese directories use their own presentation and preserve introductions', async t => {
+  const dir=await root(t),data=await fixture(); await put(dir,data);
+  const englishIntro='# English introduction\n\nHandwritten English text.\n<!-- catalog:start -->\nold\n<!-- catalog:end -->\nEnglish footer.\n';
+  const chineseIntro='# 中文介绍\n\n手写中文正文。\n<!-- catalog:start -->\n旧目录\n<!-- catalog:end -->\n中文页脚。\n';
+  await writeFile(path.join(dir,'README.md'),englishIntro);
+  await writeFile(path.join(dir,'README.zh.md'),chineseIntro);
+  await buildCatalog({rootDir:dir,preview:true});
+  const en=await readFile(path.join(dir,'README.md'),'utf8'),zh=await readFile(path.join(dir,'README.zh.md'),'utf8');
+  assert.match(en,new RegExp(data.localizations.en.title)); assert.match(en,new RegExp(data.localizations.en.description));
+  assert.doesNotMatch(en,/[\u3400-\u9fff]/); assert.match(en,/Handwritten English text/); assert.match(en,/English footer/);
+  assert.match(zh,new RegExp(data.title)); assert.match(zh,new RegExp(data.description)); assert.match(zh,/待审核/);
+  assert.match(zh,/手写中文正文/); assert.match(zh,/中文页脚/); assert.doesNotMatch(zh,/pending review/);
+});
+test('missing translations use only a slug and localized status without creating the optional Chinese README', async t => {
+  const dir=await root(t),data=await fixture(); delete data.localizations; await put(dir,data);
+  await buildCatalog({rootDir:dir,preview:true});
+  const english=await readFile(path.join(dir,'README.md'),'utf8');
+  assert.match(english,/\[product-video\].*Translation pending/); assert.doesNotMatch(english,/[\u3400-\u9fff]/);
+  await assert.rejects(readFile(path.join(dir,'README.zh.md')),/ENOENT/);
+  await writeFile(path.join(dir,'README.zh.md'),'# 中文介绍\n');
+  data.title='Product video'; data.description='Coordinate a product video';
+  await writeFile(path.join(dir,'collections',data.slug,'README.md'),serializeCollectionMarkdown(data,{language:'en'}));
+  await buildCatalog({rootDir:dir,preview:true});
+  const chinese=await readFile(path.join(dir,'README.zh.md'),'utf8');
+  assert.match(chinese,/\[product-video\].*待翻译/); assert.doesNotMatch(chinese,/Product video|Coordinate a product video/);
+});
+test('English canonical with Chinese overlay generates both page languages without altering website JSON', async t => {
+  const {serializeTranslationMarkdown}=await import('../scripts/lib/markdown.mjs');
+  const dir=await root(t),data=await fixture(); delete data.localizations;
+  data.title='Product video'; data.description='Create a launch video';
+  const directory=path.join(dir,'collections',data.slug); await mkdir(directory,{recursive:true});
+  await writeFile(path.join(directory,'README.md'),serializeCollectionMarkdown(data,{language:'en'}));
+  const zh={title:'产品视频',description:'制作发布视频',overview:'中文概览',scenarios:['中文场景'],usage:'中文建议',skills:Object.fromEntries(data.skills.map(s=>[s.id,{summary:`用途：${s.name}`}]))};
+  await writeFile(path.join(directory,'README.zh.md'),serializeTranslationMarkdown(zh,{id:data.id,language:'zh'}));
+  await writeFile(path.join(dir,'README.zh.md'),'# 中文目录\n');
+  const before=(await loadCatalog({rootDir:dir}))[0].document;
+  const result=await buildCatalog({rootDir:dir,preview:true});
+  assert.deepEqual(result.records[0],before); assert.equal(result.records[0].baseLanguage,undefined);
+  const enPage=await readFile(path.join(dir,'README.md'),'utf8'),zhPage=await readFile(path.join(dir,'README.zh.md'),'utf8');
+  assert.match(enPage,/Product video.*Create a launch video/); assert.doesNotMatch(enPage,/[\u3400-\u9fff]/);
+  assert.match(zhPage,/产品视频.*制作发布视频/);
+});
+test('second README replacement failure restores the first README and previous snapshot', async t => {
+  const dir=await root(t),data=await fixture(); await put(dir,data);
+  await writeFile(path.join(dir,'README.zh.md'),'# 手写中文介绍\n'); await buildCatalog({rootDir:dir,preview:true});
+  const beforeEn=await readFile(path.join(dir,'README.md'),'utf8'),beforeZh=await readFile(path.join(dir,'README.zh.md'),'utf8');
+  const beforeSnapshot=await readFile(path.join(dir,'dist/collections/index.json'),'utf8');
+  data.localizations.en.description='Updated English description'; data.description='更新后的中文简介'; await put(dir,data);
+  const filesystem=(await import('node:fs/promises')).default,{syncBuiltinESMExports}=await import('node:module');
+  const originalRename=filesystem.rename; let injected=false;
+  t.mock.method(filesystem,'rename',async (source,destination)=>{
+    if (!injected && destination === path.join(dir,'README.zh.md') && path.basename(source).startsWith('.catalog-readme-')) {
+      injected=true; throw Object.assign(new Error('Injected Chinese README replacement failure'),{code:'EIO'});
+    }
+    return originalRename(source,destination);
+  });
+  syncBuiltinESMExports();
+  t.after(()=>{t.mock.restoreAll();syncBuiltinESMExports();});
+  await assert.rejects(buildCatalog({rootDir:dir,preview:true}),/Injected Chinese README replacement failure/);
+  assert.equal(injected,true);
+  assert.equal(await readFile(path.join(dir,'README.md'),'utf8'),beforeEn);
+  assert.equal(await readFile(path.join(dir,'README.zh.md'),'utf8'),beforeZh);
+  assert.equal(await readFile(path.join(dir,'dist/collections/index.json'),'utf8'),beforeSnapshot);
+});
+test('new CLI defaults to an English pending draft', async t => {
+  const {execFile}=await import('node:child_process'),{promisify}=await import('node:util');
+  const dir=await root(t),cli=new URL('../scripts/catalog.mjs',import.meta.url).pathname;
+  await promisify(execFile)(process.execPath,[cli,'new','english-default'],{cwd:dir});
+  const markdown=await readFile(path.join(dir,'collections/english-default/README.md'),'utf8');
+  assert.match(markdown,/language: en/); assert.match(markdown,/# Draft collection/); assert.doesNotMatch(markdown,/[\u3400-\u9fff]/);
+});
+
+test('partial Chinese metadata never supplies untranslated English prose to the Chinese directory', async t => {
+  for (const chinese of [{tags:['中文标签']},{title:'中文局部标题'}]) {
+    const dir=await root(t),data=await fixture();
+    data.title='English collection'; data.description='English description';
+    data.localizations={zh:chinese};
+    const directory=path.join(dir,'collections',data.slug); await mkdir(directory,{recursive:true});
+    await writeFile(path.join(directory,'README.md'),serializeCollectionMarkdown(data,{language:'en'}));
+    await writeFile(path.join(dir,'README.zh.md'),'# 中文介绍\n');
+    const before=(await loadCatalog({rootDir:dir}))[0].document;
+    const result=await buildCatalog({rootDir:dir,preview:true});
+    assert.deepEqual(result.records[0],before);
+    assert.equal(result.records[0].directoryPresentations,undefined);
+    const zh=await readFile(path.join(dir,'README.zh.md'),'utf8'),en=await readFile(path.join(dir,'README.md'),'utf8');
+    assert.match(zh,/\[product-video\].*待翻译/);
+    assert.doesNotMatch(zh,/English collection|English description|中文局部标题/);
+    assert.match(en,/English collection.*English description/);
+  }
+});

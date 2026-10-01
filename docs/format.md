@@ -1,73 +1,77 @@
-# Markdown 合集格式
+# Markdown Collection Format
 
-人工只维护 `collections/<slug>/README.md` 及归档封面。JSON、索引和根 README 的 `<!-- catalog:start -->` / `<!-- catalog:end -->` 区域由生成器维护。
+Manually maintain only `collections/<slug>/README.md` and archived covers. The generator maintains JSON, indexes, and the root README region between `<!-- catalog:start -->` and `<!-- catalog:end -->`.
 
-## 文件结构
+## File structure
 
-文件顶部使用 YAML frontmatter 存机器字段。正文按以下顺序组织；中英文标题均支持：
+YAML frontmatter at the beginning stores machine-readable fields. Organize the body in the following order. See the [Chinese format guide](format.zh.md) for the supported Chinese section headings.
 
-| 层级 | 中文 | 英文 | 内容 |
-| --- | --- | --- | --- |
-| H1 | 合集标题 | Collection title | 唯一标题，后接一段简介 |
-| H2 | 概览 | Overview | 组合用途及搭配依据 |
-| H2 | 适用场景 | Scenarios | 1–5 个列表项 |
-| H2 | 使用建议 | Usage | 顺序、前提及注意事项 |
-| H2 | Skills | Skills | 每个 Skill 使用一个 H3 |
-| H3 | Skill 名称 | Skill name | 一段用途摘要和一个 `yaml` 围栏 |
+| Level | Heading | Content |
+| --- | --- | --- |
+| H1 | Collection title | One title, followed by a description paragraph |
+| H2 | Overview | Purpose and selection rationale |
+| H2 | Scenarios | A list of 1–5 scenarios |
+| H2 | Usage | Order, prerequisites, and considerations |
+| H2 | Skills | One H3 for each Skill |
+| H3 | Skill name | A summary paragraph and one `yaml` fence |
 
-H1、简介、概览、场景、使用建议以及 Skill 名称与摘要来自正文，不在机器字段中重复维护。代码围栏内的 `#` 不会被视为正文标题。YAML 禁止重复键、别名、合并键和未知字段，避免含义不明确。
+The title, description, overview, scenarios, usage, Skill names, and summaries come from the body. Do not duplicate them in machine fields. A `#` inside a code fence is not a body heading. YAML rejects duplicate keys, aliases, merge keys, and unknown fields to avoid ambiguity.
 
 ## Frontmatter
 
-| 字段 | 含义 |
+| Field | Meaning |
 | --- | --- |
-| `schemaVersion` | 当前为 `1` |
-| `language` | `zh` 或 `en`，供稿任选一种 |
-| `id` | 新建时生成的 UUID v4，永久保留 |
-| `slug` | 小写字母/数字及单个连字符组成的网址名称，与目录对应 |
-| `revision` | 从 1 开始的正整数，接受内容变更时增加 |
-| `createdAt`, `updatedAt` | UTC 时间；更新时间不得早于创建时间 |
-| `sourceKeys` | 合集公开来源的稳定去重标识；保留历史来源 |
-| `status` | `active` 或 `archived` |
-| `sourceKind` | `author-repository`、`external-recommendation` 或 `editorial-selection` |
-| `category` | `development`、`product`、`research`、`productivity`、`marketing`、`design`、`video`、`other` |
-| `tags` | 至多 8 个标签 |
-| `provenance` | 署名、策划理由、公开证据及可选作者仓库范围 |
-| `cover` | 默认概念封面，或本目录中已归档的图片与授权证据 |
-| `verification` | 来源、文件、安装和工作流的核验状态与记录 |
-| `review` | 内容审核，与实测状态分开 |
-| `sortOrder` | 可选的排序数字 |
-| `curator` | 可选的合集策划者署名；与 Skill 原作者区别记录 |
-| `localizations` | 迁移保留的英文展示字段；条目翻译引用原 Skill ID |
+| `schemaVersion` | Currently `1` |
+| `language` | `zh` or `en`; contributors may choose either |
+| `id` | UUID v4 assigned on creation and retained permanently |
+| `slug` | Lowercase URL name using letters, digits, and single hyphens; matches the directory |
+| `revision` | Positive integer starting at 1, increased when content changes are accepted |
+| `createdAt`, `updatedAt` | UTC timestamps; update time must not precede creation time |
+| `sourceKeys` | Stable deduplication identifiers for public collection sources; retain source history |
+| `status` | `active` or `archived` |
+| `sourceKind` | `author-repository`, `external-recommendation`, or `editorial-selection` |
+| `category` | `development`, `product`, `research`, `productivity`, `marketing`, `design`, `video`, or `other` |
+| `tags` | At most 8 tags |
+| `provenance` | Attribution, selection reasons, public evidence, and optional author repository scope |
+| `cover` | Default concept cover, or an archived image in this directory with rights evidence |
+| `verification` | Source, file, installation, and workflow verification states and records |
+| `review` | Content review, separate from actual testing |
+| `sortOrder` | Optional numeric ordering |
+| `curator` | Optional collection curator attribution, separate from Skill authors |
+| `localizations` | English display fields retained during migration; item translations refer to original Skill IDs |
 
-不要在草稿模板填随机的 commit、许可或审查人。pending 草稿可缺 `schemaVersion`、`id`、`revision`、时间、`sourceKeys`、审核/核验、证据核对日期及固定 commit 等维护字段；新建命令仍会生成真实稳定 UUID。供稿正文、公开出处、Skill ID、路径、安装项与许可记录仍须填写。生成器只在校验副本中补保守默认值，不写回假身份或核验结论；缺少官网合同所需字段的草稿不会进入预览数据并会被报告。模板里的空字符串是编辑提示，并非有效投稿。参考 [模板说明](../templates/README.md) 的三个真实合集，不能原样复制它们的事实到新来源。
+Never fill draft templates with invented commits, licenses, or reviewers. Pending drafts may omit maintainer fields such as `schemaVersion`, `id`, `revision`, timestamps, `sourceKeys`, review or verification records, evidence check dates, and pinned commits. The new-collection command still generates a real permanent UUID. Contributor prose, public sources, Skill IDs, paths, installation items, and license records remain required.
 
-`provenance.author` 与 `provenance.recommender` 使用 `name`、`url`。公开推荐必须注明推荐者；原创策划必须填写 `selectionReason`；作者仓库型使用 `repositoryScope`，记录 `repo`、固定 `commit`、`directories` 与 `coverage: all-valid-skills`，条目须处于声明范围。
+The generator applies conservative defaults only to a validation copy. It does not write fabricated identities or verification claims back to Markdown. Drafts missing fields required by the website contract are reported and excluded from preview data. Empty template strings are editing prompts, not valid submissions. The [template guide](../templates/README.md) links three real collections; never copy their facts into an unrelated submission.
 
-`provenance.evidence` 为证据列表，每项含 `id`、`kind`（`repository`/`article`/`post`）、`url`、`title`、`publisher`、`location`、`finding`、`checkedAt`、`supportsItemIds`，可选 `publishedAt`。证据须覆盖每个展示条目；明确区分公开推荐关系与实际核对的版本。
+`provenance.author` and `provenance.recommender` use `name` and `url`. Public recommendations must identify the recommender. Original selections must provide `selectionReason`. Author repository collections use `repositoryScope` with `repo`, pinned `commit`, `directories`, and `coverage: all-valid-skills`. Entries must stay within that declared scope.
 
-## 每个 Skill 的 YAML
+`provenance.evidence` is a list. Each item contains `id`, `kind` (`repository`/`article`/`post`), `url`, `title`, `publisher`, `location`, `finding`, `checkedAt`, and `supportsItemIds`, with optional `publishedAt`. Evidence must support every display item. Distinguish the publicly documented recommendation relationship from the versions actually checked.
 
-每个 H3 下面独立放一个 YAML 围栏。它包含 `id`、`entry`、`installationMode`、`installationItems`、`resourceCheck`、`resourceNotes`，可选 `role`、`authors`、`originalDescription`。不要把所有 Skills 塞进 frontmatter 或共用一个安装清单。
+## YAML for each Skill
 
-- `entry`：`repo` 使用 GitHub `owner/repo`，`commit` 使用完整 40 位 SHA，`entryPoint` 指向仓库内的 `SKILL.md`。
-- `installationMode: skill`：恰好一个安装项；`bundle`：至少两个。入口必须对应其中一个真实安装项。
-- 每个安装项：`name`、`repo`、`commit`、`directory`、`entryPoint: SKILL.md`、`license`。`directory` 为仓库相对路径，仓库根用 `.`。不得使用绝对路径、`..` 或反斜杠。
-- `license`：`identifier` 与可选 `evidenceUrl`。未知许可使用诚实记录（例如 `NOASSERTION`），不能据此宣称有使用授权。
-- `resourceCheck`：`verified` 或 `needs-review`；`resourceNotes` 解释完整资源引用、依赖或尚待核对项。
-- 可选 `authors`：每人使用 `name`、`evidenceUrl`；策划者不是所有 Skill 的原作者。
+Place one independent YAML fence beneath each H3. It contains `id`, `entry`, `installationMode`, `installationItems`, `resourceCheck`, and `resourceNotes`; optional fields are `role`, `authors`, and `originalDescription`. Do not move all Skills into frontmatter or share one installation list among display items.
 
-展示条目数与安装数可能不同。安装统计按 `(repo, commit, directory)` 去重；例如产品视频的 3 个展示条目展开为 14 个安装项，不能将 14 写成实测通过数。
+- `entry`: use GitHub `owner/repo` for `repo`, a full 40-character SHA for `commit`, and a repository `SKILL.md` path for `entryPoint`.
+- `installationMode: skill`: exactly one installation item. `bundle`: at least two. The entry must correspond to one actual installation item.
+- Each installation item contains `name`, `repo`, `commit`, `directory`, `entryPoint: SKILL.md`, and `license`. `directory` is repository-relative; use `.` for the repository root. Absolute paths, `..`, and backslashes are prohibited.
+- `license`: `identifier` and optional `evidenceUrl`. Record unknown licenses honestly, for example as `NOASSERTION`; this does not establish permission to use the content.
+- `resourceCheck`: `verified` or `needs-review`. `resourceNotes` explains resource references, dependencies, and unresolved checks.
+- Optional `authors`: each person uses `name` and `evidenceUrl`. The curator is not the original author of every Skill.
 
-## 审核、核验与封面
+Display item counts and installation counts may differ. Installation statistics deduplicate by `(repo, commit, directory)`. Product Video has 3 display items expanding to 14 installation items; 14 is not a successful test count.
 
-`review.status` 为 `pending`、`approved` 或 `rejected`。批准/拒绝还需要真实 `reviewer`、`reviewedAt`；`notes` 保留范围与理由。
+## Review, verification, and covers
 
-`verification.source/files` 使用 `verified` 或 `needs-review`；`installation/workflow` 使用 `not-tested`、`passed` 或 `failed`。`checkedAt` 与 `notes` 记录核对范围。实际 `passed/failed` 必须有对应 Evidence，记录 `testedAt`、`versions`、`itemIds`、`resultRef`、`environment`。固定 commit 或 CI 通过不能代替这些证据。
+`review.status` is `pending`, `approved`, or `rejected`. Approval or rejection requires a real `reviewer` and `reviewedAt`; `notes` preserves the scope and reasons.
 
-默认使用概念封面，preset 支持 `design`、`engineering`、`marketing`、`video`、`neutral`。使用 `source-image` 时记录 `file`（合集目录内相对路径）、`sourceUrl`、`alt`、`rightsStatus` 及核实后的 `rightsEvidenceUrl`。可选尺寸、背景和位置只用于展示。归档图片只允许 PNG、JPEG、WebP、GIF，非空且不超过 5 MiB，内容格式须匹配，禁止路径逃逸或符号链接逃逸。图片附件须由维护者归档；CI 不下载远端图片。
+`verification.source/files` uses `verified` or `needs-review`; `installation/workflow` uses `not-tested`, `passed`, or `failed`. `checkedAt` and `notes` record verification scope. Actual `passed/failed` states require corresponding evidence containing `testedAt`, `versions`, `itemIds`, `resultRef`, and `environment`. Pinned commits and CI success cannot replace this evidence.
 
-## 投稿检查与正式导出
+The default is a concept cover. Supported presets are `design`, `engineering`, `marketing`, `video`, and `neutral`. A `source-image` records `file` (relative to the collection directory), `sourceUrl`, `alt`, `rightsStatus`, and verified `rightsEvidenceUrl`. Optional dimensions, background, and position affect presentation only.
+
+Archived images must be nonempty PNG, JPEG, WebP, or GIF files, no larger than 5 MiB. File contents must match the declared format. Path and symlink escapes are prohibited. Maintainers archive image attachments; CI does not download remote images.
+
+## Submission validation and production export
 
 ```sh
 npm run check
@@ -77,6 +81,10 @@ npm run build:preview -- --output dist/collections
 npm run build -- --output dist/collections --source-revision FULL_COMMIT_SHA
 ```
 
-投稿检查校验结构、路径、身份冲突和更新稳定性。正式检查对已批准记录要求固定版本、来源/文件/资源均已核实、无失败实测，以及可用且授权明确的封面。安装和工作流可以诚实保留 `not-tested`，不能包装成测试成功。待审记录不会导出到正式数据。
+Submission checks validate structure, paths, identity conflicts, and update stability. Publication checks require approved records to have pinned versions, verified source/files/resources, no failed tests, and usable covers with confirmed rights. Installation and workflow states may honestly remain `not-tested`; do not present them as successful tests. Pending records do not enter production data.
 
-预览包含待审记录，manifest 标记 `preview: true`，禁止同步官网。当前三个迁移示例都为 pending；正式快照为空，不表示三个合集已经上线。维护者完成实际审核和所缺核验后再批准。翻译沿用合集与条目身份，缺少另一种语言时展示已有语言。
+Preview includes pending records and marks the manifest `preview: true`; it cannot synchronize to the production website. The three initial migration examples are pending, so their production snapshot is empty. This does not mean the three collections are online. Maintainers must complete actual review and missing verification before approval. Translations retain collection and item identities; a missing second language falls back to the available language.
+
+## Project documentation language
+
+Project documentation and templates use English in the default `.md` file and Chinese in a separate file with the same name plus `.zh.md`. Keep paragraphs and heading tables in one language per document. Update both versions in the same change and use links to the matching language version, except explicit links to an alternate-language guide. `AGENTS.md` remains one concise English rules file; `CLAUDE.md` imports it.

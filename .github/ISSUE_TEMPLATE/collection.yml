@@ -1,28 +1,28 @@
-name: 推荐合集 / Suggest a collection
-description: 提供真实来源和使用场景；中文或英文均可。
+name: Suggest a collection
+description: Share real sources and use cases for a collection.
 title: "[Collection] "
 body:
   - type: textarea
     id: task
     attributes:
-      label: 使用场景 / Task
-      description: 说明这组 Skills 解决什么问题，以及搭配理由。
+      label: Task and use cases
+      description: Explain the task these Skills address and why you selected this combination.
     validations:
       required: true
   - type: textarea
     id: sources
     attributes:
-      label: 公开来源 / Public sources
-      description: 提供仓库、Skill 目录、公开推荐出处及作者线索；未知项请明确标注。
+      label: Public sources
+      description: Link repositories, Skill directories, public recommendations, and author information. Mark unknown details clearly.
     validations:
       required: true
   - type: textarea
     id: evidence
     attributes:
-      label: 已核实与待核实 / Verified and open items
-      description: 说明版本、许可、资源范围及是否实际测试；未测试不填“通过”。
+      label: Verified and open items
+      description: Describe versions, licenses, resource scope, and any actual testing. Do not mark untested items as passed.
   - type: textarea
     id: cover
     attributes:
-      label: 可选封面 / Optional cover
-      description: 可附图片及来源/使用依据；采用时由维护者归档。
+      label: Optional cover
+      description: Attach an image with its source and usage rights. Maintainers archive accepted images.

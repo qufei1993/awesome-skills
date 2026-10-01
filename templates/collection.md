@@ -1,7 +1,7 @@
 ---
-# 待编辑模板；使用 new:collection 生成实际 UUID 和时间。
+# Editable template; use new:collection to generate the actual UUID and timestamps.
 schemaVersion: 1
-language: zh
+language: en
 id: ""
 slug: ""
 revision: 1
@@ -12,52 +12,52 @@ tags: []
 provenance:
   selectionReason: ""
   evidence: []
-# createdAt、updatedAt、sourceKeys、固定 commit 与证据 checkedAt 由维护者核实。
-# 不填写假的 author、许可、测试记录或 approved 状态。
+# Maintainers verify createdAt, updatedAt, sourceKeys, fixed commits, and evidence checkedAt.
+# Do not invent authors, licenses, test records, or an approved status.
 review:
   status: pending
   notes: []
 cover:
   kind: concept
   preset: neutral
-  alt: 合集概念封面
+  alt: Collection concept cover
 ---
 
-# 合集标题
+# Collection title
 
-一句话说明这个合集解决什么问题。
+Describe the specific task this collection addresses in one sentence.
 
-## 概览
+## Overview
 
-说明整体任务、各技能的衔接和选择依据。
+Explain the overall task, how the Skills work together, and why you selected them.
 
-## 适用场景
+## Scenarios
 
-- 一个具体场景
+- A specific scenario
 
-## 使用建议
+## Usage
 
-说明使用顺序、前提和需要人工判断的部分。
+Describe the usage order, prerequisites, and decisions requiring human judgment.
 
 ## Skills
 
-### Skill 名称
+### Skill name
 
-说明此 Skill 的作用及它为何适合这个组合。
+Describe this Skill's role and why it belongs in the collection.
 
 ```yaml
 id: ""
 entry:
   repo: ""
   entryPoint: ""
-  # commit: 维护者核对后的完整 40 位提交 SHA
+  # commit: full 40-character commit SHA verified by a maintainer
 installationMode: skill
 installationItems:
   - name: ""
     repo: ""
     directory: ""
     entryPoint: SKILL.md
-    # commit 和 license 必须有真实依据，不能把未知许可写成 MIT。
+    # commit and license require real evidence; do not label an unknown license MIT.
 resourceCheck: needs-review
-resourceNotes: 尚待逐项核对目录资源与安装环境。
+resourceNotes: Directory resources and installation environment still need verification.
 ```

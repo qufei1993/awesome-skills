@@ -1,22 +1,22 @@
-# awesome-skills 开源合集仓库整体方案
+# Awesome Skills Public Collection Repository Design
 
-建立独立的公开 GitHub 仓库 awesome-skills，作为 Skills Hub 官网的合集内容源和社区贡献入口。贡献者通过 Markdown 投稿，仓库自动生成官网需要的 JSON，审核通过的更新自动触发网站构建和发布。
+Create a separate public GitHub repository, awesome-skills, as the collection content source and community contribution entry point for the Skills Hub website. Contributors submit Markdown; the repository generates the JSON required by the website. Approved updates trigger the website build and publication.
 
-本方案确定整体结构和协作流程。具体字段、模板、检查命令和部署配置在实施阶段制定。
+This design establishes the overall structure and workflow. The implementation phase defines exact fields, templates, validation commands, and deployment configuration.
 
-## 仓库定位与收录范围
+## Purpose and collection scope
 
-一个合集围绕一个明确的任务或使用场景，将多个 Skills 组织成可理解、可安装的组合。Skills 可以来自同一个仓库，也可以跨多个仓库；同一个 Skill 可以被多个合集引用。
+A collection groups multiple Skills around a specific task or use case, presenting a combination readers can understand and install. Skills may come from one repository or several repositories. A Skill may appear in multiple collections.
 
-允许三类合集：原作者发布的合集、有公开出处的推荐合集、供稿者自行策划的原创合集。原创合集须说明适用场景、各项作用和搭配理由。合集策划者与各个 Skill 的原作者分别署名。
+Accept three types: collections published by their original authors, recommendations with public sources, and original selections curated by contributors. Original selections must explain their use cases, each Skill's role, and the reasons for combining them. Credit the collection curator separately from each Skill's original author.
 
-仓库保存合集说明、出处和安装信息，Skill 的完整内容继续从上游仓库获取。
+The repository stores collection descriptions, provenance, and installation information. Complete Skill content continues to come from upstream repositories.
 
-## 内容格式与目录
+## Content format and directories
 
-每个合集使用独立目录，Markdown 是唯一人工维护的合集内容源；JSON 和浏览目录由工具生成。
+Each collection has its own directory. Markdown is the only manually maintained collection source; tools generate JSON and the browsing directory.
 
-建议目录结构：
+Proposed structure:
 
 ```text
 awesome-skills/
@@ -33,109 +33,109 @@ awesome-skills/
   .github/
 ```
 
-顶层 README 展示项目介绍、分类目录和投稿入口；各合集 Markdown 展示完整介绍与使用建议。封面文件可选。
+The root README presents the project, category directory, and contribution entry point. Collection Markdown contains the complete introduction and usage guidance. Cover files are optional.
 
-合集 Markdown 分为两部分：
+Collection Markdown has two parts:
 
-| 部分 | 主要内容 |
+| Part | Content |
 | --- | --- |
-| 固定元数据 | 标题、简介、语言、分类、标签、来源类型、署名、Skill 来源与目录、身份与版本、核验状态、可选封面路径 |
-| 正文 | 合集概览、适用场景、每个 Skill 的作用、搭配理由、使用建议及出处说明 |
+| Fixed metadata | Title, description, language, category, tags, source type, attribution, Skill sources and directories, identity and version, verification status, and optional cover path |
+| Body | Overview, scenarios, each Skill's role, selection rationale, usage guidance, and provenance explanation |
 
-每个展示条目保留独立的安装信息；组合条目展开的安装项也须明确记录。正文与元数据共同生成官网记录，使用固定模板，避免重复维护相同文案。
+Each display item retains independent installation information. Expanded installation items for bundles must also be recorded explicitly. The body and metadata generate website records together, using a fixed template to avoid maintaining the same prose twice.
 
-## 投稿语言与维护信息
+## Submission language and maintenance information
 
-允许中文或英文任选一种投稿。两种语言使用相同的数据结构，另一种语言由维护流程补齐。翻译关联原合集和原条目，不另建一套内容或安装清单；缺少翻译时展示已有语言。
+Contributors may submit in Chinese or English. Both languages use the same data structure; the maintenance workflow supplies the other language. Translations refer to original collection and item identities rather than creating separate content or installation lists. When a translation is missing, display the available language.
 
-供稿者主要提供场景、推荐理由、原始出处、Skill 仓库与目录。正式收录前，由维护者补齐或核对永久标识、固定提交版本、更新时间和核验记录。
+Contributors primarily provide scenarios, recommendation reasons, original sources, and Skill repositories and directories. Before formal inclusion, maintainers complete or verify permanent identifiers, pinned commits, update timestamps, and verification records.
 
-新增合集首次收录时确定稳定标识。更新已有合集时保留合集与条目身份、现有网址和来源历史，接受内容变化后增加版本。没有实际安装或工作流测试的内容如实标记为未实测；结论只对应被检查或测试的具体版本。
+Assign stable identifiers when a new collection is first included. Updates preserve collection and item identities, existing URLs, and source history. Increase the revision after accepting content changes. Content without installation or workflow testing must honestly remain untested. Conclusions apply only to the versions actually checked or tested.
 
-## 封面提交与归档
+## Cover submission and archiving
 
-封面是可选项。供稿者可以将图片拖入 PR 描述或评论框，作为附件提供，并说明来源或使用依据。
+Covers are optional. Contributors may drag images into a PR description or comment as attachments and explain their source or usage rights.
 
-维护者决定是否采用封面，在合并前完成必要的裁剪、压缩和仓库归档，并在 Markdown 中补充仓库内图片路径。官网正式展示使用归档后的素材。没有封面时使用相应分类的默认封面，后续可为精选合集补图。
+Maintainers decide whether to use a cover. Before merging, they crop, compress, and archive it in the repository as needed, then add the repository image path to Markdown. The production website displays archived assets. Without a cover, use the corresponding category's default cover; selected collections may receive images later.
 
-封面与合集内容一起版本化、发布和回退。
+Covers are versioned, published, and rolled back with collection content.
 
-## PR 校验与人工审核
+## PR validation and human review
 
-贡献者提交 Markdown 的 PR；希望先推荐线索的用户，也可以通过 Issue 提供来源、场景和推荐理由，由维护者或贡献者补成正式投稿。
+Contributors submit Markdown through PRs. Users who want to suggest a lead first may open an Issue with sources, scenarios, and recommendation reasons. A maintainer or contributor can turn that lead into a complete submission.
 
-本地校验与 CI 使用同一套检查规则。CI 检查：
+Local validation and CI use the same rules. CI checks:
 
-- Markdown 和元数据能否解析，必填信息、类型和枚举是否符合模板。
-- 正文必需小节、Skill 引用和安装路径是否符合约定。
-- 合集标识、网址名称和合集来源标识是否冲突，条目标识在各自合集内是否唯一，更新是否保留稳定身份并满足版本规则；同一个 Skill 可以被多个合集引用。
-- 已归档的可选封面是否存在，文件格式和大小是否符合约定。
-- 正式发布所需的固定版本与核验字段是否完整，内容能否生成官网 JSON。
+- Markdown and metadata parsing, required information, types, and enums against the template.
+- Required body sections, Skill references, and installation paths.
+- Conflicting collection identifiers, slugs, and source identifiers; unique item IDs within a collection; stable identities and revision rules for updates. A Skill may appear in multiple collections.
+- Existence, supported formats, and size limits of optional archived covers.
+- Completeness of pinned versions and verification fields needed for publication, and the ability to generate website JSON.
 
-新投稿缺少维护信息时可给出补充提示；正式发布检查必须在维护者补齐后通过。模板将明确供稿必填字段与维护者管理字段。
+New submissions missing maintenance information may receive completion prompts. Formal publication checks must pass after maintainers complete that information. Templates distinguish contributor requirements from maintainer-managed fields.
 
-CI 通过表明格式和结构满足规则。维护者仍需审核推荐理由、出处、署名、收录范围、核验依据和封面使用依据，决定是否收录。人工审核通过、正式发布检查通过后才能合并发布；相关检查应配置为合并所需的条件。
+Passing CI means the format and structure meet the rules. Maintainers still review selection reasons, provenance, attribution, scope, verification evidence, and cover usage rights before deciding on inclusion. Human approval and publication validation must precede merging for publication. Configure relevant checks as required merge conditions.
 
-内容质量审核与实测记录分别保存。校验通过、固定版本或收录批准均不会自动产生“实测通过”的结论。
+Content review and actual testing records remain separate. Validation, pinned versions, and inclusion approval never automatically produce a successful test claim.
 
-## 本地 AI 投稿指导
+## Local AI contribution guidance
 
-开发者在本地打开仓库后，可以用 Codex、Claude Code 等工具，根据自然语言需求整理投稿。
+After opening the repository locally, developers may use Codex, Claude Code, or similar tools to prepare submissions from natural-language requests.
 
-| 文件 | 作用 |
+| File | Purpose |
 | --- | --- |
-| AGENTS.md | AI 共享入口，指向模板、格式规则与校验命令，规定新增和更新流程 |
-| CLAUDE.md | 引用共享入口，兼容 Claude Code，不复制整套规则 |
-| CONTRIBUTING.md | 面向贡献者的步骤、AI 使用示例、封面说明与常见校验问题 |
-| templates | 供人工与 AI 使用的同一套投稿模板和完整示例 |
+| AGENTS.md | Shared AI entry point linking templates, format rules, and validation commands, with rules for additions and updates |
+| CLAUDE.md | Imports the shared entry point for Claude Code without duplicating the rules |
+| CONTRIBUTING.md | Contributor steps, AI examples, cover guidance, and common validation problems |
+| templates | The same submission templates and complete examples for people and AI tools |
 
-Codex 支持读取仓库的 AGENTS.md。Claude Code 可通过 CLAUDE.md 中的 @AGENTS.md 引用共享指导；其他工具可通过贡献指南里的提示词明确读取入口文件。
+Codex supports the repository's AGENTS.md. Claude Code can import the shared guidance through `@AGENTS.md` in CLAUDE.md. Other tools can use the contribution guide's prompt to read the entry point explicitly.
 
-AI 按统一流程协助投稿：
+AI assistance follows the same workflow:
 
-1. 阅读贡献规则和模板，搜索已有合集，判断新增还是更新。
-2. 核对每个 Skill 的来源和位置，保留署名；无法确认的信息明确列为待补充。
-3. 按模板整理 Markdown，说明组合场景、作用和搭配依据；更新时保留稳定身份与无关内容。
-4. 运行与 CI 相同的本地校验，修正格式问题，保持 JSON 由既定生成流程产生。
-5. 汇报改动、校验结果、未确认信息及封面情况，根据开发者请求准备或提交 PR。
+1. Read contribution rules and templates, search existing collections, and decide whether to add or update.
+2. Check each Skill's source and location, preserve attribution, and mark unconfirmed information for completion.
+3. Prepare Markdown using the template, explaining scenarios, roles, and selection reasons. Updates preserve stable identities and unrelated content.
+4. Run the same local validation as CI and fix format errors. Keep JSON generation in the established pipeline.
+5. Report edits, validation results, unconfirmed facts, and cover status. Prepare or submit a PR when the developer requests it.
 
-上游 Skill 内容作为资料读取，实际执行测试需按开发者明确安排进行并记录结果。AI 不自行编造出处、作者、许可、测试结果或审核结论。
+Treat upstream Skill content as reference material. Actual execution requires the developer's explicit arrangement and recorded results. AI must not invent provenance, authors, licenses, test results, or review conclusions.
 
-## 官网同步与版本发布
+## Website synchronization and version publication
 
-审核合并后，正式内容或关联素材的更新触发自动任务，生成 JSON 并通知官网构建。
+After review and merging, updates to production content or associated assets trigger automated JSON generation and notify the website build.
 
-流程为：
+The flow is:
 
-**Markdown 投稿 → PR 校验 → 人工审核及补全 → 正式发布检查 → 合并 → 生成数据 → 官网构建 → 发布**
+**Markdown submission → PR validation → human review and completion → publication validation → merge → data generation → website build → publication**
 
-每次构建锁定一个数据仓库提交版本。索引、详情和封面来自同一份快照，构建成功后整批切换上线；拉取、校验或构建失败时保留原来的线上版本。
+Every build locks one data repository commit. The index, details, and covers come from the same snapshot and switch together after a successful build. Download, validation, or build failures retain the previous online version.
 
-记录每次部署对应的数据版本，支持回退到上一份完整发布。新打开或刷新网页的访客获取新内容，前期采用刷新后更新的方式。
+Record the data revision for each deployment and support rollback to the previous complete publication. New or refreshed pages receive updated content; the initial approach updates on refresh.
 
-官网计划接入 Cloudflare Pages，可通过部署触发器连接仓库更新事件。Skill 上游仓库的新提交需要经过合集内容更新流程，复核后才进入新的合集版本；官网同步跟随已审核的合集仓库内容。
+The website is planned to use Cloudflare Pages. A deploy hook can connect repository update events to builds. New upstream Skill commits must pass through the collection update and verification process before entering a new collection revision. Website synchronization follows reviewed collection repository content.
 
-## 首批内容与落地顺序
+## Initial content and implementation order
 
-以官网已有四个合集为起点：Taste Skill、Skills for Real Engineers、产品宣传视频、产品营销与增长。本阶段先迁移并回归验证前三个合集，产品营销与增长留待后续接入。迁移保留永久标识、网址、安装清单、双语内容和真实核验状态。
+Start with the website's four existing collections: Taste Skill, Skills for Real Engineers, Product Video, and Product Marketing and Growth. This phase migrates and regression-tests the first three; Product Marketing and Growth remains for later integration. Preserve permanent identifiers, URLs, installation lists, bilingual content, and actual verification states during migration.
 
-按以下顺序落地：
+Implementation order:
 
-1. 建立公开仓库，制定 Markdown 格式、贡献指南、AI 入口和投稿模板。
-2. 实现解析、JSON 生成、本地校验与 PR CI，用真实示例验证新增及更新流程。
-3. 迁移四个现有合集及素材，验证官网读取和版本一致性。
-4. 接通审核后自动构建、部署和回退流程，再开放社区投稿。
+1. Establish the public repository, Markdown format, contribution guide, AI entry point, and submission templates.
+2. Implement parsing, JSON generation, local validation, and PR CI; use real examples to verify additions and updates.
+3. Migrate the four existing collections and assets, verifying website consumption and version consistency.
+4. Connect approved automatic builds, deployment, and rollback before opening community contributions.
 
-第一阶段围绕文件、PR、CI 和维护者审核运行。需要数据库或更丰富的贡献界面时，再扩展内容管理方式。
+The first phase uses files, PRs, CI, and maintainer review. Extend content management later if a database or richer contribution interface becomes necessary.
 
-## 当前状态与依据
+## State at design approval and references
 
-当前官网已有统一的 JSON 合集内容源、列表索引生成和详情加载机制；Markdown 投稿格式、独立仓库、AI 贡献指导、PR CI 及跨仓库自动部署均为本方案的待实施内容。
+At the time of this design, the website already had a unified JSON collection source, index generation, and detail loading. Markdown submissions, the separate repository, AI contribution guidance, PR CI, and cross-repository deployment were still implementation work described by this design.
 
-- [当前官网合集数据](/Users/may/Desktop/ai/cursor/skills-hub-web/content/collections/README.md)
-- [当前官网合集数据约定](/Users/may/Desktop/ai/cursor/skills-hub-web/docs/collections-data-design.md)
-- [当前官网部署说明](/Users/may/Desktop/ai/cursor/skills-hub-web/README.md)
-- Codex 对 AGENTS.md 的读取方式：[OpenAI 官方文档](https://learn.chatgpt.com/docs/agent-configuration/agents-md)。
-- Claude Code 共享指导的引用方式：[Claude Code 官方文档](https://code.claude.com/docs/en/memory#share-one-file-with-other-coding-tools)。
-- PR 图片附件的提交方式：[GitHub 官方文档](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files)。
-- Cloudflare Pages 部署触发器：[Cloudflare 官方文档](https://developers.cloudflare.com/pages/configuration/deploy-hooks/)。
+- [Website collection migration comparison records](../tests/fixtures/site/)
+- [Imported website collection validation contract](../scripts/lib/site-contract.mjs)
+- [Website integration and deployment guidance](deployment.md)
+- Codex reads AGENTS.md: [OpenAI documentation](https://learn.chatgpt.com/docs/agent-configuration/agents-md).
+- Claude Code imports shared guidance: [Claude Code documentation](https://code.claude.com/docs/en/memory#share-one-file-with-other-coding-tools).
+- PR image attachments: [GitHub documentation](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files).
+- Cloudflare Pages deploy hooks: [Cloudflare documentation](https://developers.cloudflare.com/pages/configuration/deploy-hooks/).

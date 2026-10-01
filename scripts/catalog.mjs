@@ -13,7 +13,7 @@ const help = `Usage: node scripts/catalog.mjs COMMAND [OPTIONS]
   build [--preview] [--output PATH] [--source-revision SHA] [--base-dir PATH]
     Export approved collections atomically; preview includes complete pending records.
   new SLUG [--lang en|zh]
-    Create one pending draft with a permanent UUID. Replace source placeholders.
+    Create one English pending draft by default, with a permanent UUID. Replace source placeholders.
 
   --help  Show this help.
 
@@ -41,7 +41,7 @@ function argumentsFor(argv) {
   if (command === 'new' && positionals.length !== 1 || command !== 'new' && positionals.length) throw new Error(`Unexpected arguments\n${help}`);
   return {command,options,slug:positionals[0]};
 }
-async function newCollection(rootDir,slug,language='zh') {
+async function newCollection(rootDir,slug,language='en') {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug ?? '')) throw new Error('SLUG must contain lowercase letters, digits and single hyphens');
   if (!['zh','en'].includes(language)) throw new Error('--lang must be en or zh');
   const directory=path.join(rootDir,'collections',slug);

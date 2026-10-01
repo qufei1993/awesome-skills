@@ -1,7 +1,7 @@
 # Awesome Skills Implementation Plan
 
 **Goal:** Implement the approved Markdown catalog, PR validation, AI guidance, snapshot export and site sync; exercise Taste, Engineering and Product Video.
-**Spec:** docs/design.md
+**Spec:** [design.md](design.md)
 **Architecture:** Node.js 22 ESM; YAML frontmatter and Markdown AST; no upstream Skill execution. Markdown is the sole editable content. Generated JSON targets the existing Skills Hub contract.
 **Execution:** Root integrates independent parser, compiler and documentation tasks with tests and independent review.
 
