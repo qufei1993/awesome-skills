@@ -1,0 +1,28 @@
+name: 推荐合集 / Suggest a collection
+description: 提供真实来源和使用场景；中文或英文均可。
+title: "[Collection] "
+body:
+  - type: textarea
+    id: task
+    attributes:
+      label: 使用场景 / Task
+      description: 说明这组 Skills 解决什么问题，以及搭配理由。
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: 公开来源 / Public sources
+      description: 提供仓库、Skill 目录、公开推荐出处及作者线索；未知项请明确标注。
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 已核实与待核实 / Verified and open items
+      description: 说明版本、许可、资源范围及是否实际测试；未测试不填“通过”。
+  - type: textarea
+    id: cover
+    attributes:
+      label: 可选封面 / Optional cover
+      description: 可附图片及来源/使用依据；采用时由维护者归档。

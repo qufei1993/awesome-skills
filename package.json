@@ -1,0 +1,24 @@
+{
+  "name": "awesome-skills",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "validate": "node scripts/catalog.mjs validate",
+    "validate:publish": "node scripts/catalog.mjs validate --publish",
+    "build": "node scripts/catalog.mjs build",
+    "build:preview": "node scripts/catalog.mjs build --preview",
+    "check": "npm test && npm run validate && npm run build:preview",
+    "new:collection": "node scripts/catalog.mjs new",
+    "sync:site": "node scripts/sync-site.mjs"
+  },
+  "dependencies": {
+    "fflate": "^0.8.3",
+    "mdast-util-from-markdown": "^2.0.3",
+    "yaml": "^2.9.1"
+  }
+}
