@@ -26,7 +26,7 @@
 
 ## 参与贡献
 
-按[贡献指南](CONTRIBUTING.zh.md)写合集介绍、适用场景、使用建议和 GitHub 链接，仍只需一个 Markdown 文件。
+按[贡献指南](CONTRIBUTING.zh.md)，在一个 Markdown 文件中写合集介绍、适用场景、使用建议和 GitHub 链接。
 
 真实合集：[工程实践](collections/development/engineering/README.zh.md) · [302 AI 产品视频](collections/media/product-video/README.zh.md)。[AI 共享规则](AGENTS.md)。
 

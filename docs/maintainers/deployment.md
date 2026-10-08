@@ -2,18 +2,18 @@
 
 [Chinese version](deployment.zh.md)
 
-Submit a README and optional cover. CI resolves its upstream Skill links and generates website JSON automatically. No new `.catalog` file is required. See [data rules](format.md).
+Submit a README and optional cover. CI resolves its upstream Skill links and generates website JSON automatically. See [data rules](format.md).
 
 ## From PR to the website
 
 1. PR CI checks the README format, resolves upstream Skills, and builds a preview snapshot.
 2. Maintainers review the README and preview, then merge the PR into `main`.
 3. Trusted publication CI verifies the merged PR with `--reviewed-main`, builds the production snapshot, and publishes to the configured destination.
-4. The website reads the new `current.json` at runtime. Collection data updates do not require a website rebuild.
+4. The website reads the new `current.json` at runtime and loads the updated collection data.
 
-A snapshot is a complete set of collection data and cover assets. PR artifacts are named `catalog-preview-<snapshot-SHA>` and remain available for 30 days. Each contains `catalog-preview.zip` and its SHA256 checksum, without a wrapping directory. CI verifies its files and binds `sourceRevision` to the checked-out commit; the workflow summary also identifies the PR head.
+A snapshot is a complete set of collection data and cover assets. PR artifacts are named `catalog-preview-<snapshot-SHA>` and remain available for 30 days. Each contains `catalog-preview.zip` and its SHA256 checksum at the archive root. CI verifies its files and binds `sourceRevision` to the checked-out commit; the workflow summary also identifies the PR head.
 
-Checks alone do not grant approval. Previews retain pending records and are rejected by production consumers. Formal publication requires complete, active, approved records and rejects failed installation or workflow results. Source, resource, rights, and test evidence remain separate from approval; `needs-review` and `not-tested` remain visible.
+Previews include pending records for review. Production consumers require production snapshots with complete, active, approved records. Failed installation or workflow results block publication. Source, resource, rights, and test states reflect actual evidence; `needs-review` and `not-tested` remain visible.
 
 Trusted CI uses `CATALOG_USE_RELEASE_BASELINE=1` to load the previous production Release snapshot. Unchanged input retains its source commits, identity, and version history. A resolution or publication failure keeps the previous published version.
 
@@ -29,7 +29,7 @@ npm run dev:site -- --site ../skills-hub-web
 
 This generates a preview, serves its data, and starts the existing website. Default ports are 8775 for the website and 8776 for data. It watches READMEs, local covers, and compatibility metadata. Valid changes publish a complete preview version; failed changes leave the previous data available.
 
-Change an opening summary temporarily, check the website, then restore it and check again. Preserve unrelated edits. This requires no commit or upload.
+Change an opening summary temporarily, check the website, then restore that edit and check again.
 
 For automated website verification, install Google Chrome and run `npm run test:site -- --site ../skills-hub-web`. Tests use temporary copies and check lists, details, updates, image reuse, failed publication, and rollback.
 
@@ -43,7 +43,7 @@ npm run publish:data -- publish --from dist/collections --to dist/published --pr
 
 Replace `FULL_COMMIT_SHA` with the full 40-character source commit. Build and preview commands resolve upstream data and need network access. `npm run validate` checks only README format offline; add `--resolve-upstream` to resolve sources.
 
-For an already approved production snapshot, use `npm run build` and omit `--preview` from publication. New collections remain pending outside the trusted merged-PR publication workflow. Do not use `--reviewed-main` to approve a local build.
+For an already approved production snapshot, use `npm run build` and omit `--preview` from publication. Local builds keep new collections pending. The trusted merged-PR publication workflow uses `--reviewed-main` to approve them.
 
 The raw snapshot contains `index.json`, collection details, archived covers, and `manifest.json`. The manifest records each file's path, SHA256, and size. Published files use this layout:
 
@@ -58,7 +58,7 @@ dist/published/
   images/<SHA256>.<ext>
 ```
 
-The publication version is the SHA256 of the manifest bytes; `sourceRevision` is the source commit. `current.json` selects the snapshot and maps local cover paths to shared image objects. Unchanged local images upload only once. HTTPS covers remain direct links and are never downloaded or uploaded. Publication prepares all files before switching the pointer; failure preserves its previous value.
+The publication version is the SHA256 of the manifest bytes; `sourceRevision` is the source commit. `current.json` selects the snapshot and maps local cover paths to shared image objects. Identical local images share one uploaded object. HTTPS covers remain direct links. Publication prepares all files before switching the pointer; failure preserves its previous value.
 
 ## Configure R2 and the website
 
@@ -72,9 +72,9 @@ Set these GitHub repository variables and secrets:
 | `CATALOG_R2_ACCESS_KEY_ID` | Secret | R2 access key ID |
 | `CATALOG_R2_SECRET_ACCESS_KEY` | Secret | R2 secret access key |
 
-Serve the bucket through a public endpoint that allows the website origin to read its files. Set the website's `VITE_COLLECTIONS_BASE_URL` to the data root containing `current.json`. Only local or test environments may use `VITE_COLLECTIONS_ALLOW_PREVIEW=true`. Without a remote base URL, the existing local snapshot path remains available.
+Serve the bucket through a public endpoint that allows the website origin to read its files. Set the website's `VITE_COLLECTIONS_BASE_URL` to the data root containing `current.json`. Use `VITE_COLLECTIONS_ALLOW_PREVIEW=true` for local or test environments. An unset remote base URL selects the existing local snapshot path.
 
-Without a publication mode, CI retains the snapshot artifact and Release but reports upload disabled. Enabled R2 publication fails if configuration is incomplete. The workflow serializes publication and checks the latest `main` before upload and immediately before switching `current.json`. A stale revision skips that switch. R2 uses a conditional pointer write; these checks do not form an atomic transaction across GitHub and R2.
+Set `CATALOG_PUBLICATION_MODE=r2` and complete the R2 settings to enable uploads. An unset mode keeps the snapshot artifact and Release available. Incomplete R2 settings fail publication. The workflow serializes publication and checks the latest `main` before upload and immediately before switching `current.json`. A stale revision skips that switch. GitHub revision checks and the R2 conditional pointer write are separate operations.
 
 For a manual upload of a verified production snapshot, provide the same R2 variables securely and run:
 

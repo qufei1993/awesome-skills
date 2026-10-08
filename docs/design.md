@@ -1,6 +1,6 @@
 # Awesome Skills Repository Design
 
-Awesome Skills is the public collection source and contribution entry point for Skills Hub. Contributors describe a collection in one README. Existing website installation and review data remains in versioned internal system files.
+Awesome Skills is the public collection source and contribution entry point for Skills Hub. Contributors describe a collection in one README. CI reads its Skill links and generates website data.
 
 ## Content and layout
 
@@ -28,7 +28,6 @@ awesome-skills/
       engineering/
         README.md
         README.zh.md
-        cover.png
   CONTRIBUTING.md
   CONTRIBUTING.zh.md
   AGENTS.md
@@ -36,40 +35,38 @@ awesome-skills/
   docs/
 ```
 
-The real [engineering](../collections/development/engineering/README.md) and [302 AI product video](../collections/media/product-video/README.md) collections show the readable format. Root READMEs show the generated browsing directory and contribution entry point.
+The real [engineering](../collections/development/engineering/README.md), [302 AI product video](../collections/media/product-video/README.md), and [Superpowers](../collections/development/superpowers/README.md) collections show the format. Root READMEs provide the browsing directory and contribution entry point.
 
-## Presentation and retained data
+## Website data generation
 
-The title, description, overview, scenarios, and usage, including translations, come only from the collection READMEs. These fields match the website's existing sections.
+The title, description, overview, scenarios, and usage, including translations, come from the collection READMEs. These fields match the website's sections.
 
-Versioned `.catalog/<slug>.json` files preserve machine data converted from the previous website records: identities, versions, installation items, provenance, verification, and review. They omit the five presentation fields and the same-name localized fields. Generation combines README presentation with retained data. Contributors do not maintain internal files.
+CI resolves each GitHub link to a fixed commit. File links include one Skill; directory and repository links recursively include their Skills. Descriptions, installation directories, and license evidence come from the same commit. Generated JSON goes under `dist/`.
 
-Maintainers preserve identity, source history, versions, and installation relationships. Directory and repository links define inclusion scope; they do not define website groups or dependency bundles. Maintainers verify actual contents and use upstream Skill descriptions. Internal data does not update automatically from remote repositories.
+The three migrated `.catalog/*.json` records preserve existing identities, versions, groups, and installation relationships. Subsequent generation uses the previous production snapshot as its baseline. Unchanged input reuses its source commits; changed input advances the generated revision.
 
-The [internal data notes](maintainers/format.md) explain this boundary. Detailed types remain in the [website data contract](../scripts/lib/site-contract.mjs).
+See [data rules](maintainers/format.md) for generation and review details, and the [website data contract](../scripts/lib/site-contract.mjs) for field definitions.
 
 ## Validation and publication
 
-CI checks required sections, paragraph and scenario structure, URL syntax, and retained publication data. It does not fetch upstream sources, execute Skill instructions, or download remote covers. Valid submissions can appear in the GitHub browsing directory; new submissions without verified publication data stay outside website snapshots.
+PR CI checks the README format, resolves upstream Skills, and generates a downloadable preview snapshot. Maintainers review the README and preview, then merge the PR into `main`. Trusted publication CI verifies the merged PR and generates production data.
 
-Production requires complete, active, approved records and blocks failed installation or workflow results. Preview may include complete pending data; incomplete submissions remain excluded. Source, file, resource, and image-rights `needs-review` states and `not-tested` results remain visible without being upgraded by display approval.
+Production requires complete, active, approved records. Preview includes complete pending records for review. Verification states reflect actual evidence: `needs-review` marks pending checks, and `not-tested` marks pending tests. Failed installation or workflow results block production.
 
 ## Optional covers
 
 A README may show a standalone Markdown image after its opening summary, using a local file or HTTPS image URL. Contributors may instead upload an image or paste its URL in a PR description or comment and explain its source.
 
-HTTPS images remain direct links; local images are archived with the collection. CI does not download images. Covers remain optional and are versioned with the collection.
+HTTPS images remain direct links; local images enter the snapshot. Covers are optional and versioned with the collection.
 
 ## Local AI guidance
 
-AGENTS.md is the shared entry point; CLAUDE.md references it. AI tools read the contribution guide, search existing collections, and edit the README from supplied sources. They preserve attribution, report local changes, and push or open a PR only when requested.
-
-Upstream instructions are reference material. AI tools do not execute them or invent authors, licenses, versions, tests, or approval. Internal system files are not a contributor task.
+AGENTS.md is the shared entry point; CLAUDE.md references it. AI tools read the contribution guide, search existing collections, and edit the README from supplied sources. They preserve attribution, use source evidence, and report local changes. Executing upstream instructions, pushing, opening a PR, merging, and deploying require a user request.
 
 ## Website data pipeline and migration
 
-The pipeline reads README presentation and internal metadata, builds the existing JSON snapshot, then publishes it for the website to read at runtime. The raw snapshot contract is unchanged. The publisher hashes the exact `manifest.json` bytes for its version, stores JSON under `snapshots/<version>/`, and switches `current.json` only after the complete version is ready. Its assets map resolves archived logical image paths to shared `images/<SHA256>.<ext>` objects, so unchanged images are stored once across releases.
+The pipeline generates a JSON snapshot and publishes it for the website to read at runtime. The publisher hashes `manifest.json` bytes for the version, stores JSON under `snapshots/<version>/`, and switches `current.json` after the complete version is ready. Local covers use shared `images/<SHA256>.<ext>` objects, so identical images share one uploaded object.
 
-`npm run dev:site -- --site ../skills-hub-web` watches this repository, builds and publishes local preview data, and runs the existing website with updates. Production websites use `VITE_COLLECTIONS_BASE_URL`; explicit preview permission is only for local tests. Direct snapshot-copy synchronization remains available. Local publication and optional R2 upload are separate; absent cloud configuration establishes no online deployment. Commands and configuration are in [deployment](maintainers/deployment.md).
+`npm run dev:site -- --site ../skills-hub-web` watches this repository, publishes local preview data, and runs the website. Configure R2 and `VITE_COLLECTIONS_BASE_URL` for cloud publication. Commands, website configuration, and rollback are in [deployment](maintainers/deployment.md).
 
-The initial migration covers Taste Skill, Skills for Real Engineers, and Product Video. Their stable IDs, installation relationships, translations, and existing user display approval are preserved. Subsequent content changes follow revision and review rules. Display/install counts remain 13/13, 31/31, and 3/14. Product Marketing and Growth remains for later integration. New upstream changes retain their actual verification evidence.
+The initial migration covers Taste Skill, Skills for Real Engineers, and Product Video. Their stable IDs, installation relationships, translations, and existing approval are preserved. Display/install counts are 13/13, 31/31, and 3/14. New collections use the automatic generation flow.
