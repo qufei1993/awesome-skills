@@ -2,14 +2,13 @@ import { categories, categoryLabels } from './categories.mjs';
 import { mkdir, mkdtemp, readFile, readdir, lstat, rename, rm, realpath, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { parseCollectionMarkdown, parseTranslationMarkdown } from './markdown.mjs';
 import { parseContributionMarkdown } from './contribution.mjs';
 import { validateCollection, indexItem, externalCoverUrl } from './site-contract.mjs';
+import { resolveSubmission, collectionId } from './upstream.mjs';
+import { collectionInputs } from './generation-context.mjs';
 
 const SHA = /^[a-f0-9]{40}$/i;
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const PLACEHOLDER_ID = '00000000-0000-4000-8000-000000000000';
-const PLACEHOLDER_DATE = '1970-01-01T00:00:00Z';
 const START = '<!-- catalog:start -->';
 const END = '<!-- catalog:end -->';
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -59,48 +58,6 @@ function ownedFields(data, file) {
       keys(item.license,['identifier','evidenceUrl'],file,'skills.installationItems.license');
     }
   }
-}
-function validationDocument(document, pending) {
-  const data = structuredClone(document);
-  if (!pending) return data;
-  if (data.schemaVersion === undefined) data.schemaVersion = 1;
-  if (data.id === undefined) data.id = PLACEHOLDER_ID;
-  if (data.revision === undefined) data.revision = 1;
-  if (data.createdAt === undefined) data.createdAt = PLACEHOLDER_DATE;
-  if (data.updatedAt === undefined) data.updatedAt = data.createdAt;
-  if (data.sourceKeys === undefined) data.sourceKeys = [`draft:${data.slug}`];
-  if (data.status === undefined) data.status = 'active';
-  if (data.status === 'draft') data.status = 'active';
-  if (data.review === undefined) data.review = {status:'pending',notes:[]};
-  if (plain(data.review)) if (data.review.notes === undefined) data.review.notes = [];
-  if (data.cover === undefined) data.cover = {kind:'concept',preset:'neutral',alt:data.title};
-  if (data.verification === undefined) data.verification = {};
-  if (plain(data.verification)) {
-    if (data.verification.source === undefined) data.verification.source = 'needs-review'; if (data.verification.files === undefined) data.verification.files = 'needs-review';
-    if (data.verification.installation === undefined) data.verification.installation = 'not-tested'; if (data.verification.workflow === undefined) data.verification.workflow = 'not-tested';
-    if (data.verification.checkedAt === undefined) data.verification.checkedAt = PLACEHOLDER_DATE; if (data.verification.notes === undefined) data.verification.notes = [];
-  }
-  const sources=[data.provenance?.repositoryScope,...(data.skills ?? []).flatMap(skill=>[skill.entry,...(skill.installationItems ?? [])])].filter(plain);
-  const commits=new Map();
-  for (const source of sources) if (typeof source.repo === 'string' && typeof source.commit === 'string') {
-    const key=source.repo.toLowerCase(),known=commits.get(key) ?? new Set();
-    known.add(source.commit); commits.set(key,known);
-  }
-  const fillCommit = (source,preferred) => {
-    if (!plain(source) || source.commit !== undefined) return;
-    const known=commits.get(source.repo?.toLowerCase());
-    source.commit=preferred ?? (known?.size === 1 ? [...known][0] : '0'.repeat(40));
-  };
-  fillCommit(data.provenance?.repositoryScope);
-  for (const evidence of data.provenance?.evidence ?? []) if (plain(evidence)) if (evidence.checkedAt === undefined) evidence.checkedAt = PLACEHOLDER_DATE;
-  for (const skill of data.skills ?? []) {
-    const entryItem=(skill.installationItems ?? []).find(item=>item.repo?.toLowerCase() === skill.entry?.repo?.toLowerCase() && (item.directory === '.' ? 'SKILL.md' : `${item.directory}/SKILL.md`) === skill.entry?.entryPoint);
-    fillCommit(skill.entry,entryItem?.commit);
-    if (skill.resourceCheck === undefined) skill.resourceCheck = 'needs-review';
-    if (skill.resourceNotes === undefined) skill.resourceNotes = 'Resource verification is pending.';
-    for (const item of skill.installationItems ?? []) fillCommit(item,item === entryItem ? skill.entry?.commit : undefined);
-  }
-  return data;
 }
 function sourcePaths(data, file) {
   for (const directory of data.provenance?.repositoryScope?.directories ?? []) safePath(directory,file,'provenance.repositoryScope.directories',true);
@@ -174,104 +131,6 @@ async function coverAsset(rootDir, directory, parsed, file, publicReadmes) {
   document.cover.url = `/data/collections/${assetPath}`;
   return {path:assetPath,bytes,info};
 }
-function mergePresentation(left, right) {
-  const mergeEntries = (previous, updates) => {
-    const merged={...previous};
-    for (const [id, fields] of Object.entries(updates ?? {})) merged[id]={...previous?.[id],...fields};
-    return merged;
-  };
-  const result={...left,...right};
-  if (left?.skills || right?.skills) result.skills=mergeEntries(left?.skills,right?.skills);
-  if (left?.provenance || right?.provenance) result.provenance={...left?.provenance,...right?.provenance};
-  if (left?.provenance?.evidence || right?.provenance?.evidence) result.provenance.evidence=mergeEntries(left?.provenance?.evidence,right?.provenance?.evidence);
-  return result;
-}
-function presentationOf(data) {
-  return {
-    title:data.title,description:data.description,overview:data.overview,scenarios:data.scenarios,usage:data.usage,tags:data.tags,coverAlt:data.cover?.alt,
-    skills:Object.fromEntries(data.skills.map(s=>[s.id,{summary:s.summary,...(s.role !== undefined ? {role:s.role}:{})}])),
-    provenance:{...(data.provenance.selectionReason !== undefined ? {selectionReason:data.provenance.selectionReason}:{}),evidence:Object.fromEntries(data.provenance.evidence.map(e=>[e.id,{title:e.title,location:e.location,finding:e.finding}]))},
-  };
-}
-function checkPresentation(presentation,data,file) {
-  if (!plain(presentation)) fail(file,'translation','must be an object');
-  keys(presentation,['title','description','overview','scenarios','usage','tags','coverAlt','provenance','skills'],file,'translation');
-  if (presentation.skills !== undefined) {
-    if (!plain(presentation.skills)) fail(file,'translation.skills','must be an object');
-    for (const [id,skill] of Object.entries(presentation.skills)) {
-      if (!plain(skill)) fail(file,`translation.skills.${id}`,'must be an object');
-      keys(skill,['summary','role'],file,`translation.skills.${id}`);
-      if (!data.skills.some(s=>s.id === id)) fail(file,`translation.skills.${id}`,'refers to an unknown Skill ID');
-    }
-  }
-  if (presentation.provenance !== undefined) {
-    if (!plain(presentation.provenance)) fail(file,'translation.provenance','must be an object');
-    keys(presentation.provenance,['selectionReason','evidence'],file,'translation.provenance');
-    if (presentation.provenance.evidence !== undefined) {
-      if (!plain(presentation.provenance.evidence)) fail(file,'translation.provenance.evidence','must be an object');
-      for (const [id,evidence] of Object.entries(presentation.provenance.evidence)) {
-        if (!plain(evidence)) fail(file,`translation.provenance.evidence.${id}`,'must be an object');
-        keys(evidence,['title','location','finding'],file,`translation.provenance.evidence.${id}`);
-        if (!data.provenance.evidence.some(e=>e.id === id)) fail(file,`translation.provenance.evidence.${id}`,'refers to an unknown evidence ID');
-      }
-    }
-  }
-}
-function applyPresentation(data,presentation) {
-  for (const field of ['title','description','overview','scenarios','usage','tags']) if (presentation[field] !== undefined) data[field]=presentation[field];
-  if (presentation.coverAlt !== undefined) data.cover.alt=presentation.coverAlt;
-  for (const skill of data.skills) Object.assign(skill,presentation.skills?.[skill.id] ?? {});
-  if (presentation.provenance?.selectionReason !== undefined) data.provenance.selectionReason=presentation.provenance.selectionReason;
-  for (const evidence of data.provenance.evidence) Object.assign(evidence,presentation.provenance?.evidence?.[evidence.id] ?? {});
-}
-async function translations(rootDir,directory,parsed,canonicalFile,{publicReadmes=false}={}) {
-  const data=parsed.document,localized={...data.localizations};
-  const directoryPresentations={ [parsed.language]:{title:data.title,description:data.description} };
-  for (const language of ['en','zh']) {
-    const file=path.join(directory,`README.${language}.md`);
-    if (file === canonicalFile) continue;
-    let source;
-    try { await contained(rootDir,file,file,'translation'); source=await readFile(file,'utf8'); } catch(error) {if (error.code === 'ENOENT') continue; throw error;}
-    if (publicReadmes && !/^---[ \t]*(?:\r?\n|$)/.test(source.replace(/^\uFEFF/,''))) continue;
-    const translated=parseTranslationMarkdown(source,{filename:file});
-    if (translated.id !== data.id) fail(file,'id','must match the canonical collection identity');
-    if (translated.language !== language) fail(file,'language','must match the translation filename');
-    if (language === parsed.language) fail(file,'language','must differ from the canonical document language');
-    checkPresentation(translated.presentation,data,file);
-    localized[language]=mergePresentation(localized[language],translated.presentation);
-  }
-  for (const presentation of Object.values(localized)) checkPresentation(presentation,data,directory);
-  for (const language of ['en','zh']) if (language !== parsed.language && localized[language]) {
-    const presentation=localized[language];
-    directoryPresentations[language]={title:presentation.title,description:presentation.description};
-  }
-  const baseLanguage=parsed.language === 'en' && localized.zh ? 'zh' : parsed.language;
-  if (parsed.language === 'en' && localized.zh) {
-    const original=presentationOf(data);
-    applyPresentation(data,localized.zh);
-    localized.en=mergePresentation(original,localized.en);
-  } else if (parsed.language === 'zh' && localized.zh) {
-    fail(directory,'localizations.zh','must not override the canonical Chinese body');
-  }
-  delete localized.zh;
-  if (Object.keys(localized).length) data.localizations=localized;
-  else delete data.localizations;
-  return {baseLanguage,directoryPresentations};
-}
-function curatorFields(curator,file) {
-  if (curator === undefined) return;
-  if (typeof curator !== 'string' && !plain(curator)) fail(file,'curator','must be a name or object');
-  keys(curator,['name','url'],file,'curator');
-  const name=typeof curator === 'string' ? curator : curator.name;
-  if (typeof name !== 'string' || !name.trim() || /[\u0000-\u001f\u007f]/.test(name)) fail(file,'curator.name','must be nonempty text without control characters');
-  if (plain(curator) && curator.url !== undefined) {
-    if (typeof curator.url !== 'string' || !curator.url.trim() || /[\u0000-\u001f\u007f]/.test(curator.url)) fail(file,'curator.url','must be a URL without control characters');
-    let url;
-    try {url=new URL(curator.url);} catch {fail(file,'curator.url','must be an HTTP(S) URL');}
-    if (!['http:','https:'].includes(url.protocol) || url.username || url.password) fail(file,'curator.url','must be an HTTP(S) URL without credentials');
-  }
-  return {name,...(plain(curator) && curator.url !== undefined ? {url:curator.url}:{})};
-}
 function comparable(data) {
   const value=structuredClone(data);
   delete value.revision; delete value.updatedAt; delete value.review;
@@ -289,7 +148,7 @@ function checkBase(records, base) {
     if (!next) fail(previous.file,'id','stable identity was removed; archive existing collections instead');
     const data=next.document;
     for (const field of ['slug','createdAt']) if (old[field] !== undefined && old[field] !== data[field]) fail(next.file,field,'must preserve the existing stable identity');
-    if (previous.kind === 'submission') continue;
+    if (!previous.complete) continue;
     if ((old.sourceKeys ?? []).some(key => !data.sourceKeys?.includes(key))) fail(next.file,'sourceKeys','must preserve historical source keys');
     for (const skill of old.skills) {
       if (data.skills.some(s => s.id === skill.id)) continue;
@@ -312,49 +171,8 @@ async function canonicalFile(directory) {
   try {await lstat(english); return english;} catch(error) {if (error.code !== 'ENOENT') throw error;}
   return path.join(directory,'README.zh.md');
 }
-async function maintainerFile(directory) {
-  const files=[];
-  for (const name of ['record.md','record.zh.md']) {
-    const file=path.join(directory,name);
-    try {await lstat(file); files.push(file);} catch(error) {if (error.code !== 'ENOENT') throw error;}
-  }
-  if (files.length > 1) fail(directory,'record','requires exactly one maintainer record');
-  return files[0];
-}
 function submissionPresentation({title,description,overview,scenarios,usage}) {
   return {title,description,overview,scenarios,usage};
-}
-async function internalMetadata(rootDir) {
-  const directory=path.join(rootDir,'.catalog'),records=new Map();
-  try {await lstat(directory);} catch(error) {if (error.code === 'ENOENT') return records; throw error;}
-  await contained(rootDir,directory,directory,'metadata');
-  if (!(await stat(directory)).isDirectory()) fail(directory,'metadata','must be a directory');
-  for (const name of await readdir(directory)) {
-    if (!name.endsWith('.json')) continue;
-    const slug=name.slice(0,-5),file=path.join(directory,name);
-    if (!SLUG.test(slug)) fail(file,'metadata.slug','must be a lowercase slug filename');
-    await contained(rootDir,file,file,'metadata');
-    if (!(await stat(file)).isFile()) fail(file,'metadata','must be a JSON file');
-    let parsed;
-    try {parsed=JSON.parse(await readFile(file,'utf8'));} catch(error) {fail(file,'metadata.JSON',`must be valid JSON: ${error.message}`);}
-    if (!plain(parsed)) fail(file,'metadata','must be an object');
-    keys(parsed,['language','document','coverFile'],file,'metadata');
-    if (!['en','zh'].includes(parsed.language)) fail(file,'metadata.language','must be en or zh');
-    if (!plain(parsed.document)) fail(file,'metadata.document','must be an object');
-    if (parsed.document.slug !== slug) fail(file,'metadata.slug','must match its filename');
-    for (const [location,presentation] of [['document',parsed.document],...Object.entries(parsed.document.localizations ?? {}).map(([language,value])=>[`localizations.${language}`,value])]) {
-      for (const field of ['title','description','overview','scenarios','usage']) if (Object.hasOwn(presentation ?? {},field)) fail(file,`metadata.${location}.${field}`,'display fields must come only from public README files');
-    }
-    if (parsed.coverFile !== undefined) safePath(parsed.coverFile,file,'metadata.coverFile');
-    ownedFields(parsed.document,file);
-    if (parsed.document.localizations !== undefined) {
-      if (!plain(parsed.document.localizations)) fail(file,'metadata.localizations','must be an object');
-      keys(parsed.document.localizations,['en','zh'],file,'metadata.localizations');
-      for (const presentation of Object.values(parsed.document.localizations)) checkPresentation(presentation,parsed.document,file);
-    }
-    records.set(slug,{file,parsed});
-  }
-  return records;
 }
 async function contributionCover(directory,contribution,file) {
   if (!contribution.cover || contribution.cover.url.startsWith('https://')) return;
@@ -368,122 +186,65 @@ function matchingContributions(contribution,canonicalContribution,file) {
   if (contribution.sourceUrl !== canonicalContribution.sourceUrl) fail(file,'sourceUrl','must match the canonical submission attribution');
   if (contribution.cover?.url !== canonicalContribution.cover?.url) fail(file,'cover.url','must match the canonical submission cover URL');
 }
-function commonDirectory(items) {
-  let prefix=items[0].directory === '.' ? [] : items[0].directory.split('/');
-  for (const item of items.slice(1)) {
-    const parts=item.directory === '.' ? [] : item.directory.split('/');
-    const differing=prefix.findIndex((part,index)=>part !== parts[index]);
-    if (differing >= 0) prefix=prefix.slice(0,differing);
-  }
-  return prefix.join('/') || '.';
-}
-const directoryWithin=(directory,boundary)=>boundary === '.' || directory === boundary || directory.startsWith(`${boundary}/`);
-function publicInstallationScope(data,contribution,file) {
-  const unique=new Map();
-  for (const skill of data.skills) for (const item of skill.installationItems ?? []) unique.set(`${item.repo.toLowerCase()}\0${item.commit}\0${item.directory}`,item);
-  const items=[...unique.values()],covered=new Set();
-  for (const link of contribution.links) {
-    const parts=new URL(link).pathname.slice(1).split('/').map(decodeURIComponent),repo=`${parts[0]}/${parts[1]}`,kind=parts[2];
-    const directory=kind === 'blob' ? parts.slice(4,-1).join('/') || '.' : kind === 'tree' ? parts.slice(4).join('/') || '.' : '.';
-    const matches=items.filter(item=>item.repo.toLowerCase() === repo && (kind === 'blob' ? item.directory === directory : directoryWithin(item.directory,directory)));
-    if (!matches.length) fail(file,'links','scope does not match any recorded installation directory');
-    if (SHA.test(parts[3] ?? '') && matches.some(item=>item.commit?.toLowerCase() !== parts[3].toLowerCase())) fail(file,'links','commit must match the recorded installation version');
-    if (kind !== 'blob') {
-      const declared=data.provenance?.repositoryScope;
-      const boundaries=declared?.repo?.toLowerCase() === repo ? declared.directories : data.skills.flatMap(skill=>{
-        const group=(skill.installationItems ?? []).filter(item=>item.repo.toLowerCase() === repo);
-        return !group.length ? [] : skill.installationMode === 'bundle' ? [commonDirectory(group)] : group.map(item=>item.directory);
-      });
-      if (!boundaries?.some(boundary=>directoryWithin(directory,boundary))) fail(file,'links','scope must stay within the recorded repository or bundle directories');
-    }
-    for (const item of matches) covered.add(item);
-  }
-  if (covered.size !== items.length) fail(file,'links','must cover every recorded installation directory');
-}
-async function publicPresentations(rootDir,directory,data,baseLanguage,{metadataFile,requiredLanguage}={}) {
-  const publicReadmes={},browseFiles={},directoryPresentations={};
-  let canonicalContribution;
-  for (const [name,language] of [['README.md','en'],['README.zh.md','zh']]) {
-    const file=path.join(directory,name);
-    let source;
-    try {await contained(rootDir,file,file,'README'); source=await readFile(file,'utf8');} catch(error) {if (error.code === 'ENOENT') continue; throw error;}
-    if (/^---[ \t]*(?:\r?\n|$)/.test(source.replace(/^\uFEFF/,''))) {
-      if (metadataFile) fail(metadataFile,'metadata','cannot coexist with a full public README');
-      fail(file,'README','must be a simple public contribution beside the maintainer record');
-    }
-    const contribution=parseContributionMarkdown(source,{filename:file});
-    if (canonicalContribution) matchingContributions(contribution,canonicalContribution,file);
-    else {canonicalContribution=contribution; publicInstallationScope(data,contribution,file);}
-    await contributionCover(directory,contribution,file);
-    const presentation=submissionPresentation(contribution);
-    if (baseLanguage === 'en' && language === 'zh') {
-      const english=mergePresentation(mergePresentation(presentationOf(data),data.localizations?.en),directoryPresentations.en);
-      const chinese=data.localizations?.zh;
-      if (chinese) checkPresentation(chinese,data,file);
-      applyPresentation(data,{...chinese,...presentation});
-      data.localizations={...data.localizations,en:english}; delete data.localizations.zh;
-      baseLanguage='zh';
-    } else if (language === baseLanguage) Object.assign(data,presentation);
-    else data.localizations={...data.localizations,[language]:mergePresentation(data.localizations?.[language],presentation)};
-    publicReadmes[language]=contribution; browseFiles[language]=file; directoryPresentations[language]=presentation;
-  }
-  if (requiredLanguage && !publicReadmes[requiredLanguage]) fail(metadataFile,'metadata',`${requiredLanguage === 'en' ? 'README.md' : 'README.zh.md'} is required for its base language`);
-  if (!canonicalContribution) fail(directory,'README','requires at least one simple public README beside the maintainer record');
-  return {publicReadmes,browseFiles,directoryPresentations,baseLanguage};
-}
-async function submissionRecord(rootDir,entry,file,source) {
-  if (entry.historical) fail(file,'category','lightweight submissions require a fixed category and nested slug directory');
+async function submissionRecord(entry,file,source) {
   const contribution=parseContributionMarkdown(source,{filename:file});
   await contributionCover(entry.directory,contribution,file);
   const language=path.basename(file) === 'README.md' ? 'en' : 'zh';
   const directoryPresentations={[language]:submissionPresentation(contribution)};
   const browseFiles={[language]:file};
+  const publicReadmes={[language]:contribution};
   for (const [name,translationLanguage] of [['README.md','en'],['README.zh.md','zh']]) {
     const translationFile=path.join(entry.directory,name);
     if (translationFile === file) continue;
     let translationSource;
-    try {await contained(rootDir,translationFile,translationFile,'translation'); translationSource=await readFile(translationFile,'utf8');}
+    try {await contained(entry.directory,translationFile,translationFile,'translation'); translationSource=await readFile(translationFile,'utf8');}
     catch(error) {if (error.code === 'ENOENT') continue; throw error;}
     const translated=parseContributionMarkdown(translationSource,{filename:translationFile});
     matchingContributions(translated,contribution,translationFile);
     await contributionCover(entry.directory,translated,translationFile);
     directoryPresentations[translationLanguage]=submissionPresentation(translated);
     browseFiles[translationLanguage]=translationFile;
+    publicReadmes[translationLanguage]=translated;
   }
   const document={slug:entry.name,category:entry.category,...directoryPresentations[language],status:'draft',skills:[],links:contribution.links};
   if (contribution.sourceUrl !== undefined) document.sourceUrl=contribution.sourceUrl;
   if (contribution.cover !== undefined) document.cover=contribution.cover;
-  return {kind:'submission',document,file,language,baseLanguage:language,directoryPresentations,browseFiles,complete:false};
+  return {kind:'submission',document,file,directory:entry.directory,language,baseLanguage:language,directoryPresentations,browseFiles,publicReadmes,complete:false};
 }
-async function readCatalog(rootDir, mode, {allowMissingCollections=false,allowHistoricalFlat=false}={}) {
-  const metadata=await internalMetadata(rootDir);
+function applySubmissionPresentation(record, data) {
+  const english=record.publicReadmes.en, chinese=record.publicReadmes.zh;
+  if (english && chinese) {
+    data.localizations={en:{...submissionPresentation(english),coverAlt:english.cover?.alt || english.title}};
+    Object.assign(data,submissionPresentation(chinese));
+    data.cover.alt=chinese.cover?.alt || chinese.title;
+    return 'zh';
+  }
+  Object.assign(data,submissionPresentation(english ?? chinese));
+  delete data.localizations;
+  return record.language;
+}
+async function readCatalog(rootDir, mode, {allowMissingCollections=false,resolveSources=false,previousRecords=new Map(),previousAssetHashes=new Map(),reviewApproval,request,previousTrusted=false}={}) {
   const collectionDir=path.join(rootDir,'collections');
   let entries;
   try {entries=await readdir(collectionDir,{withFileTypes:true});}
   catch (error) {
     if (!allowMissingCollections || error.code !== 'ENOENT') throw error;
     await stat(rootDir);
-    try {await lstat(collectionDir);} catch (missing) {if (missing.code === 'ENOENT') {if (metadata.size) fail(rootDir,'metadata','orphan data has no matching collection directory'); return [];} throw missing;}
+    try {await lstat(collectionDir);} catch (missing) {if (missing.code === 'ENOENT') return []; throw missing;}
     throw error;
   }
   await contained(rootDir,collectionDir,collectionDir,'collections');
-  const records=[];
-  const registries = {id:new Map(),slug:new Map(),sourceKeys:new Map()};
-  const candidates=[];
+  const records=[],candidates=[];
+  const registries={id:new Map(),slug:new Map(),sourceKeys:new Map()};
   for (const category of entries.sort((a,b)=>a.name.localeCompare(b.name))) {
     if (category.name.startsWith('.')) continue;
     const categoryDir=path.join(collectionDir,category.name);
     if (!(await stat(categoryDir)).isDirectory()) continue;
     await contained(rootDir,categoryDir,category.name,'category');
-    let flat=false;
-    for (const name of ['README.md','README.zh.md','record.md','record.zh.md']) {
-      try {await lstat(path.join(categoryDir,name));flat=true;} catch(error) {if (error.code !== 'ENOENT') throw error;}
-    }
-    if (flat && !allowHistoricalFlat) fail(categoryDir,'category','requires a nested slug directory for each collection');
-    if (flat || !categories.includes(category.name)) {
-      if (!allowHistoricalFlat) fail(categoryDir,'category','is unknown; use a fixed category directory');
-      candidates.push({name:category.name,directory:categoryDir,historical:true});
-      continue;
+    if (!categories.includes(category.name)) fail(categoryDir,'category','is unknown; use a fixed category directory');
+    for (const name of ['README.md','README.zh.md']) {
+      try {await lstat(path.join(categoryDir,name));fail(categoryDir,'category','requires a nested slug directory for each collection');}
+      catch(error) {if (error.code !== 'ENOENT') throw error;}
     }
     for (const entry of await readdir(categoryDir,{withFileTypes:true})) {
       if (entry.name.startsWith('.')) continue;
@@ -492,66 +253,85 @@ async function readCatalog(rootDir, mode, {allowMissingCollections=false,allowHi
       candidates.push({name:entry.name,directory,category:category.name});
     }
   }
-  for (const [slug,{file}] of metadata) if (!candidates.some(entry=>entry.name === slug)) fail(file,'metadata','is orphan data without a matching collection directory');
   for (const entry of candidates) {
     const directory=entry.directory;
     if (!SLUG.test(entry.name)) fail(entry.name,'directory','must be a lowercase slug');
     await contained(rootDir,directory,entry.name,'directory');
-    const recordFile=await maintainerFile(directory),internal=metadata.get(entry.name),filename=internal?.file ?? recordFile ?? await canonicalFile(directory);
-    if (internal && recordFile) fail(filename,'metadata','cannot coexist with a legacy record file');
-    await contained(rootDir,filename,entry.name,path.basename(filename));
-    const source=internal ? undefined : await readFile(filename,'utf8');
-    if (!internal && !/^---[ \t]*(?:\r?\n|$)/.test(source.replace(/^\uFEFF/,''))) {
-      if (recordFile) fail(filename,'record','must contain a complete frontmatter maintainer record');
-      const record=await submissionRecord(rootDir,entry,filename,source);
-      if (registries.slug.has(entry.name)) fail(filename,'slug',`conflicts with ${registries.slug.get(entry.name)}`);
-      registries.slug.set(entry.name,filename);
-      records.push(record);
-      continue;
-    }
-    const parsed=internal?.parsed ?? parseCollectionMarkdown(source,{filename});
-    if (['README.zh.md','record.zh.md'].includes(path.basename(filename)) && parsed.language !== 'zh') fail(filename,'language','must match the canonical filename');
-    if (path.basename(filename) === 'record.md' && parsed.language !== 'en') fail(filename,'language','must match the canonical filename');
+    const filename=await canonicalFile(directory);
+    await contained(directory,filename,filename,'README');
+    const record=await submissionRecord(entry,filename,await readFile(filename,'utf8'));
+    if (registries.slug.has(entry.name)) fail(filename,'slug',`conflicts with ${registries.slug.get(entry.name)}`);
+    registries.slug.set(entry.name,filename);
+    if (!resolveSources) {records.push(record); continue;}
+    const inputs=await collectionInputs({rootDir,directory,record});
+    const previous=previousRecords.get(entry.name);
+    const parsed=await resolveSubmission(record,{rootDir,...inputs,previous,request});
     const data=parsed.document;
-    if (entry.historical) {
-      if (data.category === 'video') data.category='media';
-    } else {
-      if (data.category !== undefined && data.category !== entry.category) fail(filename,'category','must match its category directory');
-      data.category=entry.category;
-    }
-    const curator=curatorFields(parsed.curator ?? data.curator,filename);
-    if (curator !== undefined) data.curator=curator;
-    let {baseLanguage,directoryPresentations}=internal ? {baseLanguage:parsed.language,directoryPresentations:{}} : await translations(rootDir,directory,parsed,filename,{publicReadmes:!!recordFile});
-    const publicData=internal || recordFile ? await publicPresentations(rootDir,directory,data,baseLanguage,internal ? {metadataFile:filename,requiredLanguage:parsed.language}:{}) : undefined;
-    if (publicData) {directoryPresentations=publicData.directoryPresentations; baseLanguage=publicData.baseLanguage;}
-    if (data.slug !== entry.name) fail(filename,'slug','must match its collection directory');
+    const baseLanguage=applySubmissionPresentation(record,data);
+    if (data.slug !== entry.name || data.category !== entry.category) fail(filename,'identity','must match its collection directory');
     ownedFields(data,filename);
     sourcePaths(data,filename);
-    const asset=await coverAsset(rootDir,directory,parsed,filename,publicData?.publicReadmes);
-    const pending = (data.review?.status ?? 'pending') === 'pending' || data.status === 'draft';
-    const validated=validationDocument(data,pending);
-    await validateCollection(validated,`${validated.id}.json`,rootDir,{validateLocalCover:async url => {
+    const asset=await coverAsset(rootDir,directory,parsed,filename,record.publicReadmes);
+    if (previous) {
+      if (data.id !== previous.id || data.createdAt !== previous.createdAt) fail(filename,'identity','must preserve the existing identity and creation date');
+      const changed=comparable(data) !== comparable(previous) || asset && previousAssetHashes.has(data.slug) && digest(asset.bytes) !== previousAssetHashes.get(data.slug);
+      data.revision=previous.revision+(changed ? 1 : 0);
+      data.updatedAt=changed
+        ? new Date(Math.max(Date.parse(inputs.dates.updatedAt),Date.parse(previous.updatedAt)+1)).toISOString()
+        : previous.updatedAt;
+      data.review=changed || !previousTrusted ? {status:'pending',notes:[]} : structuredClone(previous.review);
+      if (previous.review.status === 'rejected') data.review=structuredClone(previous.review);
+    }
+    if (reviewApproval && data.review.status !== 'rejected') data.review=structuredClone(reviewApproval);
+    await validateCollection(data,`${data.id}.json`,rootDir,{validateLocalCover:async url=>{
       if (!asset || data.cover.url !== url) fail(filename,'cover.url','does not match validated archived cover');
       return asset.info;
     }});
     testEvidence(data,filename);
-    if (mode === 'production' && data.review?.status === 'approved' && data.status === 'active') releaseGate(data,filename);
-    for (const [field,values] of [['id',data.id ? [data.id.toLowerCase()] : []],['slug',[data.slug]],['sourceKeys',data.sourceKeys ?? []]]) for (const raw of values) {
+    if (mode === 'production' && data.review.status === 'approved' && data.status === 'active') releaseGate(data,filename);
+    for (const [field,values] of [['id',[data.id.toLowerCase()]],['sourceKeys',data.sourceKeys]]) for (const raw of values) {
       const key=field === 'sourceKeys' && raw.startsWith('github:') ? raw.toLowerCase() : raw;
       if (registries[field].has(key)) fail(filename,field,`conflicts with ${registries[field].get(key)}`);
       registries[field].set(key,filename);
     }
-    let complete=true;
-    try { await validateCollection(data,`${data.id}.json`,rootDir,{validateLocalCover:async()=>asset.info}); } catch { complete=false; }
-    records.push({document:data,file:filename,language:parsed.language,baseLanguage,directoryPresentations,curator,asset,complete,...publicData});
+    records.push({...record,kind:'resolved',document:data,baseLanguage,asset,curator:data.curator,complete:true,generated:true});
   }
   return records;
 }
-export async function loadCatalog({rootDir,mode='submission',baseDir} = {}) {
+export async function loadCatalog({rootDir,mode='submission',baseDir,resolveSources=false,previousRecords,reviewApproval,request} = {}) {
   if (typeof rootDir !== 'string') throw new Error('rootDir is required');
   if (!['submission','production','publish'].includes(mode)) throw new Error('mode must be submission or production');
-  const records=await readCatalog(path.resolve(rootDir),mode === 'publish' ? 'production' : mode);
-  if (baseDir) checkBase(records,await readCatalog(path.resolve(baseDir),'submission',{allowMissingCollections:true,allowHistoricalFlat:true}));
+  const previousTrusted=previousRecords !== undefined;
+  if (!previousRecords) {
+    previousRecords=new Map();
+    if (resolveSources && !baseDir) {
+      try {
+        const cached=JSON.parse(await readFile(path.join(rootDir,'dist/generated-catalog.json'),'utf8'));
+        for (const document of cached) previousRecords.set(document.slug,document);
+      } catch(error) {if (error.code !== 'ENOENT') throw error;}
+    }
+  }
+  const generatedPrevious=new Map();
+  for (const [slug,document] of previousRecords) if (SLUG.test(slug) && document?.slug === slug && document.id === collectionId(slug) && Array.isArray(document.sourceKeys) && document.sourceKeys.includes(`collection:${slug}`) && document.sourceKeys.some(key=>/^readme:[a-f0-9]{64}$/.test(key))) generatedPrevious.set(slug,document);
+  generatedPrevious.assetHashes=new Map([...(previousRecords.assetHashes ?? [])].filter(([slug])=>generatedPrevious.has(slug)));
+  previousRecords=generatedPrevious;
+  const options={resolveSources,previousRecords,previousAssetHashes:previousRecords.assetHashes ?? new Map(),reviewApproval,request,previousTrusted};
+  let base;
+  if (baseDir) {
+    base=await readCatalog(path.resolve(baseDir),'submission',{...options,reviewApproval:undefined,allowMissingCollections:true});
+    if (resolveSources) for (const record of base) if (record.complete) {
+      previousRecords.set(record.document.slug,record.document);
+      if (record.asset) options.previousAssetHashes.set(record.document.slug,digest(record.asset.bytes));
+    }
+  }
+  const records=await readCatalog(path.resolve(rootDir),mode === 'publish' ? 'production' : mode,options);
+  if (base) checkBase(records,base);
+  if (resolveSources) {
+    await mkdir(path.join(rootDir,'dist'),{recursive:true});
+    const state=path.join(rootDir,'dist/generated-catalog.json');
+    await writeFile(`${state}.tmp`,JSON.stringify(records.filter(r=>r.generated).map(r=>r.document),null,2)+'\n');
+    await rename(`${state}.tmp`,state);
+  }
   return records;
 }
 export async function validateCatalog(options) {
@@ -642,9 +422,9 @@ async function safeOutputParent(parent,root) {
     }
   }
 }
-export async function buildCatalog({rootDir,outputDir=path.join(rootDir,'dist/collections'),preview=false,baseDir,sourceRevision}={}) {
+export async function buildCatalog({rootDir,outputDir=path.join(rootDir,'dist/collections'),preview=false,baseDir,sourceRevision,resolveSources=false,previousRecords,reviewApproval,request}={}) {
   if (sourceRevision !== undefined && !SHA.test(sourceRevision)) throw new Error('sourceRevision must be a full 40-character commit SHA');
-  const all=await loadCatalog({rootDir,baseDir,mode:preview?'submission':'production'});
+  const all=await loadCatalog({rootDir,baseDir,mode:preview?'submission':'production',resolveSources,previousRecords,reviewApproval,request});
   const selected=all.filter(r=>r.complete && r.document.status === 'active' && (preview || r.document.review.status === 'approved')).sort((a,b)=>(a.document.sortOrder ?? 0)-(b.document.sortOrder ?? 0)||a.document.slug.localeCompare(b.document.slug));
   const records=selected.map(r=>r.document);
   const index={schemaVersion:1,collections:records.map(indexItem)};
@@ -652,12 +432,12 @@ export async function buildCatalog({rootDir,outputDir=path.join(rootDir,'dist/co
   outputDir=path.resolve(outputDir);
   const root=await realpath(rootDir),lexicalRoot=path.resolve(rootDir);
   if (inside(lexicalRoot,outputDir)) outputDir=path.join(root,path.relative(lexicalRoot,outputDir));
-  const sources=[path.join(root,'collections'),path.join(root,'.catalog')];
+  const sources=[path.join(root,'collections')];
   for (const source of [...sources]) {
     try {sources.push(await realpath(source));} catch(error) {if (error.code !== 'ENOENT') throw error;}
   }
   const protectSources=target=>{
-    if (target === root || sources.some(source=>inside(target,source)||inside(source,target))) throw new Error('outputDir must not contain, overwrite or enter source collections or .catalog metadata');
+    if (target === root || sources.some(source=>inside(target,source)||inside(source,target))) throw new Error('outputDir must not contain, overwrite or enter source collections');
   };
   protectSources(outputDir);
   try {protectSources(await realpath(outputDir));} catch(error) {if (error.code !== 'ENOENT') throw error;}

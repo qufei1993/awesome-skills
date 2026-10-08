@@ -5,12 +5,13 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { buildCatalog, validateCatalog } from './lib/catalog.mjs';
 import { serializeContributionMarkdown } from './lib/contribution.mjs';
+import { loadPreviousSnapshot, mergedMainApproval } from './lib/generation-context.mjs';
 
 const help = `Usage: node scripts/catalog.mjs COMMAND [OPTIONS]
 
-  validate [--publish] [--base-dir PATH]
+  validate [--publish] [--resolve-upstream] [--base-dir PATH]
     Check every submission; --publish also checks approved release readiness.
-  build [--preview] [--output PATH] [--source-revision SHA] [--base-dir PATH]
+  build [--preview] [--resolve-upstream] [--reviewed-main] [--output PATH] [--source-revision SHA] [--base-dir PATH]
     Export approved collections atomically; preview includes complete pending records.
   new SLUG [--lang en|zh] [--category CATEGORY]
     Create a short English submission by default. Replace the example Skill link before submitting a PR.
@@ -22,7 +23,7 @@ Preview snapshots cannot be synchronized to production.`;
 function argumentsFor(argv) {
   const command=argv.shift();
   if (!command || command === '--help' || command === '-h') return {help:true};
-  const allowed={validate:{'--publish':false,'--base-dir':true},build:{'--preview':false,'--output':true,'--source-revision':true,'--base-dir':true},new:{'--lang':true,'--category':true}}[command];
+  const allowed={validate:{'--publish':false,'--resolve-upstream':false,'--base-dir':true},build:{'--preview':false,'--resolve-upstream':false,'--reviewed-main':false,'--output':true,'--source-revision':true,'--base-dir':true},new:{'--lang':true,'--category':true}}[command];
   if (!allowed) throw new Error(`Unknown command: ${command}\n${help}`);
   const options={},positionals=[];
   for (let i=0;i<argv.length;i++) {
@@ -85,16 +86,22 @@ async function main() {
   if (args.help) {console.log(help);return;}
   const rootDir=process.cwd(),o=args.options;
   if (args.command==='new') {await newCollection(rootDir,args.slug,o['--lang'],o['--category']);return;}
+  const resolveSources=!!o['--resolve-upstream'];
+  const baseDir=o['--base-dir'];
+  if (o['--reviewed-main'] && (!resolveSources || o['--preview'])) throw new Error('--reviewed-main requires a production build with --resolve-upstream');
+  const previousRecords=resolveSources && process.env.CATALOG_USE_RELEASE_BASELINE === '1' ? await loadPreviousSnapshot({rootDir}) : undefined;
+  const reviewApproval=o['--reviewed-main'] ? await mergedMainApproval({rootDir}) : undefined;
+  const generation={resolveSources,previousRecords,reviewApproval};
   if (args.command==='validate') {
-    const result=await validateCatalog({rootDir,baseDir:o['--base-dir'],mode:o['--publish']?'production':'submission'});
-    console.log(`Validated ${result.count} collections. ${result.incomplete.length} drafts need maintainer fields before export.`);
+    const result=await validateCatalog({rootDir,baseDir,mode:o['--publish']?'production':'submission',...generation});
+    console.log(`Validated ${result.count} collections. ${result.incomplete.length} drafts await automatic upstream resolution.`);
     return;
   }
   let sourceRevision=o['--source-revision'];
   if (sourceRevision === undefined) {
     try {sourceRevision=execFileSync('git',['rev-parse','HEAD'],{cwd:rootDir,encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();} catch { /* API permits local snapshots without a Git revision. */ }
   }
-  const result=await buildCatalog({rootDir,outputDir:o['--output'] ? path.resolve(rootDir,o['--output']) : undefined,preview:!!o['--preview'],baseDir:o['--base-dir'],sourceRevision});
+  const result=await buildCatalog({rootDir,outputDir:o['--output'] ? path.resolve(rootDir,o['--output']) : undefined,preview:!!o['--preview'],baseDir,sourceRevision,...generation});
   console.log(`Exported ${result.records.length} ${o['--preview']?'preview':'production'} collections to ${result.outputDir}. ${result.incomplete.length} incomplete drafts skipped.`);
 }
 main().catch(error=>{console.error(error.message);process.exitCode=1;});

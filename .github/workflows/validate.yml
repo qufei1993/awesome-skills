@@ -10,15 +10,20 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      CATALOG_USE_RELEASE_BASELINE: '1'
     steps:
       - uses: actions/checkout@v4
         with:
           path: proposal
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
           path: baseline
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -29,20 +34,67 @@ jobs:
         working-directory: proposal
       - run: npm run check
         working-directory: proposal
-      - run: npm run validate -- --base-dir ../baseline
+      - run: npm run validate -- --resolve-upstream --base-dir ../baseline
         working-directory: proposal
+      - run: npm run build:preview -- --base-dir ../baseline
+        working-directory: proposal
+      - name: Verify preview snapshot for review
+        id: preview
+        working-directory: proposal
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { execFileSync } from 'node:child_process';
+          import { appendFile } from 'node:fs/promises';
+          import { verifySnapshot } from './scripts/lib/snapshot.mjs';
+          const sourceRevision = execFileSync('git', ['rev-parse', 'HEAD'], { encoding:'utf8' }).trim();
+          const prHead = process.env.PR_HEAD_SHA || '';
+          if (!/^[a-f0-9]{40}$/i.test(sourceRevision) || prHead && !/^[a-f0-9]{40}$/i.test(prHead)) {
+            throw new Error('Invalid snapshot or PR head revision');
+          }
+          const snapshot = await verifySnapshot({ fromDir:'dist/collections', allowPreview:true, expectedRevision:sourceRevision });
+          if (!snapshot.manifest.preview) throw new Error('Review artifact must be a preview snapshot');
+          await appendFile(process.env.GITHUB_OUTPUT, `source_revision=${sourceRevision}\n`);
+          await appendFile(process.env.GITHUB_STEP_SUMMARY,
+            `Preview snapshot: ${sourceRevision}; PR head: ${prHead || 'not applicable (merge group)'}.\n` +
+            `${snapshot.index.collections.length} complete active collections; all snapshot files and hashes verified. Incomplete drafts are excluded.\n` +
+            'This preview is for review only and does not grant production approval.\n');
+          NODE
+      - name: Archive preview without a wrapping directory
+        run: |
+          rm -f ../../catalog-preview.zip
+          zip -q -r ../../catalog-preview.zip .
+        working-directory: proposal/dist/collections
+      - name: Checksum preview archive
+        run: sha256sum catalog-preview.zip > catalog-preview.zip.sha256
+        working-directory: proposal
+      - name: Upload review preview
+        uses: actions/upload-artifact@v7
+        with:
+          name: catalog-preview-${{ steps.preview.outputs.source_revision }}
+          path: |
+            proposal/catalog-preview.zip
+            proposal/catalog-preview.zip.sha256
+          retention-days: 30
+          if-no-files-found: error
 
   publish-readiness:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      CATALOG_USE_RELEASE_BASELINE: '1'
     steps:
       - uses: actions/checkout@v4
         with:
           path: proposal
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
           path: baseline
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -51,5 +103,5 @@ jobs:
           cache-dependency-path: proposal/package-lock.json
       - run: npm ci
         working-directory: proposal
-      - run: npm run validate:publish -- --base-dir ../baseline
+      - run: npm run validate:publish -- --resolve-upstream --base-dir ../baseline
         working-directory: proposal
