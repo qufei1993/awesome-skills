@@ -4,6 +4,7 @@ import { mkdtemp, mkdir, readFile, writeFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import { createHash } from 'node:crypto';
+import { createServer } from 'node:http';
 import { indexItem } from '../scripts/lib/site-contract.mjs';
 import { buildStaticPublication, readCurrentSnapshot } from '../scripts/lib/publication.mjs';
 import { checkStaticData } from '../scripts/check-static-data.mjs';
@@ -43,6 +44,63 @@ function staticRequest(assetsDir, overrides={}) {
   };
 }
 
+async function hostedPublication(t, assetsDir, currentResponses) {
+  const requests = [];
+  const server = createServer(async (request, response) => {
+    const key = new URL(request.url, 'http://localhost').pathname.slice(1);
+    requests.push({ key, authorization:request.headers.authorization, cookie:request.headers.cookie });
+    const current = key === 'current.json' && currentResponses[Math.min(requests.filter(entry => entry.key === 'current.json').length - 1, currentResponses.length - 1)];
+    if (current?.delayMs) await new Promise(resolve => setTimeout(resolve, current.delayMs));
+    let bytes = current?.bytes;
+    let status = current?.status ?? 200;
+    if (!bytes) {
+      try { bytes = await readFile(path.join(assetsDir, key)); }
+      catch (error) { if (error.code !== 'ENOENT') throw error; bytes = Buffer.from('Not Found'); status = 404; }
+    }
+    response.writeHead(status, { 'Access-Control-Allow-Origin':'*', 'Cache-Control':key === 'current.json' ? 'no-store' : 'public, max-age=31536000, immutable', 'Content-Type':key.endsWith('.json') ? 'application/json' : 'image/png' });
+    response.end(bytes);
+  });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => new Promise(resolve => { server.close(resolve); server.closeAllConnections(); }));
+  return { url:`http://127.0.0.1:${server.address().port}`, requests };
+}
+
+test('waits for an initially missing and stale hosted pointer before fetching the published snapshot', async t => {
+  const assetsDir = await publication(t), pointer = JSON.parse(await readFile(path.join(assetsDir, 'current.json')));
+  const stale = Buffer.from(JSON.stringify({ ...pointer, version:'b'.repeat(64), sourceRevision:'b'.repeat(40), snapshotPath:`snapshots/${'b'.repeat(64)}/` }));
+  const host = await hostedPublication(t, assetsDir, [{ status:404, bytes:Buffer.from('Not Found') }, { bytes:stale }, {}]);
+  const result = await checkStaticData({ url:host.url, assetsDir, waitTimeoutMs:1000, pollIntervalMs:10 });
+  assert.equal(result.version, pointer.version);
+  assert.deepEqual(host.requests.slice(0, 3).map(request => request.key), ['current.json', 'current.json', 'current.json']);
+  assert.equal(host.requests.filter(request => request.key === 'current.json').length, 3);
+  assert.ok(host.requests.some(request => request.key.startsWith('snapshots/')));
+  assert.ok(host.requests.every(request => !request.authorization && !request.cookie));
+});
+
+test('stops waiting for a persistently mismatched hosted pointer at the deadline without fetching snapshot files', async t => {
+  const assetsDir = await publication(t), host = await hostedPublication(t, assetsDir, [{ bytes:Buffer.from('{}') }]);
+  const started = performance.now();
+  await assert.rejects(checkStaticData({ url:host.url, assetsDir, waitTimeoutMs:100, pollIntervalMs:20 }), /generated|match/i);
+  assert.ok(performance.now() - started >= 100);
+  assert.ok(performance.now() - started < 1500);
+  assert.ok(host.requests.length > 1);
+  assert.ok(host.requests.every(request => request.key === 'current.json'));
+});
+
+test('fails a forbidden hosted pointer immediately instead of waiting for publication propagation', async t => {
+  const assetsDir = await publication(t), host = await hostedPublication(t, assetsDir, [{ status:403, bytes:Buffer.from('Forbidden') }, {}]);
+  await assert.rejects(checkStaticData({ url:host.url, assetsDir, waitTimeoutMs:1000, pollIntervalMs:10 }), /HTTP 403/);
+  assert.equal(host.requests.length, 1);
+});
+
+test('bounds a slow hosted pointer request by the publication wait deadline', async t => {
+  const assetsDir = await publication(t), host = await hostedPublication(t, assetsDir, [{ delayMs:300 }]);
+  const started = performance.now();
+  await assert.rejects(checkStaticData({ url:host.url, assetsDir, waitTimeoutMs:100, pollIntervalMs:10 }), /timeout|timed out/i);
+  assert.ok(performance.now() - started < 250);
+  assert.equal(host.requests.length, 1);
+});
+
 test('verifies generated data, all published files, CORS, cache and 404 behavior without sending credentials', async t => {
   const assetsDir = await publication(t);
   const result = await checkStaticData({ url:'https://data.example.com/data', assetsDir, request:staticRequest(assetsDir) });
@@ -67,7 +125,7 @@ test('refuses insecure remote URLs, URL credentials and URL parameters before an
 test('fails when hosted current data does not match the local generated publication', async t => {
   const assetsDir = await publication(t);
   const request = staticRequest(assetsDir, { 'current.json':async () => new Response('{}', { headers:{ 'Access-Control-Allow-Origin':'*', 'Cache-Control':'no-store' } }) });
-  await assert.rejects(checkStaticData({ url:'https://data.example.com/data', assetsDir, request }), /generated|match/i);
+  await assert.rejects(checkStaticData({ url:'https://data.example.com/data', assetsDir, request, waitTimeoutMs:0 }), /generated|match/i);
 });
 
 test('fails missing CORS and incorrect current cache before reporting publication success', async t => {

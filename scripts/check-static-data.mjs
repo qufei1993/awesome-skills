@@ -44,8 +44,9 @@ function verifyHeaders(response, key) {
     throw new Error(`Hosted version and image cache must be immutable: ${key}`);
   }
 }
-export async function checkStaticData({ url, assetsDir=path.join(root, 'dist/assets'), allowPreview=false, request=fetch }) {
+export async function checkStaticData({ url, assetsDir=path.join(root, 'dist/assets'), allowPreview=false, request=fetch, waitTimeoutMs=60000, pollIntervalMs=2000 }) {
   const baseUrl = dataBaseUrl(url);
+  if (!Number.isSafeInteger(waitTimeoutMs) || waitTimeoutMs < 0 || !Number.isSafeInteger(pollIntervalMs) || pollIntervalMs <= 0) throw new Error('Publication wait timeout and poll interval must be valid milliseconds');
   const localRead = async key => {
     try { return await readFile(path.join(assetsDir, key)); }
     catch (error) { if (error.code === 'ENOENT') return null; throw error; }
@@ -54,8 +55,8 @@ export async function checkStaticData({ url, assetsDir=path.join(root, 'dist/ass
   if (!generated) throw new Error('Build and package collection data before checking its hosted publication');
   const expectedCurrent = await localRead('current.json');
   const loaded = new Map();
-  async function fetchFile(key, verifyResponseHeaders=true) {
-    const response = await request(`${baseUrl}${key}`, { credentials:'omit', redirect:'manual', signal:AbortSignal.timeout(30000), cache:'no-store' });
+  async function fetchFile(key, verifyResponseHeaders=true, timeoutMs=30000) {
+    const response = await request(`${baseUrl}${key}`, { credentials:'omit', redirect:'manual', signal:AbortSignal.timeout(timeoutMs), cache:'no-store' });
     if (response?.redirected || response?.status >= 300 && response.status < 400) throw new Error('Hosted data redirect refused');
     if (!response || !response.ok && response.status !== 404) throw new Error(`Hosted data request failed (HTTP ${response?.status ?? 'unknown'})`);
     const bytes = await bodyBytes(response);
@@ -67,8 +68,20 @@ export async function checkStaticData({ url, assetsDir=path.join(root, 'dist/ass
     const { response, bytes } = loaded.get(key);
     return response.status === 404 ? null : bytes;
   };
-  const hostedCurrent = await read('current.json');
-  if (!hostedCurrent?.equals(expectedCurrent)) throw new Error('Hosted current data does not match the generated publication');
+  const deadline = performance.now() + waitTimeoutMs;
+  let lastStatus;
+  for (;;) {
+    const remaining = deadline - performance.now();
+    if (lastStatus !== undefined && remaining <= 0) throw new Error(`Hosted current data does not match the generated publication within ${waitTimeoutMs}ms (last HTTP ${lastStatus})`);
+    const current = await fetchFile('current.json', true, waitTimeoutMs === 0 ? 30000 : Math.max(1, Math.ceil(Math.min(30000, remaining))));
+    if (current.response.status !== 404 && current.bytes.equals(expectedCurrent)) {
+      loaded.set('current.json', current);
+      break;
+    }
+    lastStatus = current.response.status;
+    const delay = Math.min(pollIntervalMs, deadline - performance.now());
+    if (delay > 0) await new Promise(resolve => setTimeout(resolve, delay));
+  }
   const hosted = await readCurrentSnapshot({ read, allowPreview });
   const versions = [];
   for (const entry of await readdir(path.join(assetsDir, 'snapshots'), { withFileTypes:true })) {
