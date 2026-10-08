@@ -12,6 +12,7 @@
 ### 开发与工程
 
 - [Skills for Real Engineers](collections/development/engineering/README.zh.md) — 从需求澄清到实现与验证，把工程经验带进 Agent 协作。
+- [Superpowers · 软件开发](collections/development/superpowers/README.zh.md) — 用可组合的开发 Skills，引导编程 Agent 完成设计、规划、实现、调试与评审。（待审核）
 
 ### 设计与视觉
 

@@ -12,6 +12,7 @@ Listings may include pending collections. The three existing website collections
 ### Development & Engineering
 
 - [Skills for Real Engineers](collections/development/engineering/README.md) — Bring engineering practice into agent collaboration, from clarifying requirements to implementation and verification.
+- [Superpowers · Software Development](collections/development/superpowers/README.md) — Guide coding agents through design, planning, implementation, debugging, and review with reusable development Skills. (pending review)
 
 ### Design & Visuals
 
