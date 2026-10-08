@@ -9,6 +9,7 @@ import { promisify } from 'node:util';
 import { createServer } from 'node:http';
 import { indexItem } from '../scripts/lib/site-contract.mjs';
 import { createLocalStore, createR2Store, publishSnapshot, rollbackPublication } from '../scripts/lib/publication.mjs';
+import * as publication from '../scripts/lib/publication.mjs';
 
 const REVISION = 'a'.repeat(40);
 const ID = 'de64301b-09cf-4968-9fc2-24ede5cd4dd6';
@@ -57,6 +58,36 @@ async function snapshot(t, { revision=REVISION, preview=false, image=IMAGE, dupl
   return { root, files, version:digest(manifestBytes), manifest };
 }
 async function current(root) { return JSON.parse(await readFile(path.join(root, 'current.json'), 'utf8')); }
+
+test('reading the current publication verifies every snapshot file and preserves shared cover bytes', async t => {
+  const source = await snapshot(t), root = await directory(t), store = await createLocalStore(root);
+  assert.equal(await publication.readCurrentSnapshot({ store }), null);
+  await publishSnapshot({ fromDir:source.root, store });
+  const verified = await publication.readCurrentSnapshot({ store });
+  assert.equal(verified.release.version, source.version);
+  for (const [name, bytes] of source.files) assert.deepEqual(verified.files.get(name), bytes);
+  assert.equal(await current(root).then(pointer => pointer.version), source.version);
+});
+
+test('reading current data refuses a pointer that disagrees with its immutable version', async t => {
+  const source = await snapshot(t), root = await directory(t), store = await createLocalStore(root);
+  await publishSnapshot({ fromDir:source.root, store });
+  const pointer = await current(root); pointer.sourceRevision = 'b'.repeat(40);
+  await writeFile(path.join(root, 'current.json'), JSON.stringify(pointer));
+  await assert.rejects(publication.readCurrentSnapshot({ store }), /current|pointer|disagree/i);
+});
+
+test('published manifest limits are checked before downloading its files', async t => {
+  const source = await snapshot(t), root = await directory(t), store = await createLocalStore(root);
+  await publishSnapshot({ fromDir:source.root, store });
+  const manifest = { ...source.manifest, files:[{ path:'index.json', size:11*1024*1024, sha256:'a'.repeat(64) }] };
+  const bytes = Buffer.from(JSON.stringify(manifest)), version = digest(bytes);
+  const pointer = { ...await current(root), version, snapshotPath:`snapshots/${version}/` };
+  const objects = new Map([['current.json', Buffer.from(JSON.stringify(pointer))], [`snapshots/${version}/release.json`, Buffer.from(JSON.stringify(pointer))], [`snapshots/${version}/manifest.json`, bytes]]);
+  const requested = [];
+  await assert.rejects(publication.readCurrentSnapshot({ store:{ get:async key => { requested.push(key); return objects.get(key) ?? null; } } }), /limit|size/i);
+  assert.equal(requested.some(key => key.endsWith('/index.json')), false);
+});
 
 test('publishes original JSON bytes and maps identical covers to one shared image', async t => {
   const source = await snapshot(t, { duplicate:true }), root = await directory(t), store = await createLocalStore(root);

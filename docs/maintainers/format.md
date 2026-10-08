@@ -18,7 +18,7 @@ Generated JSON is a build artifact under `dist/`. Directory links define which S
 
 ## Stable data
 
-The first generation creates stable identities and an initial revision. The previous production snapshot is the baseline for subsequent generation. Unchanged collection input reuses its recorded source commits. Changed input is resolved again; stable identities and version history are retained. Trusted CI loads the previous Release snapshot with `CATALOG_USE_RELEASE_BASELINE=1`; local builds use available cached data or an explicit baseline.
+The first generation creates stable identities and an initial revision. The previous production snapshot is the baseline for subsequent generation. Unchanged collection input reuses its recorded source commits. Changed input is resolved again; stable identities and version history are retained. Trusted CI reads `current.json` and its snapshot from the R2 public data root set in `CATALOG_DATA_BASE_URL`. Local builds use available cached data or an explicit baseline.
 
 ## Review and verification
 

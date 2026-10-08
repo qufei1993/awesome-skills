@@ -206,34 +206,60 @@ function parseRelease(bytes, version, allowPreview) {
   }
   return release;
 }
-export async function rollbackPublication({ store, version, allowPreview=false }) {
+export async function readPublishedSnapshot({ store, version, allowPreview=false }) {
   if (!HASH.test(version ?? '')) throw new Error('Publication version must be a lowercase SHA256 hash');
+  const releaseBytes = await store.get(`snapshots/${version}/release.json`);
+  if (!releaseBytes) throw new Error('Missing publication release');
+  const release = parseRelease(releaseBytes, version, allowPreview), stage = await mkdtemp(path.join(os.tmpdir(), 'catalog-rollback-'));
+  try {
+    const manifestBytes = await store.get(`${release.snapshotPath}manifest.json`);
+    if (!manifestBytes || digest(manifestBytes) !== version) throw new Error('Publication manifest version mismatch');
+    let manifest;
+    try { manifest = JSON.parse(new TextDecoder('utf-8', { fatal:true }).decode(manifestBytes)); }
+    catch { throw new Error('Invalid publication manifest'); }
+    if (!Array.isArray(manifest.files) || manifest.files.length > 10000) throw new Error('Invalid publication manifest files');
+    let total = 0;
+    const paths = new Set();
+    for (const entry of manifest.files) {
+      safeKey(entry.path);
+      if (paths.has(entry.path) || !HASH.test(entry.sha256 ?? '') || !Number.isSafeInteger(entry.size) || entry.size < 0 || entry.size > 10*1024*1024 || (total += entry.size) > 100*1024*1024) throw new Error('Invalid publication file size, checksum, or count limit');
+      paths.add(entry.path);
+    }
+    await writeFile(path.join(stage, 'manifest.json'), manifestBytes);
+    for (const entry of manifest.files) {
+      safeKey(entry.path);
+      const key = entry.path.startsWith('assets/') ? release.assets[entry.path] : `${release.snapshotPath}${entry.path}`;
+      if (!key) throw new Error('Missing publication asset mapping');
+      const bytes = await store.get(key);
+      if (!bytes) throw new Error(`Missing publication file: ${entry.path}`);
+      if (bytes.length !== entry.size || digest(bytes) !== entry.sha256) throw new Error(`Publication checksum or size mismatch: ${entry.path}`);
+      const filename = path.join(stage, entry.path);
+      await mkdir(path.dirname(filename), { recursive:true }); await writeFile(filename, bytes);
+    }
+    const verified = await verifySnapshot({ fromDir:stage, allowPreview, expectedRevision:release.sourceRevision });
+    if (!isDeepStrictEqual(releaseFor(verified), release)) throw new Error('Publication release and snapshot disagree');
+    return { ...verified, release, releaseBytes };
+  } finally { await rm(stage, { recursive:true, force:true }); }
+}
+
+export async function readCurrentSnapshot({ store, allowPreview=false }) {
+  const bytes = await store.get('current.json');
+  if (bytes === null) return null;
+  let current;
+  try { current = JSON.parse(new TextDecoder('utf-8', { fatal:true }).decode(bytes)); }
+  catch { throw new Error('Invalid current publication JSON'); }
+  if (!HASH.test(current?.version ?? '')) throw new Error('Invalid current publication version');
+  const pointer = parseRelease(bytes, current.version, allowPreview);
+  const verified = await readPublishedSnapshot({ store, version:pointer.version, allowPreview });
+  if (!isDeepStrictEqual(pointer, verified.release)) throw new Error('Current pointer and immutable publication disagree');
+  return verified;
+}
+
+export async function rollbackPublication({ store, version, allowPreview=false }) {
   return withLock(store, async () => {
     const expectedCurrent = await store.head('current.json');
-    const releaseBytes = await store.get(`snapshots/${version}/release.json`);
-    if (!releaseBytes) throw new Error('Missing publication release');
-    const release = parseRelease(releaseBytes, version, allowPreview), stage = await mkdtemp(path.join(os.tmpdir(), 'catalog-rollback-'));
-    try {
-      const manifestBytes = await store.get(`${release.snapshotPath}manifest.json`);
-      if (!manifestBytes || digest(manifestBytes) !== version) throw new Error('Publication manifest version mismatch');
-      let manifest;
-      try { manifest = JSON.parse(new TextDecoder('utf-8', { fatal:true }).decode(manifestBytes)); }
-      catch { throw new Error('Invalid publication manifest'); }
-      if (!Array.isArray(manifest.files) || manifest.files.length > 10000) throw new Error('Invalid publication manifest files');
-      await writeFile(path.join(stage, 'manifest.json'), manifestBytes);
-      for (const entry of manifest.files) {
-        safeKey(entry.path);
-        const key = entry.path.startsWith('assets/') ? release.assets[entry.path] : `${release.snapshotPath}${entry.path}`;
-        if (!key) throw new Error('Missing publication asset mapping');
-        const bytes = await store.get(key);
-        if (!bytes) throw new Error(`Missing publication file: ${entry.path}`);
-        const filename = path.join(stage, entry.path);
-        await mkdir(path.dirname(filename), { recursive:true }); await writeFile(filename, bytes);
-      }
-      const verified = await verifySnapshot({ fromDir:stage, allowPreview, expectedRevision:release.sourceRevision });
-      if (!isDeepStrictEqual(releaseFor(verified), release)) throw new Error('Publication release and snapshot disagree');
-      await store.setCurrent(releaseBytes, expectedCurrent);
-      return { version, sourceRevision:release.sourceRevision, count:verified.index.collections.length, preview:release.preview };
-    } finally { await rm(stage, { recursive:true, force:true }); }
+    const { release, releaseBytes, index } = await readPublishedSnapshot({ store, version, allowPreview });
+    await store.setCurrent(releaseBytes, expectedCurrent);
+    return { version, sourceRevision:release.sourceRevision, count:index.collections.length, preview:release.preview };
   });
 }

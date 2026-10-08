@@ -4,12 +4,11 @@ import { mkdtemp, mkdir, readFile, writeFile, readdir, symlink, chmod, rm } from
 import os from 'node:os';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { zipSync, strToU8 } from 'fflate';
 import { execFileSync } from 'node:child_process';
 import { buildCatalog } from '../scripts/lib/catalog.mjs';
 import { indexItem } from '../scripts/lib/site-contract.mjs';
 import { fixtureUpstream, PNG, skillText, writeSubmission } from './helpers/submission.mjs';
-import { verifySnapshot, installSnapshot, rollbackSnapshot, decodeSnapshotZip, downloadSnapshot } from '../scripts/lib/snapshot.mjs';
+import { verifySnapshot, installSnapshot, rollbackSnapshot } from '../scripts/lib/snapshot.mjs';
 
 const SHA = 'a'.repeat(40);
 const hash = b => createHash('sha256').update(b).digest('hex');
@@ -22,9 +21,6 @@ async function snapshot(options = {}) {
   return {root,manifest,bytes};
 }
 async function site() { return mkdtemp(path.join(os.tmpdir(), 'catalog-site-test-')); }
-async function zipSnapshot(data) {
-  return zipSync({'index.json':data.bytes,'manifest.json':strToU8(JSON.stringify(data.manifest))});
-}
 async function approvedSnapshot(t, change=()=>{}) {
   const root=await site();t.after(()=>rm(root,{recursive:true,force:true}));
   const document=JSON.parse(await readFile(new URL('./fixtures/site/de64301b-09cf-4968-9fc2-24ede5cd4dd6.json',import.meta.url),'utf8'));
@@ -156,40 +152,6 @@ test('backup cleanup failure preserves the previous version and reports the succ
     }
     await rm(target,{recursive:true,force:true});
   }
-});
-test('ZIP reader rejects traversal and declared oversize before extraction', async () => {
-  const evil=zipSync({'../escape.json':strToU8('evil')});
-  assert.throws(()=>decodeSnapshotZip(evil),/path/i);
-  const data=await snapshot();
-  const zip=await zipSnapshot(data);
-  assert.equal(decodeSnapshotZip(zip).get('index.json').toString(),data.bytes.toString());
-  assert.throws(()=>decodeSnapshotZip(zip,{maxTotalBytes:10}),/limit|size/i);
-});
-test('ZIP reader rejects Unix symlinks in central-directory metadata', async () => {
-  const zip=Buffer.from(zipSync({'link':strToU8('target')}));
-  const position=zip.indexOf(Buffer.from('504b0102','hex'));
-  zip[position+5]=3;zip.writeUInt32LE((0o120777 * 65536)>>>0,position+38);
-  assert.throws(()=>decodeSnapshotZip(zip),/symlink|symbolic/i);
-});
-test('remote consumer pins release, checks archive hash and manifest revision', async () => {
-  const data=await snapshot(),zip=await zipSnapshot(data),calls=[];
-  const responses=new Map([
-    [`https://api.github.com/repos/team/catalog/releases/tags/snapshot-${SHA}`,new Response(JSON.stringify({tag_name:`snapshot-${SHA}`,assets:[
-      {name:'catalog.zip',browser_download_url:`https://github.com/team/catalog/releases/download/snapshot-${SHA}/catalog.zip`},
-      {name:'catalog.zip.sha256',browser_download_url:`https://github.com/team/catalog/releases/download/snapshot-${SHA}/catalog.zip.sha256`}
-    ]}))],
-    [`https://github.com/team/catalog/releases/download/snapshot-${SHA}/catalog.zip`,new Response(zip)],
-    [`https://github.com/team/catalog/releases/download/snapshot-${SHA}/catalog.zip.sha256`,new Response(`${hash(zip)}  catalog.zip\n`)]
-  ]);
-  const result=await downloadSnapshot({repo:'team/catalog',ref:SHA,fetchImpl:async url=>{calls.push(url);return responses.get(url);}});
-  assert.equal(result.manifest.sourceRevision,SHA);assert.equal(calls.length,3);
-  await assert.rejects(downloadSnapshot({repo:'team/catalog',ref:'main'}),/40|SHA|revision/i);
-});
-test('remote consumer refuses release assets from another host or repository', async () => {
-  await assert.rejects(downloadSnapshot({repo:'team/catalog',ref:SHA,fetchImpl:async()=>new Response(JSON.stringify({tag_name:`snapshot-${SHA}`,assets:[
-    {name:'catalog.zip',browser_download_url:'https://evil.invalid/catalog.zip'},
-    {name:'catalog.zip.sha256',browser_download_url:'https://evil.invalid/checksum'}
-  ]}))}),/asset|URL|host/i);
 });
 test('generated README preview installs through the CLI with all details and covers', async t => {
   const target=await site(),root=await site(),output=path.join(root,'snapshot');

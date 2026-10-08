@@ -89,7 +89,7 @@ async function main() {
   const resolveSources=!!o['--resolve-upstream'];
   const baseDir=o['--base-dir'];
   if (o['--reviewed-main'] && (!resolveSources || o['--preview'])) throw new Error('--reviewed-main requires a production build with --resolve-upstream');
-  const previousRecords=resolveSources && process.env.CATALOG_USE_RELEASE_BASELINE === '1' ? await loadPreviousSnapshot({rootDir}) : undefined;
+  const previousRecords=resolveSources && process.env.CATALOG_DATA_BASE_URL ? await loadPreviousSnapshot({rootDir,baseUrl:process.env.CATALOG_DATA_BASE_URL}) : undefined;
   const reviewApproval=o['--reviewed-main'] ? await mergedMainApproval({rootDir}) : undefined;
   const generation={resolveSources,previousRecords,reviewApproval};
   if (args.command==='validate') {
