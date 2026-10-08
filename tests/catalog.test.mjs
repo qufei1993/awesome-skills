@@ -363,7 +363,8 @@ test('an explicitly external snapshot destination remains supported',async t=>{
 test('README edits preserve identity and historical source keys while advancing generated revisions',async t=>{
   const rootDir=await root(t),baseDir=await root(t);
   await writeSubmission(baseDir);
-  const old=(await preview(baseDir)).records[0];
+  const old=(await buildCatalog({rootDir:baseDir,resolveSources:true,reviewApproval:approval,request})).records[0];
+  assert.equal(old.review.status,'approved');
   await writeSubmission(rootDir,{title:'Next planning'});
   const result=await buildCatalog({rootDir,baseDir,previousRecords:previousMap(old),preview:true,resolveSources:true,request});
   assert.equal(result.records[0].id,old.id);
@@ -372,6 +373,12 @@ test('README edits preserve identity and historical source keys while advancing 
   assert.ok(Date.parse(result.records[0].updatedAt)>Date.parse(old.updatedAt));
   for (const key of old.sourceKeys) assert.ok(result.records[0].sourceKeys.includes(key));
   assert.equal(result.records[0].review.status,'pending');
+  const production=await buildCatalog({rootDir,baseDir,previousRecords:previousMap(old),resolveSources:true,request});
+  assert.deepEqual(production.index.collections,[]);
+  const renewed={...approval,reviewedAt:'2026-10-09T00:00:00Z'};
+  const approved=await buildCatalog({rootDir,baseDir,previousRecords:previousMap(old),resolveSources:true,reviewApproval:renewed,request});
+  assert.equal(approved.records.length,1);
+  assert.equal(approved.records[0].review.reviewedAt,renewed.reviewedAt);
 });
 
 test('removing an established collection fails baseline validation',async t=>{
