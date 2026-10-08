@@ -11,6 +11,7 @@
 <!-- catalog:start -->
 ### 开发与工程
 
+- [Addy 的工程技能合集](collections/development/addy-agent-skills/README.zh.md) — 指导 AI 编程助手完成需求梳理、开发、测试、审查和发布准备。（待审核）
 - [Skills for Real Engineers](collections/development/engineering/README.zh.md) — 从需求澄清到实现与验证，把工程经验带进 Agent 协作。（待审核）
 - [Superpowers · 软件开发](collections/development/superpowers/README.zh.md) — 用可组合的开发 Skills，引导编程 Agent 完成设计、规划、实现、调试与评审。（待审核）
 

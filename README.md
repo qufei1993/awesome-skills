@@ -11,6 +11,7 @@ Listings may include pending collections. Maintainers review each collection thr
 <!-- catalog:start -->
 ### Development & Engineering
 
+- [Addy's Agent Skills](collections/development/addy-agent-skills/README.md) — Guide AI coding agents through requirements, implementation, testing, review, and release preparation. (pending review)
 - [Skills for Real Engineers](collections/development/engineering/README.md) — Bring engineering practice into agent collaboration, from clarifying requirements to implementation and verification. (pending review)
 - [Superpowers · Software Development](collections/development/superpowers/README.md) — Guide coding agents through design, planning, implementation, debugging, and review with reusable development Skills. (pending review)
 
