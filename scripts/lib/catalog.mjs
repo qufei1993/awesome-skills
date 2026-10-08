@@ -5,6 +5,8 @@ import { createHash } from 'node:crypto';
 import { parseCollectionMarkdown, parseTranslationMarkdown } from './markdown.mjs';
 import { parseContributionMarkdown } from './contribution.mjs';
 import { validateCollection, indexItem, externalCoverUrl } from './site-contract.mjs';
+import { resolveSubmission } from './upstream.mjs';
+import { collectionInputs } from './generation-context.mjs';
 
 const SHA = /^[a-f0-9]{40}$/i;
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -400,7 +402,7 @@ function publicInstallationScope(data,contribution,file) {
   }
   if (covered.size !== items.length) fail(file,'links','must cover every recorded installation directory');
 }
-async function publicPresentations(rootDir,directory,data,baseLanguage,{metadataFile,requiredLanguage}={}) {
+async function publicPresentations(rootDir,directory,data,baseLanguage,{metadataFile,requiredLanguage,resolvedScope=false}={}) {
   const publicReadmes={},browseFiles={},directoryPresentations={};
   let canonicalContribution;
   for (const [name,language] of [['README.md','en'],['README.zh.md','zh']]) {
@@ -413,7 +415,7 @@ async function publicPresentations(rootDir,directory,data,baseLanguage,{metadata
     }
     const contribution=parseContributionMarkdown(source,{filename:file});
     if (canonicalContribution) matchingContributions(contribution,canonicalContribution,file);
-    else {canonicalContribution=contribution; publicInstallationScope(data,contribution,file);}
+    else {canonicalContribution=contribution; if (!resolvedScope) publicInstallationScope(data,contribution,file);}
     await contributionCover(directory,contribution,file);
     const presentation=submissionPresentation(contribution);
     if (baseLanguage === 'en' && language === 'zh') {
@@ -438,6 +440,7 @@ async function submissionRecord(rootDir,entry,file,source) {
   const language=path.basename(file) === 'README.md' ? 'en' : 'zh';
   const directoryPresentations={[language]:submissionPresentation(contribution)};
   const browseFiles={[language]:file};
+  const publicReadmes={[language]:contribution};
   for (const [name,translationLanguage] of [['README.md','en'],['README.zh.md','zh']]) {
     const translationFile=path.join(entry.directory,name);
     if (translationFile === file) continue;
@@ -449,13 +452,14 @@ async function submissionRecord(rootDir,entry,file,source) {
     await contributionCover(entry.directory,translated,translationFile);
     directoryPresentations[translationLanguage]=submissionPresentation(translated);
     browseFiles[translationLanguage]=translationFile;
+    publicReadmes[translationLanguage]=translated;
   }
   const document={slug:entry.name,category:entry.category,...directoryPresentations[language],status:'draft',skills:[],links:contribution.links};
   if (contribution.sourceUrl !== undefined) document.sourceUrl=contribution.sourceUrl;
   if (contribution.cover !== undefined) document.cover=contribution.cover;
-  return {kind:'submission',document,file,language,baseLanguage:language,directoryPresentations,browseFiles,complete:false};
+  return {kind:'submission',document,file,directory:entry.directory,language,baseLanguage:language,directoryPresentations,browseFiles,publicReadmes,complete:false};
 }
-async function readCatalog(rootDir, mode, {allowMissingCollections=false,allowHistoricalFlat=false}={}) {
+async function readCatalog(rootDir, mode, {allowMissingCollections=false,allowHistoricalFlat=false,resolveSources=false,previousRecords=new Map(),previousAssetHashes=new Map(),reviewApproval,request,previousTrusted=false}={}) {
   const metadata=await internalMetadata(rootDir);
   const collectionDir=path.join(rootDir,'collections');
   let entries;
@@ -497,17 +501,25 @@ async function readCatalog(rootDir, mode, {allowMissingCollections=false,allowHi
     const directory=entry.directory;
     if (!SLUG.test(entry.name)) fail(entry.name,'directory','must be a lowercase slug');
     await contained(rootDir,directory,entry.name,'directory');
-    const recordFile=await maintainerFile(directory),internal=metadata.get(entry.name),filename=internal?.file ?? recordFile ?? await canonicalFile(directory);
+    const recordFile=await maintainerFile(directory);
+    let internal=metadata.get(entry.name);
+    const filename=internal?.file ?? recordFile ?? await canonicalFile(directory);
     if (internal && recordFile) fail(filename,'metadata','cannot coexist with a legacy record file');
     await contained(rootDir,filename,entry.name,path.basename(filename));
     const source=internal ? undefined : await readFile(filename,'utf8');
     if (!internal && !/^---[ \t]*(?:\r?\n|$)/.test(source.replace(/^\uFEFF/,''))) {
       if (recordFile) fail(filename,'record','must contain a complete frontmatter maintainer record');
       const record=await submissionRecord(rootDir,entry,filename,source);
-      if (registries.slug.has(entry.name)) fail(filename,'slug',`conflicts with ${registries.slug.get(entry.name)}`);
-      registries.slug.set(entry.name,filename);
-      records.push(record);
-      continue;
+      if (!resolveSources) {
+        if (registries.slug.has(entry.name)) fail(filename,'slug',`conflicts with ${registries.slug.get(entry.name)}`);
+        registries.slug.set(entry.name,filename);
+        records.push(record);
+        continue;
+      }
+      const inputs=await collectionInputs({rootDir,directory,record});
+      const previous=previousRecords.get(entry.name);
+      const parsed=await resolveSubmission(record,{rootDir,...inputs,previous,request});
+      internal={parsed,generated:true,previous,inputs};
     }
     const parsed=internal?.parsed ?? parseCollectionMarkdown(source,{filename});
     if (['README.zh.md','record.zh.md'].includes(path.basename(filename)) && parsed.language !== 'zh') fail(filename,'language','must match the canonical filename');
@@ -522,12 +534,28 @@ async function readCatalog(rootDir, mode, {allowMissingCollections=false,allowHi
     const curator=curatorFields(parsed.curator ?? data.curator,filename);
     if (curator !== undefined) data.curator=curator;
     let {baseLanguage,directoryPresentations}=internal ? {baseLanguage:parsed.language,directoryPresentations:{}} : await translations(rootDir,directory,parsed,filename,{publicReadmes:!!recordFile});
-    const publicData=internal || recordFile ? await publicPresentations(rootDir,directory,data,baseLanguage,internal ? {metadataFile:filename,requiredLanguage:parsed.language}:{}) : undefined;
+    const publicData=internal || recordFile ? await publicPresentations(rootDir,directory,data,baseLanguage,internal ? {metadataFile:filename,requiredLanguage:parsed.language,resolvedScope:!!internal.generated}:{}) : undefined;
     if (publicData) {directoryPresentations=publicData.directoryPresentations; baseLanguage=publicData.baseLanguage;}
     if (data.slug !== entry.name) fail(filename,'slug','must match its collection directory');
     ownedFields(data,filename);
     sourcePaths(data,filename);
     const asset=await coverAsset(rootDir,directory,parsed,filename,publicData?.publicReadmes);
+    if (resolveSources) {
+      const old=internal?.previous ?? previousRecords.get(data.slug);
+      let changed=false;
+      if (old) {
+        if (data.id !== old.id || data.createdAt !== old.createdAt) fail(filename,'identity','must preserve the existing identity and creation date');
+        changed=comparable(data) !== comparable(old) || asset && previousAssetHashes.has(data.slug) && digest(asset.bytes) !== previousAssetHashes.get(data.slug);
+        data.revision=old.revision+(changed ? 1 : 0);
+        const inputs=internal?.inputs ?? (changed && publicData ? await collectionInputs({rootDir,directory,record:{publicReadmes:publicData.publicReadmes}}) : undefined);
+        data.updatedAt=changed
+          ? new Date(Math.max(Date.parse(inputs?.dates.updatedAt ?? old.updatedAt),Date.parse(old.updatedAt)+1)).toISOString()
+          : old.updatedAt;
+        if (changed && data.review.status !== 'rejected' || internal?.generated && !previousTrusted) data.review={status:'pending',notes:[]};
+        else if (internal?.generated) data.review=structuredClone(old.review);
+      }
+      if (reviewApproval && (internal?.generated || changed) && data.review.status !== 'rejected') data.review=structuredClone(reviewApproval);
+    }
     const pending = (data.review?.status ?? 'pending') === 'pending' || data.status === 'draft';
     const validated=validationDocument(data,pending);
     await validateCollection(validated,`${validated.id}.json`,rootDir,{validateLocalCover:async url => {
@@ -543,15 +571,40 @@ async function readCatalog(rootDir, mode, {allowMissingCollections=false,allowHi
     }
     let complete=true;
     try { await validateCollection(data,`${data.id}.json`,rootDir,{validateLocalCover:async()=>asset.info}); } catch { complete=false; }
-    records.push({document:data,file:filename,language:parsed.language,baseLanguage,directoryPresentations,curator,asset,complete,...publicData});
+    records.push({document:data,file:filename,directory,language:parsed.language,baseLanguage,directoryPresentations,curator,asset,complete,generated:!!internal?.generated,...publicData});
   }
   return records;
 }
-export async function loadCatalog({rootDir,mode='submission',baseDir} = {}) {
+export async function loadCatalog({rootDir,mode='submission',baseDir,resolveSources=false,previousRecords,reviewApproval,request} = {}) {
   if (typeof rootDir !== 'string') throw new Error('rootDir is required');
   if (!['submission','production','publish'].includes(mode)) throw new Error('mode must be submission or production');
-  const records=await readCatalog(path.resolve(rootDir),mode === 'publish' ? 'production' : mode);
-  if (baseDir) checkBase(records,await readCatalog(path.resolve(baseDir),'submission',{allowMissingCollections:true,allowHistoricalFlat:true}));
+  const previousTrusted=previousRecords !== undefined;
+  if (!previousRecords) {
+    previousRecords=new Map();
+    if (resolveSources && !baseDir) {
+      try {
+        const cached=JSON.parse(await readFile(path.join(rootDir,'dist/generated-catalog.json'),'utf8'));
+        for (const document of cached) previousRecords.set(document.slug,document);
+      } catch(error) {if (error.code !== 'ENOENT') throw error;}
+    }
+  }
+  const options={resolveSources,previousRecords,previousAssetHashes:previousRecords.assetHashes ?? new Map(),reviewApproval,request,previousTrusted};
+  let base;
+  if (baseDir) {
+    base=await readCatalog(path.resolve(baseDir),'submission',{...options,reviewApproval:undefined,allowMissingCollections:true,allowHistoricalFlat:true});
+    if (resolveSources) for (const record of base) if (record.complete) {
+      previousRecords.set(record.document.slug,record.document);
+      if (record.asset) options.previousAssetHashes.set(record.document.slug,digest(record.asset.bytes));
+    }
+  }
+  const records=await readCatalog(path.resolve(rootDir),mode === 'publish' ? 'production' : mode,options);
+  if (base) checkBase(records,base);
+  if (resolveSources) {
+    await mkdir(path.join(rootDir,'dist'),{recursive:true});
+    const state=path.join(rootDir,'dist/generated-catalog.json');
+    await writeFile(`${state}.tmp`,JSON.stringify(records.filter(r=>r.generated).map(r=>r.document),null,2)+'\n');
+    await rename(`${state}.tmp`,state);
+  }
   return records;
 }
 export async function validateCatalog(options) {
@@ -642,9 +695,9 @@ async function safeOutputParent(parent,root) {
     }
   }
 }
-export async function buildCatalog({rootDir,outputDir=path.join(rootDir,'dist/collections'),preview=false,baseDir,sourceRevision}={}) {
+export async function buildCatalog({rootDir,outputDir=path.join(rootDir,'dist/collections'),preview=false,baseDir,sourceRevision,resolveSources=false,previousRecords,reviewApproval,request}={}) {
   if (sourceRevision !== undefined && !SHA.test(sourceRevision)) throw new Error('sourceRevision must be a full 40-character commit SHA');
-  const all=await loadCatalog({rootDir,baseDir,mode:preview?'submission':'production'});
+  const all=await loadCatalog({rootDir,baseDir,mode:preview?'submission':'production',resolveSources,previousRecords,reviewApproval,request});
   const selected=all.filter(r=>r.complete && r.document.status === 'active' && (preview || r.document.review.status === 'approved')).sort((a,b)=>(a.document.sortOrder ?? 0)-(b.document.sortOrder ?? 0)||a.document.slug.localeCompare(b.document.slug));
   const records=selected.map(r=>r.document);
   const index={schemaVersion:1,collections:records.map(indexItem)};

@@ -11,7 +11,7 @@ import { startDataServer } from './data-server.mjs';
 
 const print = line => process.stdout.write(`${line}\n`);
 
-export async function startLocalPreview({ rootDir, siteDir, sitePort = 8775, dataPort = 8776, watch = true, sourceRevision, log = print }) {
+export async function startLocalPreview({ rootDir, siteDir, sitePort = 8775, dataPort = 8776, watch = true, sourceRevision, resolveSources = false, log = print }) {
   rootDir = path.resolve(rootDir);
   siteDir = path.resolve(siteDir);
   await access(path.join(siteDir, 'vite.config.ts'));
@@ -33,7 +33,7 @@ export async function startLocalPreview({ rootDir, siteDir, sitePort = 8775, dat
   }
   function publish() {
     return serialize(async () => {
-      await buildCatalog({ rootDir, outputDir: snapshotDir, preview: true, sourceRevision });
+      await buildCatalog({ rootDir, outputDir: snapshotDir, preview: true, sourceRevision, resolveSources });
       lastPublication = await publishSnapshot({ fromDir: snapshotDir, store, allowPreview: true });
       notify();
       log(`已更新 ${lastPublication.count} 个合集；新增图片 ${lastPublication.uploadedImages} 张，复用图片 ${lastPublication.reusedImages} 张。`);
@@ -63,7 +63,7 @@ export async function startLocalPreview({ rootDir, siteDir, sitePort = 8775, dat
     const previous = Object.fromEntries(Object.keys(variables).map(key => [key, process.env[key]]));
     try {
       Object.assign(process.env, variables);
-      siteServer = await createServer({ root: siteDir, configFile: path.join(siteDir, 'vite.config.ts'), mode: 'development', server: { host: '127.0.0.1', port: sitePort, strictPort: true }, logLevel: 'warn' });
+      siteServer = await createServer({ root: siteDir, cacheDir: path.join(rootDir,'dist/local-vite-cache'), configFile: path.join(siteDir, 'vite.config.ts'), mode: 'development', server: { host: '127.0.0.1', port: sitePort, strictPort: true }, logLevel: 'warn' });
       await siteServer.listen();
     } finally {
       for (const [key, value] of Object.entries(previous)) {
@@ -79,6 +79,7 @@ export async function startLocalPreview({ rootDir, siteDir, sitePort = 8775, dat
         }, 350);
       };
       for (const directory of ['collections', '.catalog']) {
+        try { await access(path.join(rootDir,directory)); } catch(error) {if (error.code === 'ENOENT') continue; throw error;}
         const watcher = watchDirectory(path.join(rootDir, directory), { recursive: true }, changed);
         watcher.on('error', error => log(`文件监听失败：${error.message}`));
         watchers.push(watcher);

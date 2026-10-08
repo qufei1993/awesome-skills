@@ -10,15 +10,20 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      CATALOG_USE_RELEASE_BASELINE: '1'
     steps:
       - uses: actions/checkout@v4
         with:
           path: proposal
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
           path: baseline
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -29,7 +34,9 @@ jobs:
         working-directory: proposal
       - run: npm run check
         working-directory: proposal
-      - run: npm run validate -- --base-dir ../baseline
+      - run: npm run validate -- --resolve-upstream --base-dir ../baseline
+        working-directory: proposal
+      - run: npm run build:preview -- --base-dir ../baseline
         working-directory: proposal
       - name: Verify preview snapshot for review
         id: preview
@@ -74,15 +81,20 @@ jobs:
 
   publish-readiness:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      CATALOG_USE_RELEASE_BASELINE: '1'
     steps:
       - uses: actions/checkout@v4
         with:
           path: proposal
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
           path: baseline
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -91,5 +103,5 @@ jobs:
           cache-dependency-path: proposal/package-lock.json
       - run: npm ci
         working-directory: proposal
-      - run: npm run validate:publish -- --base-dir ../baseline
+      - run: npm run validate:publish -- --resolve-upstream --base-dir ../baseline
         working-directory: proposal

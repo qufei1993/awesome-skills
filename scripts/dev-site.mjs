@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { startLocalPreview } from './lib/local-preview.mjs';
 
 const rootDir = fileURLToPath(new URL('../', import.meta.url));
-const options = { rootDir, siteDir: path.resolve(rootDir, '../skills-hub-web') };
+const options = { rootDir, siteDir: path.resolve(rootDir, '../skills-hub-web'), resolveSources: true };
 const args = process.argv.slice(2);
 for (let index = 0; index < args.length; index++) {
   const flag = args[index];

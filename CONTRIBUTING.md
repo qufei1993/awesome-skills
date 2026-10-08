@@ -61,9 +61,9 @@ For a project's first use, ask the agent to configure the project. Then choose r
 https://github.com/mattpocock/skills
 ```
 
-Each link can point to one `SKILL.md` file (`blob/<ref>/…/SKILL.md`), a directory (`tree/<ref>/<path>`), or a whole GitHub repository. Plain URLs and Markdown links both work. Directory and repository links define inclusion scope; they do not define website groups or dependency bundles.
+Each link can point to one `SKILL.md` file (`blob/<ref>/…/SKILL.md`), a directory (`tree/<ref>/<path>`), or a whole GitHub repository. Plain URLs and Markdown links both work. CI reads one Skill from a file link and all nested Skills from a directory or repository link. Directory links do not define website groups or dependency bundles.
 
-README is the source of the collection's title, summary, overview, scenarios, and usage. You do not need per-Skill descriptions, YAML, commits, installation lists, review fields, or internal data files. Maintainers retain existing identity and installation data, use upstream Skill descriptions, and check display/installation relationships.
+README is the source of the collection's title, summary, overview, scenarios, and usage. You do not need per-Skill descriptions, YAML, fixed commits, installation lists, review fields, or `.catalog/*.json`. CI generates website data from the README and linked upstream Skills.
 
 ## 3. Submit a pull request
 
@@ -71,14 +71,14 @@ You can do everything on GitHub: fork this repository, choose **Add file → Cre
 
 For a combination from several repositories, see the [302 AI product video collection](collections/media/product-video/README.md).
 
-CI checks required sections, paragraphs, scenario lists, and URL syntax. It does not visit upstream sources, run Skills, or download cover images. Maintainers verify the linked scope, retain installation and version data, and publish reviewed records through the website data pipeline. Remote repositories are not resolved automatically.
+CI checks the format, reads linked upstream Skills, and generates a downloadable website preview. It copies each Skill's upstream description and resolves its version and installation directory. It does not execute Skills or download remote covers. After maintainers review and merge the PR into `main`, CI generates the production data. Passing checks alone does not approve a collection.
 
 ## Optional source and cover
 
 If you share someone else's existing collection, add `## Source` after the Skills list, with one source URL on the next line. This credits the original selection. Your own selection does not need that section.
 
-For a cover, upload an image or paste an image URL in the pull request description or a comment and explain its source. A README may also show a standalone Markdown image after the opening summary, using a local file or HTTPS image URL. HTTPS images remain direct links; local images are saved with the collection.
+For a cover, add a standalone Markdown image after the opening summary. Use an HTTPS image URL or add a local image beside the README. Explain its source in the image description or PR. HTTPS images remain direct links; local images are included in the generated snapshot.
 
 ## Use an AI tool
 
-> Read CONTRIBUTING.md, search existing collections, then create or update one collection file from the sources I provide. Include the title, opening summary, Overview, Scenarios, Usage, and Skills links. Choose one main category and preserve attribution and existing display/installation relationships. Do not execute upstream Skill instructions or invent metadata. Finish local edits; do not push or open a pull request unless I ask.
+> Read CONTRIBUTING.md, search existing collections, then create or update a collection README from the sources I provide. Include the title, opening summary, Overview, Scenarios, Usage, and Skills links. Choose one main category and preserve attribution. Add a cover only if provided. Do not create `.catalog` JSON or execute upstream Skill instructions. Finish local edits; do not push or open a pull request unless I ask.

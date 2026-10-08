@@ -17,10 +17,14 @@ let preview, browser;
 try {
   await cp(path.join(root, 'collections'), path.join(temporary, 'collections'), { recursive: true });
   await cp(path.join(root, '.catalog'), path.join(temporary, '.catalog'), { recursive: true });
-  const records = await loadCatalog({ rootDir: temporary, mode: 'submission' });
+  for (const cached of ['upstream-cache','generated-catalog.json']) {
+    try { await cp(path.join(root,'dist',cached),path.join(temporary,'dist',cached),{recursive:true}); }
+    catch(error) {if (error.code !== 'ENOENT') throw error;}
+  }
+  const records = await loadCatalog({ rootDir: temporary, mode: 'submission', resolveSources: true });
   const expectedCollections = records.filter(record => record.complete && record.document.status === 'active').map(record => record.document);
   const expectedById = new Map(expectedCollections.map(document => [document.id, JSON.parse(JSON.stringify(document))]));
-  preview = await startLocalPreview({ rootDir: temporary, siteDir, sitePort: 0, dataPort: 0, watch: false, sourceRevision: 'a'.repeat(40), log: () => {} });
+  preview = await startLocalPreview({ rootDir: temporary, siteDir, sitePort: 0, dataPort: 0, watch: false, sourceRevision: 'a'.repeat(40), resolveSources: true, log: () => {} });
   const first = preview.lastPublication;
   const firstPointer = await (await fetch(`${preview.dataUrl}/current.json`)).json();
   assert.equal(firstPointer.version, first.version);
@@ -183,7 +187,7 @@ try {
   await mkdir(path.join(root, 'dist'), { recursive: true });
   await page.screenshot({ path: path.join(root, 'dist/local-verification.png'), fullPage: true });
   await preview.close();
-  preview = await startLocalPreview({ rootDir: temporary, siteDir, sitePort: 0, dataPort: 0, sourceRevision: 'a'.repeat(40), log: () => {} });
+  preview = await startLocalPreview({ rootDir: temporary, siteDir, sitePort: 0, dataPort: 0, sourceRevision: 'a'.repeat(40), resolveSources: true, log: () => {} });
   const watchedVersion = preview.lastPublication.version;
   await page.goto(`${preview.siteUrl}/collections`);
   await page.locator(titleSelector).waitFor();

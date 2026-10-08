@@ -16,12 +16,16 @@ jobs:
   snapshot:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      CATALOG_USE_RELEASE_BASELINE: '1'
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -29,9 +33,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check
-      - run: npm run validate:publish
+      - run: npm run validate:publish -- --resolve-upstream
       - name: Build fixed production snapshot
-        run: npm run build -- --output dist/collections --source-revision "$GITHUB_SHA"
+        run: npm run build -- --reviewed-main --output dist/collections --source-revision "$GITHUB_SHA"
       - name: Record manifest checksum
         run: |
           node --input-type=module <<'NODE'
