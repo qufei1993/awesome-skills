@@ -63,12 +63,21 @@ export async function checkStaticData({ url, assetsDir=path.join(root, 'dist/ass
     if (verifyResponseHeaders && response.status !== 404) verifyHeaders(response, key);
     return { response, bytes };
   }
-  const read = async key => {
-    if (!loaded.has(key)) loaded.set(key, await fetchFile(key));
-    const { response, bytes } = loaded.get(key);
-    return response.status === 404 ? null : bytes;
-  };
   const deadline = performance.now() + waitTimeoutMs;
+  const read = async key => {
+    if (loaded.has(key)) return loaded.get(key).bytes;
+    let file = await fetchFile(key);
+    while (file.response.status === 404) {
+      const delay = Math.min(pollIntervalMs, deadline - performance.now());
+      if (delay <= 0) return null;
+      await new Promise(resolve => setTimeout(resolve, delay));
+      const remaining = deadline - performance.now();
+      if (remaining <= 0) return null;
+      file = await fetchFile(key, true, Math.max(1, Math.ceil(Math.min(30000, remaining))));
+    }
+    loaded.set(key, file);
+    return file.bytes;
+  };
   let lastStatus;
   for (;;) {
     const remaining = deadline - performance.now();

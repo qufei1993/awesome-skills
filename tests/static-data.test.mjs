@@ -44,12 +44,13 @@ function staticRequest(assetsDir, overrides={}) {
   };
 }
 
-async function hostedPublication(t, assetsDir, currentResponses) {
+async function hostedPublication(t, assetsDir, currentResponses, fileResponses={}) {
   const requests = [];
   const server = createServer(async (request, response) => {
     const key = new URL(request.url, 'http://localhost').pathname.slice(1);
     requests.push({ key, authorization:request.headers.authorization, cookie:request.headers.cookie });
-    const current = key === 'current.json' && currentResponses[Math.min(requests.filter(entry => entry.key === 'current.json').length - 1, currentResponses.length - 1)];
+    const responses = key === 'current.json' ? currentResponses : fileResponses[key];
+    const current = responses?.[Math.min(requests.filter(entry => entry.key === key).length - 1, responses.length - 1)];
     if (current?.delayMs) await new Promise(resolve => setTimeout(resolve, current.delayMs));
     let bytes = current?.bytes;
     let status = current?.status ?? 200;
@@ -96,6 +97,45 @@ test('bounds a slow hosted pointer request by the publication wait deadline', as
   await assert.rejects(checkStaticData({ url:host.url, assetsDir, waitTimeoutMs:100, pollIntervalMs:10 }), /timeout|timed out/i);
   assert.ok(performance.now() - started < 250);
   assert.equal(host.requests.length, 1);
+});
+
+test('waits for snapshot and image files that return 404 after the hosted pointer already matches', async t => {
+  const assetsDir = await publication(t), pointer = JSON.parse(await readFile(path.join(assetsDir, 'current.json')));
+  const index = `${pointer.snapshotPath}index.json`, image = Object.values(pointer.assets)[0];
+  const unavailable = { status:404, bytes:Buffer.from('Not Found') };
+  const host = await hostedPublication(t, assetsDir, [{}], { [index]:[unavailable, {}], [image]:[unavailable, {}] });
+  const result = await checkStaticData({ url:host.url, assetsDir, waitTimeoutMs:1000, pollIntervalMs:10 });
+  assert.equal(result.version, pointer.version);
+  assert.equal(host.requests.filter(request => request.key === index).length, 2);
+  assert.equal(host.requests.filter(request => request.key === image).length, 2);
+  assert.equal(host.requests.filter(request => request.key === 'current.json').length, 1);
+  assert.equal(result.checkedFiles, 6);
+});
+
+test('stops retrying a persistently missing image at the propagation deadline', { timeout:5000 }, async t => {
+  const assetsDir = await publication(t), pointer = JSON.parse(await readFile(path.join(assetsDir, 'current.json')));
+  const image = Object.values(pointer.assets)[0];
+  const host = await hostedPublication(t, assetsDir, [{}], { [image]:[{ status:404, bytes:Buffer.from('Not Found') }] });
+  await assert.rejects(checkStaticData({ url:host.url, assetsDir, waitTimeoutMs:300, pollIntervalMs:20 }), error => error.name === 'TimeoutError' || /missing.*file/i.test(error.message));
+  assert.ok(host.requests.some(request => request.key === image));
+  assert.equal(host.requests.filter(request => request.key === 'current.json').length, 1);
+});
+
+test('continues checking existing files when full verification takes longer than the propagation deadline', async t => {
+  const assetsDir = await publication(t), pointer = JSON.parse(await readFile(path.join(assetsDir, 'current.json')));
+  const host = await hostedPublication(t, assetsDir, [{}], { [`${pointer.snapshotPath}index.json`]:[{ delayMs:400 }] });
+  const result = await checkStaticData({ url:host.url, assetsDir, waitTimeoutMs:250, pollIntervalMs:10 });
+  assert.equal(result.version, pointer.version);
+  assert.equal(result.checkedFiles, 6);
+  assert.ok(host.requests.some(request => request.key.startsWith('images/')));
+});
+
+test('fails a forbidden image immediately after a temporary 404 instead of hiding the HTTP error', async t => {
+  const assetsDir = await publication(t), pointer = JSON.parse(await readFile(path.join(assetsDir, 'current.json')));
+  const image = Object.values(pointer.assets)[0];
+  const host = await hostedPublication(t, assetsDir, [{}], { [image]:[{ status:404, bytes:Buffer.from('Not Found') }, { status:403, bytes:Buffer.from('Forbidden') }, {}] });
+  await assert.rejects(checkStaticData({ url:host.url, assetsDir, waitTimeoutMs:1000, pollIntervalMs:10 }), /HTTP 403/);
+  assert.equal(host.requests.filter(request => request.key === image).length, 2);
 });
 
 test('verifies generated data, all published files, CORS, cache and 404 behavior without sending credentials', async t => {
@@ -177,7 +217,7 @@ test('checks the retained preceding version as well as the current version', asy
   const result = await checkStaticData({ url:'https://data.example.com/data', assetsDir, request:staticRequest(assetsDir) });
   assert.deepEqual(result.retainedVersions, [previousSnapshot.release.version]);
   const missingIndex = `${previousSnapshot.release.snapshotPath}index.json`;
-  await assert.rejects(checkStaticData({ url:'https://data.example.com/data', assetsDir, request:staticRequest(assetsDir, { [missingIndex]:async () => new Response('', { status:404 }) }) }), /missing.*file/i);
+  await assert.rejects(checkStaticData({ url:'https://data.example.com/data', assetsDir, waitTimeoutMs:0, request:staticRequest(assetsDir, { [missingIndex]:async () => new Response('', { status:404 }) }) }), /missing.*file/i);
 });
 
 test('limits streamed response bytes even when Content-Length is absent', async t => {
