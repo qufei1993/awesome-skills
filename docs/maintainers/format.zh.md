@@ -18,7 +18,7 @@ CI 解析 README 中的 GitHub 技能链接：
 
 ## 稳定数据
 
-首次生成创建稳定身份和初始版本。后续生成以上一次正式快照为基线。合集输入不变时复用已记录的来源提交。输入变化时重新解析，保留稳定身份和版本历史。可信 CI 通过 `CATALOG_USE_RELEASE_BASELINE=1` 读取上一次 Release 快照；本地生成使用已有缓存或显式基线。
+首次生成创建稳定身份和初始版本。后续生成以上一次正式快照为基线。合集输入不变时复用已记录的来源提交。输入变化时重新解析，保留稳定身份和版本历史。可信 CI 从 `CATALOG_DATA_BASE_URL` 指定的发布数据地址读取 `current.json` 和对应快照。本地生成使用已有缓存或显式基线。
 
 ## 审核与核验
 
@@ -32,4 +32,4 @@ PR 的 CI 检查格式，解析上游数据并生成预览。新记录在预览�
 
 `npm run validate` 离线检查 README 格式。`npm run validate -- --resolve-upstream` 还会解析链接指向的上游来源。`npm run build`、`npm run build:preview` 和 `npm run dev:site` 默认解析上游数据。`npm run check` 生成预览时需要联网。
 
-封面可选。本地封面进入快照；HTTPS 封面保留直链。官网预览、发布与回退见[部署说明](deployment.zh.md)。
+封面可选。本地封面进入快照；HTTPS 封面保留直链。官网预览与发布见[部署说明](deployment.zh.md)。

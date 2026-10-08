@@ -45,7 +45,7 @@ See [data rules](maintainers/format.md) for generation and review details, and t
 
 ## Validation and publication
 
-PR CI checks the README format, resolves upstream Skills, and generates a downloadable preview snapshot. Maintainers review the README and preview, then merge the PR into `main`. Trusted publication CI verifies the merged PR and generates production data.
+PR CI checks the README format, resolves upstream Skills, and prepares static preview files. Maintainers review the README and preview, then merge the PR into `main`. Trusted publication CI verifies the merged PR and automatically deploys production data.
 
 Production requires complete, active, approved records. Preview includes complete pending records for review. Verification states reflect actual evidence: `needs-review` marks pending checks, and `not-tested` marks pending tests. Failed installation or workflow results block production.
 
@@ -61,6 +61,8 @@ AGENTS.md is the shared entry point; CLAUDE.md references it. AI tools read the 
 
 ## Website data pipeline
 
-The pipeline generates a JSON snapshot and publishes it for the website to read at runtime. The publisher hashes `manifest.json` bytes for the version, stores JSON under `snapshots/<version>/`, and switches `current.json` after the complete version is ready. Local covers use shared `images/<SHA256>.<ext>` objects, so identical images share one uploaded object.
+Cloudflare Workers Static Assets hosts the generated JSON and local covers. The website stays on Cloudflare Pages and reads this data at runtime. Merging a collection PR deploys data independently of the website.
 
-`npm run dev:site -- --site ../skills-hub-web` watches this repository, publishes local preview data, and runs the website. Configure R2 and `VITE_COLLECTIONS_BASE_URL` for cloud publication. Commands, website configuration, and rollback are in [deployment](maintainers/deployment.md).
+CI prepares a complete static deployment. JSON lives under `snapshots/<version>/`; `current.json` selects its version. The version is the SHA256 of the manifest bytes. Local covers use `images/<SHA256>.<ext>`, so identical images share one file.
+
+`npm run dev:site -- --site ../skills-hub-web` watches this repository, serves preview data, and runs the website. See [deployment](maintainers/deployment.md) for cloud configuration and PR testing.

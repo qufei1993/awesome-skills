@@ -10,9 +10,13 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: catalog-pr-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
     env:
       GITHUB_TOKEN: ${{ github.token }}
-      CATALOG_USE_RELEASE_BASELINE: '1'
+      CATALOG_DATA_BASE_URL: ${{ vars.CATALOG_DATA_BASE_URL }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -38,6 +42,22 @@ jobs:
         working-directory: proposal
       - run: npm run build:preview -- --base-dir ../baseline
         working-directory: proposal
+      - name: Package and simulate static deployment
+        working-directory: proposal
+        run: |
+          npm run package:data -- --from dist/collections --output dist/assets --preview
+          npm run deploy:data -- --dry-run
+      - name: Test static delivery with the Cloudflare local runtime
+        working-directory: proposal
+        run: |
+          npx wrangler dev --local --port 8787 --show-interactive-dev-session=false > dist/wrangler-preview.log 2>&1 &
+          preview_process=$!
+          trap 'kill "$preview_process" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8787/current.json > /dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          npm run test:data -- --url http://127.0.0.1:8787 --preview
       - name: Verify preview snapshot for review
         id: preview
         working-directory: proposal
@@ -65,7 +85,7 @@ jobs:
         run: |
           rm -f ../../catalog-preview.zip
           zip -q -r ../../catalog-preview.zip .
-        working-directory: proposal/dist/collections
+        working-directory: proposal/dist/assets
       - name: Checksum preview archive
         run: sha256sum catalog-preview.zip > catalog-preview.zip.sha256
         working-directory: proposal
@@ -78,12 +98,40 @@ jobs:
             proposal/catalog-preview.zip.sha256
           retention-days: 30
           if-no-files-found: error
+      - name: Check cloud preview settings
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        id: cloud
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -n "$CLOUDFLARE_ACCOUNT_ID" ] && [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            echo 'enabled=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'enabled=false' >> "$GITHUB_OUTPUT"
+            echo 'Static deployment checks passed. Configure the Workers account variable and Actions secret to test a cloud preview.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Deploy isolated PR preview
+        if: steps.cloud.outputs.enabled == 'true'
+        working-directory: proposal
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          npm run deploy:data -- --name "skills-hub-collections-pr-$PR_NUMBER"
+          npm run test:data -- --deployment dist/deployment.json --preview
+          node --input-type=module <<'NODE'
+          import { readFile, appendFile } from 'node:fs/promises';
+          const { url } = JSON.parse(await readFile('dist/deployment.json', 'utf8'));
+          await appendFile(process.env.GITHUB_STEP_SUMMARY, `Verified cloud preview: [collection data](${url}/current.json).\n`);
+          NODE
 
   publish-readiness:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ github.token }}
-      CATALOG_USE_RELEASE_BASELINE: '1'
+      CATALOG_DATA_BASE_URL: ${{ vars.CATALOG_DATA_BASE_URL }}
     steps:
       - uses: actions/checkout@v4
         with:

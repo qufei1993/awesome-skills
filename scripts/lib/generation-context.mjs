@@ -4,7 +4,8 @@ import { promisify } from 'node:util';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { parseContributionMarkdown } from './contribution.mjs';
-import { downloadSnapshot, verifySnapshot } from './snapshot.mjs';
+import { verifySnapshot } from './snapshot.mjs';
+import { readCurrentSnapshot } from './publication.mjs';
 
 const execute=promisify(execFile),SHA=/^[a-f0-9]{40}$/i;
 const REPOSITORY='qufei1993/awesome-skills',EPOCH='1970-01-01T00:00:00.000Z';
@@ -63,10 +64,6 @@ export async function collectionInputs({rootDir,directory,record}={}) {
   }
   return {inputDigest:fingerprint.digest('hex'),dates};
 }
-function repositoryName(repository) {
-  if(!/^[a-zA-Z0-9][a-zA-Z0-9._-]*\/[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(repository??''))throw new Error('Expected a trusted owner/repository name');
-  return repository;
-}
 function safeRequest(request=fetch) {
   return async (input,options={})=>{
     const url=new URL(input),api=url.origin==='https://api.github.com';
@@ -98,50 +95,75 @@ function snapshotDocuments(verified) {
   documents.assetHashes=assetHashes;
   return documents;
 }
-async function snapshotCache(rootDir,repository,revision) {
+function canonicalBaseUrl(value) {
+  let url;
+  try {url=new URL(value);}catch {throw new Error('Baseline requires a canonical HTTPS data URL');}
+  if(typeof value!=='string' || url.protocol!=='https:' || url.username || url.password || /[?#]/.test(value) || /[%\\]/.test(url.pathname) || value!==url.href && `${value}/`!==url.href)throw new Error('Baseline requires a canonical HTTPS data URL without credentials or URL parameters');
+  if(!url.pathname.endsWith('/'))url.pathname+='/';
+  return url.href;
+}
+function publicStore(baseUrl,request) {
+  const limit=10*1024*1024;
+  return {async get(key) {
+    if(typeof key!=='string' || !key || key.split('/').some(part=>!part || part==='.' || part==='..') || /[\u0000-\u0020\u007f\\%?#:]/.test(key))throw new Error('Invalid public snapshot object key');
+    const response=await request(`${baseUrl}${key}`,{headers:{Accept:'application/json'},redirect:'manual',credentials:'omit',signal:AbortSignal.timeout(30000)});
+    if(response?.redirected || response?.status>=300 && response.status<400)throw new Error('Public snapshot redirect refused');
+    if(response?.status===404 && key==='current.json')return null;
+    if(response?.status===404)throw new Error(`Missing publication file: ${key}`);
+    if(!response?.ok)throw new Error(`Public snapshot request failed (HTTP ${response?.status??'unknown'})`);
+    if(Number(response.headers.get('content-length'))>limit){await response.body?.cancel();throw new Error('Public snapshot response size limit exceeded');}
+    const reader=response.body?.getReader();if(!reader)throw new Error('Public snapshot response body is missing');
+    const chunks=[];let size=0;
+    try {
+      for(;;){const {done,value}=await reader.read();if(done)break;if((size+=value.length)>limit)throw new Error('Public snapshot response size limit exceeded');chunks.push(Buffer.from(value));}
+    }finally{await reader.cancel();}
+    return Buffer.concat(chunks);
+  }};
+}
+async function snapshotCache(rootDir,baseUrl,revision) {
   const root=await realpath(rootDir),parent=path.join(root,'dist/generated-context/baselines');
   await mkdir(parent,{recursive:true});if(!within(root,await realpath(parent)))throw new Error('Previous snapshot cache escapes the repository');
-  return {parent,target:path.join(parent,digest(Buffer.from(`${repository}\0${revision??'local'}`)))};
+  return {parent,target:path.join(parent,digest(Buffer.from(`${baseUrl}\0${revision??'local'}`)))};
 }
-async function existingBaseline(target,repository,head,rootDir) {
+async function existingBaseline(target,baseUrl,head,rootDir) {
   let info;
   try {info=await lstat(target);}catch(error){if(error.code==='ENOENT')return undefined;throw error;}
   if(!info.isDirectory() || info.isSymbolicLink())throw new Error('Previous snapshot cache must be a directory');
   const metadataPath=path.join(target,'metadata.json');if((await lstat(metadataPath)).isSymbolicLink())throw new Error('Previous snapshot metadata cannot be a symbolic link');
   const metadata=JSON.parse(await readFile(metadataPath,'utf8'));
-  if(metadata.repository!==repository || metadata.head!==head || typeof metadata.empty!=='boolean')throw new Error('Previous snapshot cache identity mismatch');
-  if(metadata.empty)return new Map();
+  if(metadata.baseUrl!==baseUrl || metadata.head!==head || typeof metadata.empty!=='boolean')throw new Error('Previous snapshot cache identity mismatch');
+  if(metadata.empty)return null;
   if(!SHA.test(metadata.sourceRevision??''))throw new Error('Invalid cached source revision');
   if(!await ancestorRevision(rootDir,metadata.sourceRevision,head))throw new Error('Cached baseline revision is not an ancestor of this checkout');
-  return snapshotDocuments(await verifySnapshot({fromDir:path.join(target,'snapshot'),expectedRevision:metadata.sourceRevision}));
+  return verifySnapshot({fromDir:path.join(target,'snapshot'),expectedRevision:metadata.sourceRevision});
 }
-async function retrieveBaseline({rootDir,repository,request}) {
-  const head=await checkout(rootDir),{parent,target}=await snapshotCache(rootDir,repository,head);
-  const cached=await existingBaseline(target,repository,head,rootDir);if(cached!==undefined)return cached;
-  const fetcher=safeRequest(request),response=await fetcher(`https://api.github.com/repos/${repository}/releases?per_page=100`);
-  const releases=response?.status===404?[]:await responseJSON(response,'Release list');
-  if(!Array.isArray(releases))throw new Error('Release list must be an array');
-  const candidates=[];
-  for(const release of releases)if(!release.draft && !release.prerelease && /^snapshot-[a-f0-9]{40}$/.test(release.tag_name??'') && await ancestorRevision(rootDir,release.tag_name.slice(9),head))candidates.push(release);
-  candidates.sort((a,b)=>Number(b.tag_name===`snapshot-${head}`)-Number(a.tag_name===`snapshot-${head}`) || (Date.parse(b.published_at)||0)-(Date.parse(a.published_at)||0));
-  const sourceRevision=candidates[0]?.tag_name.slice(9);
-  const verified=sourceRevision?await downloadSnapshot({repo:repository,ref:sourceRevision,fetchImpl:fetcher}):undefined;
+async function retrieveBaseline({rootDir,baseUrl,request}) {
+  const head=await checkout(rootDir),{parent,target}=await snapshotCache(rootDir,baseUrl,head);
+  const cached=await existingBaseline(target,baseUrl,head,rootDir);if(cached!==undefined)return cached;
+  const verified=await readCurrentSnapshot({read:publicStore(baseUrl,request).get});
+  const sourceRevision=verified?.manifest.sourceRevision;
+  if(verified && !await ancestorRevision(rootDir,sourceRevision,head))throw new Error('Published baseline revision is not an ancestor of this checkout');
   const stage=await mkdtemp(path.join(parent,'.previous-snapshot-'));
   try {
     if(verified)for(const [name,bytes] of verified.files){const file=path.join(stage,'snapshot',name);await mkdir(path.dirname(file),{recursive:true});await writeFile(file,bytes);}
-    await writeFile(path.join(stage,'metadata.json'),JSON.stringify({repository,head,empty:!verified,...(verified?{sourceRevision}:{})})+'\n');
+    await writeFile(path.join(stage,'metadata.json'),JSON.stringify({baseUrl,head,empty:!verified,...(verified?{sourceRevision}:{})})+'\n');
     await rename(stage,target);
   }finally{await rm(stage,{recursive:true,force:true});}
-  return verified?snapshotDocuments(verified):new Map();
+  return verified;
 }
-export async function loadPreviousSnapshot({rootDir,repository=REPOSITORY,request=fetch}={}) {
-  repositoryName(repository);
-  const key=`${await realpath(rootDir)}\0${repository}\0${await checkout(rootDir)??'local'}`;
-  if(!baselineLoads.has(key))baselineLoads.set(key,retrieveBaseline({rootDir,repository,request}));
+export async function loadPublishedSnapshot({rootDir,baseUrl,request=fetch}={}) {
+  baseUrl=canonicalBaseUrl(baseUrl);
+  const key=`${await realpath(rootDir)}\0${baseUrl}\0${await checkout(rootDir)??'local'}`;
+  if(!baselineLoads.has(key))baselineLoads.set(key,retrieveBaseline({rootDir,baseUrl,request}));
   try {
-    const baseline=await baselineLoads.get(key),copy=new Map([...baseline].map(([slug,document])=>[slug,structuredClone(document)]));
-    copy.assetHashes=new Map(baseline.assetHashes??[]);return copy;
+    const baseline=await baselineLoads.get(key);
+    if(!baseline)return null;
+    return {manifest:structuredClone(baseline.manifest),index:structuredClone(baseline.index),files:new Map([...baseline.files].map(([name,bytes])=>[name,Buffer.from(bytes)]))};
   }catch(error){baselineLoads.delete(key);throw error;}
+}
+export async function loadPreviousSnapshot(options) {
+  const verified=await loadPublishedSnapshot(options);
+  return verified?snapshotDocuments(verified):new Map();
 }
 export async function mergedMainApproval({rootDir,request=fetch}={}) {
   if(process.env.GITHUB_ACTIONS!=='true' || !['push','workflow_dispatch'].includes(process.env.GITHUB_EVENT_NAME) || process.env.GITHUB_REF!=='refs/heads/main' || process.env.GITHUB_REPOSITORY!==REPOSITORY)throw new Error('Reviewed main approval requires a trusted GitHub Actions main event');

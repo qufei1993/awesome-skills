@@ -4,19 +4,14 @@ import { mkdtemp, mkdir, readFile, writeFile, readdir, rm, symlink } from 'node:
 import os from 'node:os';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
-import { createServer } from 'node:http';
 import { indexItem } from '../scripts/lib/site-contract.mjs';
-import { createLocalStore, createR2Store, publishSnapshot, rollbackPublication } from '../scripts/lib/publication.mjs';
+import { buildStaticPublication, readCurrentSnapshot } from '../scripts/lib/publication.mjs';
 
 const REVISION = 'a'.repeat(40);
 const ID = 'de64301b-09cf-4968-9fc2-24ede5cd4dd6';
 const SECOND_ID = 'a64301b1-09cf-4968-9fc2-24ede5cd4dd6';
 const IMAGE = Buffer.from('89504e470d0a1a0a01020304', 'hex');
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
-const run = promisify(execFile);
-const cli = new URL('../scripts/publish-data.mjs', import.meta.url).pathname;
 async function directory(t) {
   const root = await mkdtemp(path.join(os.tmpdir(), 'catalog-publication-'));
   t.after(() => rm(root, { recursive:true, force:true }));
@@ -32,7 +27,7 @@ async function snapshot(t, { revision=REVISION, preview=false, image=IMAGE, dupl
   document.skills.forEach(skill => { skill.resourceCheck = 'verified'; });
   if (title) document.title = title;
   document.cover = { kind:'source-image', url:`/data/collections/assets/${ID}/cover.${extension}`, sourceUrl:'https://example.com/cover', alt:'Fixture cover', rightsStatus:'verified', rightsEvidenceUrl:'https://example.com/rights' };
-  if (externalOnly) document.cover.url=externalCover;
+  if (externalOnly) document.cover.url = externalCover;
   const records = [document];
   if (duplicate) {
     const second = structuredClone(document);
@@ -57,330 +52,215 @@ async function snapshot(t, { revision=REVISION, preview=false, image=IMAGE, dupl
   return { root, files, version:digest(manifestBytes), manifest };
 }
 async function current(root) { return JSON.parse(await readFile(path.join(root, 'current.json'), 'utf8')); }
+function localRead(root) {
+  return async key => {
+    try { return await readFile(path.join(root, key)); }
+    catch (error) { if (error.code === 'ENOENT') return null; throw error; }
+  };
+}
+async function filesUnder(root, prefix='') {
+  const files = [];
+  for (const entry of await readdir(path.join(root, prefix), { withFileTypes:true })) {
+    const name = path.posix.join(prefix, entry.name);
+    if (entry.isDirectory()) files.push(...await filesUnder(root, name));
+    else files.push(name);
+  }
+  return files.sort();
+}
 
-test('publishes original JSON bytes and maps identical covers to one shared image', async t => {
-  const source = await snapshot(t, { duplicate:true }), root = await directory(t), store = await createLocalStore(root);
-  const result = await publishSnapshot({ fromDir:source.root, store });
-  const pointer = await current(root), imageKey = `images/${digest(IMAGE)}.png`;
+test('builds original JSON and one content image for identical collection covers', async t => {
+  const source = await snapshot(t, { duplicate:true }), outDir = path.join(await directory(t), 'assets');
+  const result = await buildStaticPublication({ fromDir:source.root, outDir });
+  const pointer = await current(outDir), imageKey = `images/${digest(IMAGE)}.png`;
   assert.deepEqual(pointer, { schemaVersion:1, version:source.version, sourceRevision:REVISION, preview:false, snapshotPath:`snapshots/${source.version}/`, assets:{ [`assets/${ID}/cover.png`]:imageKey, [`assets/${SECOND_ID}/cover.png`]:imageKey } });
-  assert.equal(result.count, 2); assert.equal(result.uploadedImages, 1); assert.equal(result.reusedImages, 0);
-  assert.equal(result.uploadedFiles, 5);
-  assert.deepEqual(await readdir(path.join(root, 'images')), [`${digest(IMAGE)}.png`]);
-  for (const [name, bytes] of source.files) if (!name.startsWith('assets/')) assert.deepEqual(await readFile(path.join(root, pointer.snapshotPath, name)), bytes);
-  assert.deepEqual(await readFile(path.join(root, imageKey)), IMAGE);
-  assert.deepEqual(await readFile(path.join(root, pointer.snapshotPath, 'release.json')), await readFile(path.join(root, 'current.json')));
-  await assert.rejects(readFile(path.join(root, pointer.snapshotPath, 'assets', ID, 'cover.png')), { code:'ENOENT' });
+  assert.equal(result.count, 2); assert.equal(result.version, source.version); assert.equal(result.retainedVersion, null);
+  assert.deepEqual(await readdir(path.join(outDir, 'images')), [`${digest(IMAGE)}.png`]);
+  for (const [name, bytes] of source.files) if (!name.startsWith('assets/')) assert.deepEqual(await readFile(path.join(outDir, pointer.snapshotPath, name)), bytes);
+  assert.deepEqual(await readFile(path.join(outDir, imageKey)), IMAGE);
+  assert.deepEqual(await readFile(path.join(outDir, pointer.snapshotPath, 'release.json')), await readFile(path.join(outDir, 'current.json')));
+  assert.equal((await filesUnder(outDir)).some(name => name.includes('/assets/')), false);
 });
 
-test('metadata-only versions reuse the stored image without uploading it again', async t => {
-  const first = await snapshot(t), next = await snapshot(t, { revision:'b'.repeat(40), title:'Updated video' });
-  const root = await directory(t), store = await createLocalStore(root);
-  await publishSnapshot({ fromDir:first.root, store });
-  const result = await publishSnapshot({ fromDir:next.root, store });
-  assert.equal(result.uploadedImages, 0); assert.equal(result.reusedImages, 1);
-  assert.equal((await current(root)).version, next.version);
-  assert.deepEqual(await readdir(path.join(root, 'images')), [`${digest(IMAGE)}.png`]);
+test('headers permit website reads and distinguish current data from immutable version files', async t => {
+  const source = await snapshot(t), outDir = await directory(t);
+  await buildStaticPublication({ fromDir:source.root, outDir });
+  const headers = await readFile(path.join(outDir, '_headers'), 'utf8');
+  assert.match(headers, /^\/\*\n  Access-Control-Allow-Origin: \*/m);
+  assert.match(headers, /X-Content-Type-Options: nosniff/);
+  assert.match(headers, /\/current\.json\n  Cache-Control: no-store/);
+  assert.match(headers, /\/snapshots\/\*\n  Cache-Control: public, max-age=31536000, immutable/);
+  assert.match(headers, /\/images\/\*\n  Cache-Control: public, max-age=31536000, immutable/);
+  assert.equal((await filesUnder(outDir)).some(name => /\.(?:html|js)$/.test(name)), false);
 });
-test('mixed external and archived covers publish, reuse and roll back without downloading external images', async t => {
-  const externalCover='https://images.example.com/author-cover.png';
-  const first=await snapshot(t,{duplicate:true,externalCover}),next=await snapshot(t,{duplicate:true,externalCover,revision:'b'.repeat(40),title:'Updated video'});
-  const root=await directory(t),store=await createLocalStore(root);
-  const initial=await publishSnapshot({fromDir:first.root,store});
-  assert.equal(initial.count,2); assert.equal(initial.uploadedImages,1); assert.equal(initial.reusedImages,0);
-  const updated=await publishSnapshot({fromDir:next.root,store});
-  assert.equal(updated.uploadedImages,0); assert.equal(updated.reusedImages,1);
-  assert.deepEqual(Object.keys((await current(root)).assets),[`assets/${ID}/cover.png`]);
-  const detail=JSON.parse(await readFile(path.join(root,`snapshots/${next.version}/${SECOND_ID}.json`),'utf8'));
-  assert.equal(detail.cover.url,externalCover);
-  await rollbackPublication({store,version:first.version});
-  assert.equal((await current(root)).version,first.version);
-  assert.deepEqual(await readdir(path.join(root,'images')),[`${digest(IMAGE)}.png`]);
+
+test('the read-only publication reader verifies every snapshot file', async t => {
+  const source = await snapshot(t), outDir = await directory(t);
+  assert.equal(await readCurrentSnapshot({ read:localRead(outDir) }), null);
+  await buildStaticPublication({ fromDir:source.root, outDir });
+  const verified = await readCurrentSnapshot({ read:localRead(outDir) });
+  assert.equal(verified.release.version, source.version);
+  for (const [name, bytes] of source.files) assert.deepEqual(verified.files.get(name), bytes);
 });
-test('publication rejects insecure external covers before storing files', async t => {
-  for (const externalCover of ['http://images.example.com/cover.png','https://user:password@images.example.com/cover.png']) {
-    const source=await snapshot(t,{duplicate:true,externalCover}),root=await directory(t),store=await createLocalStore(root);
-    await assert.rejects(publishSnapshot({fromDir:source.root,store}),/cover|HTTPS|credentials/i);
-    assert.deepEqual(await readdir(root),[]);
+
+test('retains the preceding version and shared images for an already open page', async t => {
+  const first = await snapshot(t), next = await snapshot(t, { revision:'b'.repeat(40), title:'Updated video' }), outDir = await directory(t);
+  await buildStaticPublication({ fromDir:first.root, outDir });
+  const previousSnapshot = await readCurrentSnapshot({ read:localRead(outDir) });
+  const result = await buildStaticPublication({ fromDir:next.root, outDir, previousSnapshot });
+  assert.equal(result.retainedVersion, first.version);
+  assert.deepEqual((await readdir(path.join(outDir, 'snapshots'))).sort(), [first.version, next.version].sort());
+  assert.equal((await current(outDir)).version, next.version);
+  assert.deepEqual(await readdir(path.join(outDir, 'images')), [`${digest(IMAGE)}.png`]);
+  assert.deepEqual(await readFile(path.join(outDir, `snapshots/${first.version}/index.json`)), first.files.get('index.json'));
+});
+
+test('a third publication contains only current and preceding versions and their images', async t => {
+  const first = await snapshot(t), second = await snapshot(t, { revision:'b'.repeat(40), image:Buffer.concat([IMAGE, Buffer.from([5])]) }), third = await snapshot(t, { revision:'c'.repeat(40), image:Buffer.concat([IMAGE, Buffer.from([6])]) }), outDir = await directory(t);
+  await buildStaticPublication({ fromDir:first.root, outDir });
+  await buildStaticPublication({ fromDir:second.root, outDir, previousSnapshot:await readCurrentSnapshot({ read:localRead(outDir) }) });
+  await buildStaticPublication({ fromDir:third.root, outDir, previousSnapshot:await readCurrentSnapshot({ read:localRead(outDir) }) });
+  assert.deepEqual((await readdir(path.join(outDir, 'snapshots'))).sort(), [second.version, third.version].sort());
+  assert.equal((await readdir(path.join(outDir, 'images'))).length, 2);
+  await assert.rejects(readFile(path.join(outDir, `images/${digest(IMAGE)}.png`)), { code:'ENOENT' });
+});
+
+test('rebuilding an identical version emits one version directory', async t => {
+  const source = await snapshot(t), outDir = await directory(t);
+  await buildStaticPublication({ fromDir:source.root, outDir });
+  await buildStaticPublication({ fromDir:source.root, outDir, previousSnapshot:await readCurrentSnapshot({ read:localRead(outDir) }) });
+  assert.deepEqual(await readdir(path.join(outDir, 'snapshots')), [source.version]);
+});
+
+test('retrying the current version is marked unchanged for CI to preserve the deployed preceding version', async t => {
+  const first = await snapshot(t), next = await snapshot(t, { revision:'b'.repeat(40) }), outDir = await directory(t);
+  assert.equal((await buildStaticPublication({ fromDir:first.root, outDir })).unchanged, false);
+  assert.equal((await buildStaticPublication({ fromDir:next.root, outDir, previousSnapshot:await readCurrentSnapshot({ read:localRead(outDir) }) })).unchanged, false);
+  assert.equal((await buildStaticPublication({ fromDir:next.root, outDir, previousSnapshot:await readCurrentSnapshot({ read:localRead(outDir) }) })).unchanged, true);
+});
+
+test('mixed external and local covers preserve direct URLs without fetching external images', async t => {
+  const externalCover = 'https://images.example.com/author-cover.webp';
+  const source = await snapshot(t, { duplicate:true, externalCover }), outDir = await directory(t);
+  await buildStaticPublication({ fromDir:source.root, outDir });
+  assert.deepEqual(Object.keys((await current(outDir)).assets), [`assets/${ID}/cover.png`]);
+  const detail = JSON.parse(await readFile(path.join(outDir, `snapshots/${source.version}/${SECOND_ID}.json`), 'utf8'));
+  assert.equal(detail.cover.url, externalCover);
+  assert.deepEqual(await readdir(path.join(outDir, 'images')), [`${digest(IMAGE)}.png`]);
+});
+
+test('external-only snapshots have no shared image files', async t => {
+  const source = await snapshot(t, { externalOnly:true, externalCover:'https://images.example.com/author-cover.webp' }), outDir = await directory(t);
+  await buildStaticPublication({ fromDir:source.root, outDir });
+  assert.deepEqual((await current(outDir)).assets, {});
+  await assert.rejects(readdir(path.join(outDir, 'images')), { code:'ENOENT' });
+});
+
+test('jpeg extensions use the canonical jpg content image name', async t => {
+  const source = await snapshot(t, { extension:'jpeg' }), outDir = await directory(t);
+  await buildStaticPublication({ fromDir:source.root, outDir });
+  assert.equal((await current(outDir)).assets[`assets/${ID}/cover.jpeg`], `images/${digest(IMAGE)}.jpg`);
+});
+
+test('corrupt source data leaves a previously generated directory untouched', async t => {
+  const first = await snapshot(t), next = await snapshot(t, { revision:'b'.repeat(40) }), outDir = await directory(t);
+  await buildStaticPublication({ fromDir:first.root, outDir });
+  const before = await readFile(path.join(outDir, 'current.json'));
+  await writeFile(path.join(next.root, 'index.json'), 'corrupt');
+  await assert.rejects(buildStaticPublication({ fromDir:next.root, outDir }), /checksum|size/i);
+  assert.deepEqual(await readFile(path.join(outDir, 'current.json')), before);
+});
+
+test('corrupt preceding snapshot data is rejected before replacing output', async t => {
+  const first = await snapshot(t), next = await snapshot(t, { revision:'b'.repeat(40) }), outDir = await directory(t);
+  await buildStaticPublication({ fromDir:first.root, outDir });
+  const previousSnapshot = await readCurrentSnapshot({ read:localRead(outDir) }), before = await readFile(path.join(outDir, 'current.json'));
+  previousSnapshot.files.set('index.json', Buffer.from('{}'));
+  await assert.rejects(buildStaticPublication({ fromDir:next.root, outDir, previousSnapshot }), /checksum|size/i);
+  assert.deepEqual(await readFile(path.join(outDir, 'current.json')), before);
+});
+
+test('preceding snapshot release fields must match its verified content', async t => {
+  const first = await snapshot(t), next = await snapshot(t, { revision:'b'.repeat(40) }), outDir = await directory(t);
+  await buildStaticPublication({ fromDir:first.root, outDir });
+  const previousSnapshot = await readCurrentSnapshot({ read:localRead(outDir) });
+  previousSnapshot.release.assets[`assets/${ID}/cover.png`] = `images/${'f'.repeat(64)}.png`;
+  await assert.rejects(buildStaticPublication({ fromDir:next.root, outDir, previousSnapshot }), /release|disagree/i);
+  assert.equal((await current(outDir)).version, first.version);
+});
+
+test('production rejects preview snapshots and explicit local previews remain usable', async t => {
+  const source = await snapshot(t, { preview:true }), outDir = await directory(t);
+  await assert.rejects(buildStaticPublication({ fromDir:source.root, outDir }), /preview/i);
+  assert.deepEqual(await readdir(outDir), []);
+  await buildStaticPublication({ fromDir:source.root, outDir, allowPreview:true });
+  await assert.rejects(readCurrentSnapshot({ read:localRead(outDir) }), /preview/i);
+  assert.equal((await readCurrentSnapshot({ read:localRead(outDir), allowPreview:true })).release.preview, true);
+});
+
+test('production refuses retaining a preceding preview snapshot', async t => {
+  const preview = await snapshot(t, { preview:true }), source = await snapshot(t, { revision:'b'.repeat(40) }), outDir = await directory(t);
+  await buildStaticPublication({ fromDir:preview.root, outDir, allowPreview:true });
+  const previousSnapshot = await readCurrentSnapshot({ read:localRead(outDir), allowPreview:true });
+  await assert.rejects(buildStaticPublication({ fromDir:source.root, outDir, previousSnapshot }), /preview/i);
+});
+
+test('publication rejects an output directory inside or above its source snapshot', async t => {
+  const parent = await directory(t), source = await snapshot(t);
+  for (const outDir of [source.root, path.join(source.root, 'output'), path.dirname(source.root)]) {
+    await assert.rejects(buildStaticPublication({ fromDir:source.root, outDir }), /source|destination|overlap/i);
   }
-});
-test('external-only releases preserve direct URLs with no uploaded images or asset mapping', async t => {
-  const options={externalOnly:true,externalCover:'https://images.example.com/author-cover.webp'};
-  const first=await snapshot(t,options),next=await snapshot(t,{...options,revision:'b'.repeat(40),title:'Updated external cover collection'});
-  const root=await directory(t),store=await createLocalStore(root);
-  for (const source of [first,next]) {
-    const result=await publishSnapshot({fromDir:source.root,store});
-    assert.equal(result.uploadedImages,0); assert.equal(result.reusedImages,0);
-    assert.deepEqual((await current(root)).assets,{});
-  }
-  await rollbackPublication({store,version:first.version});
-  assert.equal((await current(root)).version,first.version);
-  await assert.rejects(readFile(path.join(root,'images')),{code:'ENOENT'});
-});
-
-test('one changed image uploads exactly one additional content object', async t => {
-  const first = await snapshot(t), next = await snapshot(t, { revision:'b'.repeat(40), image:Buffer.concat([IMAGE, Buffer.from([5])]) });
-  const root = await directory(t), store = await createLocalStore(root);
-  await publishSnapshot({ fromDir:first.root, store });
-  const result = await publishSnapshot({ fromDir:next.root, store });
-  assert.equal(result.uploadedImages, 1); assert.equal(result.reusedImages, 0);
-  assert.equal((await readdir(path.join(root, 'images'))).length, 2);
-});
-
-test('a failed immutable write leaves the previous current pointer untouched', async t => {
-  const first = await snapshot(t), next = await snapshot(t, { revision:'b'.repeat(40) });
-  const root = await directory(t), store = await createLocalStore(root);
-  await publishSnapshot({ fromDir:first.root, store });
-  const before = await readFile(path.join(root, 'current.json'));
-  await mkdir(path.join(root, 'snapshots', next.version), { recursive:true });
-  await mkdir(path.join(root, 'snapshots', next.version, 'manifest.json'));
-  await assert.rejects(publishSnapshot({ fromDir:next.root, store }), /file|directory|immutable/i);
-  assert.deepEqual(await readFile(path.join(root, 'current.json')), before);
-});
-
-test('corrupt sources are verified before any object is published', async t => {
-  const source = await snapshot(t), root = await directory(t), store = await createLocalStore(root);
-  await writeFile(path.join(source.root, 'index.json'), 'corrupt');
-  await assert.rejects(publishSnapshot({ fromDir:source.root, store }), /checksum|size/i);
-  assert.deepEqual(await readdir(root), []);
-});
-
-test('publication refuses a destination inside the original snapshot', async t => {
-  const source = await snapshot(t), store = await createLocalStore(source.root);
-  await assert.rejects(publishSnapshot({ fromDir:source.root, store }), /source|snapshot|destination/i);
-  assert.deepEqual((await readdir(source.root)).sort(), ['assets', `${ID}.json`, 'index.json', 'manifest.json'].sort());
   for (const [name, bytes] of source.files) assert.deepEqual(await readFile(path.join(source.root, name)), bytes);
+  assert.deepEqual(await readdir(parent), []);
 });
 
-test('production rejects previews while explicitly permitted local previews publish', async t => {
-  const source = await snapshot(t, { preview:true }), root = await directory(t), store = await createLocalStore(root);
-  await assert.rejects(publishSnapshot({ fromDir:source.root, store }), /preview/i);
-  assert.deepEqual(await readdir(root), []);
-  await publishSnapshot({ fromDir:source.root, store, allowPreview:true });
-  assert.equal((await current(root)).preview, true);
-});
-
-test('immutable keys refuse replacement by different bytes and preserve their contents', async t => {
-  const root = await directory(t), store = await createLocalStore(root);
-  assert.equal(await store.putImmutable('images/example.png', IMAGE), true);
-  assert.equal(await store.putImmutable('images/example.png', IMAGE), false);
-  await assert.rejects(store.putImmutable('images/example.png', Buffer.from('different')), /immutable|different|conflict/i);
-  assert.deepEqual(await store.get('images/example.png'), IMAGE);
-});
-
-test('local storage refuses traversal and symbolic-link paths', async t => {
-  const root = await directory(t), outside = await directory(t), store = await createLocalStore(root);
-  for (const key of ['../escaped.json', '/absolute.json', 'images/../escaped.json', 'images/%2e%2e/escaped.json', 'images\\escaped.json']) {
-    await assert.rejects(store.putImmutable(key, IMAGE), /path|key/i);
-    await assert.rejects(store.get(key), /path|key/i);
+test('publication refuses output symbolic links and symbolic-link parent directories', async t => {
+  const source = await snapshot(t), parent = await directory(t), outside = await directory(t);
+  await symlink(outside, path.join(parent, 'linked'));
+  for (const outDir of [path.join(parent, 'linked'), path.join(parent, 'linked', 'assets')]) {
+    await assert.rejects(buildStaticPublication({ fromDir:source.root, outDir }), /symbolic|symlink/i);
   }
-  await symlink(outside, path.join(root, 'images'));
-  await assert.rejects(store.putImmutable('images/escaped.png', IMAGE), /symbolic|symlink/i);
   assert.deepEqual(await readdir(outside), []);
 });
 
-test('rollback verifies a prior immutable release before switching current', async t => {
-  const first = await snapshot(t), next = await snapshot(t, { revision:'b'.repeat(40) });
-  const root = await directory(t), store = await createLocalStore(root);
-  await publishSnapshot({ fromDir:first.root, store }); await publishSnapshot({ fromDir:next.root, store });
-  const result = await rollbackPublication({ store, version:first.version });
-  assert.equal(result.version, first.version); assert.equal((await current(root)).version, first.version);
-  await assert.rejects(rollbackPublication({ store, version:'../current' }), /version/i);
-  await assert.rejects(rollbackPublication({ store, version:'f'.repeat(64) }), /missing|release/i);
+test('reading current data refuses a pointer that disagrees with its version', async t => {
+  const source = await snapshot(t), outDir = await directory(t);
+  await buildStaticPublication({ fromDir:source.root, outDir });
+  const pointer = await current(outDir); pointer.sourceRevision = 'b'.repeat(40);
+  await writeFile(path.join(outDir, 'current.json'), JSON.stringify(pointer));
+  await assert.rejects(readCurrentSnapshot({ read:localRead(outDir) }), /current|pointer|disagree/i);
 });
 
-test('rollback refuses corrupted prior files and preview releases in production', async t => {
-  const first = await snapshot(t), preview = await snapshot(t, { preview:true, revision:'b'.repeat(40) });
-  const root = await directory(t), store = await createLocalStore(root);
-  await publishSnapshot({ fromDir:first.root, store }); await publishSnapshot({ fromDir:preview.root, store, allowPreview:true });
-  const before = await readFile(path.join(root, 'current.json'));
-  await assert.rejects(rollbackPublication({ store, version:preview.version }), /preview/i);
-  await writeFile(path.join(root, 'snapshots', first.version, 'index.json'), '{}');
-  await assert.rejects(rollbackPublication({ store, version:first.version }), /checksum|size/i);
-  assert.deepEqual(await readFile(path.join(root, 'current.json')), before);
+test('manifest limits are checked before downloading any snapshot files', async t => {
+  const source = await snapshot(t), outDir = await directory(t);
+  await buildStaticPublication({ fromDir:source.root, outDir });
+  const manifest = { ...source.manifest, files:[{ path:'index.json', size:11*1024*1024, sha256:'a'.repeat(64) }] };
+  const bytes = Buffer.from(JSON.stringify(manifest)), version = digest(bytes);
+  const pointer = { ...await current(outDir), version, snapshotPath:`snapshots/${version}/` };
+  const pointerBytes = Buffer.from(JSON.stringify(pointer));
+  const objects = new Map([['current.json', pointerBytes], [`snapshots/${version}/release.json`, pointerBytes], [`snapshots/${version}/manifest.json`, bytes]]), requested = [];
+  await assert.rejects(readCurrentSnapshot({ read:async key => { requested.push(key); return objects.get(key) ?? null; } }), /limit|size/i);
+  assert.equal(requested.some(key => key.endsWith('/index.json')), false);
 });
 
-test('jpeg extensions share a canonical jpg content key', async t => {
-  const source = await snapshot(t, { extension:'jpeg' }), root = await directory(t), store = await createLocalStore(root);
-  await publishSnapshot({ fromDir:source.root, store });
-  assert.equal((await current(root)).assets[`assets/${ID}/cover.jpeg`], `images/${digest(IMAGE)}.jpg`);
-});
-
-test('the CLI publishes locally and rolls back using the same verified release format', async t => {
-  const first = await snapshot(t), next = await snapshot(t, { revision:'b'.repeat(40) }), root = await directory(t);
-  const initial = await run(process.execPath, [cli, 'publish', '--from', first.root, '--to', root]);
-  assert.equal(JSON.parse(initial.stdout).version, first.version);
-  await run(process.execPath, [cli, 'publish', '--from', next.root, '--to', root]);
-  await run(process.execPath, [cli, 'rollback', '--to', root, '--version', first.version]);
-  assert.equal((await current(root)).version, first.version);
-  await assert.rejects(run(process.execPath, [cli, 'publish', '--from', first.root, '--to', root, '--r2']));
-  await assert.rejects(run(process.execPath, [cli, 'publish', '--from', first.root, '--r2', '--preview']));
-});
-
-async function r2Server(t) {
-  const objects = new Map(), puts = [], races = new Map(), pauses = new Map(), releases = new Set();
-  const server = createServer(async (request, response) => {
-    const key = new URL(request.url, 'http://localhost').pathname.replace(/^\/test-bucket\//, '');
-    const pauseKey = `${request.method}:${key}`, pause = pauses.get(pauseKey);
-    if (pause) { pauses.delete(pauseKey); pause.enter(); await pause.wait; releases.delete(pause.resume); }
-    if (request.method === 'HEAD' || request.method === 'GET') {
-      const bytes = objects.get(key);
-      if (!bytes) {
-        if (races.has(key)) { objects.set(key, races.get(key)); races.delete(key); }
-        response.writeHead(404); response.end(); return;
-      }
-      response.writeHead(200, { 'Content-Length':bytes.length, ETag:`"${digest(bytes)}"` });
-      response.end(request.method === 'HEAD' ? undefined : bytes); return;
-    }
-    if (request.method === 'PUT') {
-      const chunks = []; for await (const chunk of request) chunks.push(chunk);
-      if (objects.has(key) && request.headers['if-none-match'] === '*') { response.writeHead(412); response.end(); return; }
-      if (request.headers['if-match'] && request.headers['if-match'] !== (objects.has(key) ? `"${digest(objects.get(key))}"` : undefined)) { response.writeHead(412); response.end(); return; }
-      objects.set(key, Buffer.concat(chunks)); puts.push({ key, headers:request.headers });
-      response.writeHead(200, { ETag:`"${digest(objects.get(key))}"` }); response.end(); return;
-    }
-    response.writeHead(405); response.end();
-  });
-  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-  t.after(() => { for (const resume of releases) resume(); return new Promise(resolve => server.close(resolve)); });
-  const { S3Client } = await import('@aws-sdk/client-s3');
-  const client = new S3Client({ endpoint:`http://127.0.0.1:${server.address().port}`, region:'auto', forcePathStyle:true, credentials:{ accessKeyId:'test-key', secretAccessKey:'test-secret' }, requestChecksumCalculation:'WHEN_REQUIRED' });
-  t.after(() => client.destroy());
-  function pauseNext(method, key) {
-    let enter, resume;
-    const reached = new Promise(resolve => { enter = resolve; }), wait = new Promise(resolve => { resume = resolve; });
-    pauses.set(`${method}:${key}`, { enter, wait, resume }); releases.add(resume);
-    return { reached, resume };
+test('publication reads reject malformed current JSON, unsafe paths and missing release files', async t => {
+  await assert.rejects(readCurrentSnapshot({ read:async () => Buffer.from('<html>Not found</html>') }), /JSON/i);
+  const source = await snapshot(t), outDir = await directory(t);
+  await buildStaticPublication({ fromDir:source.root, outDir });
+  const pointer = await current(outDir);
+  for (const snapshotPath of ['versions/' + source.version + '/', '../escaped/', 'snapshots/%2e%2e/']) {
+    await assert.rejects(readCurrentSnapshot({ read:async () => Buffer.from(JSON.stringify({ ...pointer, snapshotPath })) }), /fields|path/i);
   }
-  return { objects, puts, races, pauseNext, store:await createR2Store({ bucket:'test-bucket', client }) };
-}
-
-test('the R2 adapter uploads immutable objects conditionally and skips unchanged images', async t => {
-  const first = await snapshot(t), next = await snapshot(t, { revision:'b'.repeat(40), title:'Updated R2 video' });
-  const remote = await r2Server(t);
-  await publishSnapshot({ fromDir:first.root, store:remote.store });
-  const result = await publishSnapshot({ fromDir:next.root, store:remote.store });
-  assert.equal(result.uploadedImages, 0); assert.equal(result.reusedImages, 1);
-  assert.equal(remote.puts.filter(put => put.key.startsWith('images/')).length, 1);
-  assert.equal(remote.puts.at(-1).key, 'current.json');
-  assert.equal(JSON.parse(remote.objects.get('current.json')).version, next.version);
-  for (const put of remote.puts.filter(put => put.key !== 'current.json')) {
-    assert.equal(put.headers['if-none-match'], '*');
-    assert.equal(put.headers['cache-control'], 'public, max-age=31536000, immutable');
-  }
-  assert.equal(remote.puts.at(-1).headers['cache-control'], 'no-store');
+  await rm(path.join(outDir, pointer.snapshotPath, 'release.json'));
+  await assert.rejects(readCurrentSnapshot({ read:localRead(outDir) }), /missing.*release/i);
 });
 
-test('a revision that becomes stale during R2 uploads leaves current unchanged after its final check', { timeout:5000 }, async t => {
-  const original = await snapshot(t), queued = await snapshot(t, { revision:'b'.repeat(40) }), remote = await r2Server(t);
-  await publishSnapshot({ fromDir:original.root, store:remote.store });
-  const previous = Buffer.from(remote.objects.get('current.json'));
-  let latestMain = queued.manifest.sourceRevision;
-  const pause = remote.pauseNext('PUT', `snapshots/${queued.version}/index.json`);
-  const delayed = publishSnapshot({
-    fromDir:queued.root,
-    store:remote.store,
-    beforeCurrent:async ({ sourceRevision }) => sourceRevision === latestMain,
-  });
-  await pause.reached;
-  latestMain = 'c'.repeat(40);
-  pause.resume();
-  const result = await delayed;
-  assert.deepEqual(remote.objects.get('current.json'), previous);
-  assert.equal(result.currentUpdated, false);
-  assert.equal(remote.puts.filter(put => put.key === 'current.json').length, 1);
-  for (const [name, bytes] of queued.files) if (!name.startsWith('assets/')) {
-    assert.deepEqual(remote.objects.get(`snapshots/${queued.version}/${name}`), bytes);
-  }
-  assert.equal(JSON.parse(remote.objects.get(`snapshots/${queued.version}/release.json`)).version, queued.version);
-  assert.deepEqual(remote.objects.get(`images/${digest(IMAGE)}.png`), IMAGE);
-});
-
-test('a latest-main final check runs after all immutable files and permits the conditional pointer update', async t => {
-  const source = await snapshot(t), remote = await r2Server(t);
-  let checked = false;
-  const result = await publishSnapshot({
-    fromDir:source.root,
-    store:remote.store,
-    beforeCurrent:async ({ sourceRevision }) => {
-      for (const [name, bytes] of source.files) if (!name.startsWith('assets/')) {
-        assert.deepEqual(remote.objects.get(`snapshots/${source.version}/${name}`), bytes);
-      }
-      assert.equal(JSON.parse(remote.objects.get(`snapshots/${source.version}/release.json`)).version, source.version);
-      assert.equal(remote.objects.has('current.json'), false);
-      checked = true;
-      return sourceRevision === REVISION;
-    },
-  });
-  assert.equal(checked, true);
-  assert.equal(result.currentUpdated, true);
-  assert.equal(JSON.parse(remote.objects.get('current.json')).version, source.version);
-  assert.equal(remote.puts.at(-1).headers['if-none-match'], '*');
-});
-
-test('a failed final main check leaves the previous R2 pointer unchanged', async t => {
-  const original = await snapshot(t), next = await snapshot(t, { revision:'b'.repeat(40) }), remote = await r2Server(t);
-  await publishSnapshot({ fromDir:original.root, store:remote.store });
-  const previous = Buffer.from(remote.objects.get('current.json'));
-  await assert.rejects(publishSnapshot({
-    fromDir:next.root,
-    store:remote.store,
-    beforeCurrent:async () => { throw new Error('Latest main could not be verified'); },
-  }), /main.*verified/i);
-  assert.deepEqual(remote.objects.get('current.json'), previous);
-  assert.equal(JSON.parse(remote.objects.get(`snapshots/${next.version}/release.json`)).version, next.version);
-});
-
-test('the R2 adapter refuses an immutable collision even when another writer wins the initial read', async t => {
-  const remote = await r2Server(t), key = 'images/collision.png';
-  remote.races.set(key, Buffer.from('existing'));
-  await assert.rejects(remote.store.putImmutable(key, IMAGE), /immutable|different|conflict/i);
-  assert.equal(remote.objects.get(key).toString(), 'existing');
-  assert.equal(await remote.store.get('missing.json'), null);
-  assert.equal(await remote.store.head('missing.json'), null);
-  await assert.rejects(remote.store.get('../outside'), /path|key/i);
-});
-
-test('an initial R2 publication cannot replace a concurrent publisher that creates current first', { timeout:5000 }, async t => {
-  const slow = await snapshot(t), winner = await snapshot(t, { revision:'b'.repeat(40) }), remote = await r2Server(t);
-  const pause = remote.pauseNext('PUT', 'current.json');
-  const delayed = publishSnapshot({ fromDir:slow.root, store:remote.store });
-  await pause.reached;
-  try { await publishSnapshot({ fromDir:winner.root, store:remote.store }); }
-  finally { pause.resume(); }
-  await assert.rejects(delayed, /current.*changed|concurrent/i);
-  assert.equal(JSON.parse(remote.objects.get('current.json')).version, winner.version);
-});
-
-test('R2 publication captures the current ETag before uploading immutable files', { timeout:5000 }, async t => {
-  const original = await snapshot(t), slow = await snapshot(t, { revision:'b'.repeat(40) }), winner = await snapshot(t, { revision:'c'.repeat(40) }), remote = await r2Server(t);
-  await publishSnapshot({ fromDir:original.root, store:remote.store });
-  const pause = remote.pauseNext('PUT', `snapshots/${slow.version}/index.json`);
-  const delayed = publishSnapshot({ fromDir:slow.root, store:remote.store });
-  await pause.reached;
-  try { await publishSnapshot({ fromDir:winner.root, store:remote.store }); }
-  finally { pause.resume(); }
-  await assert.rejects(delayed, /current.*changed|concurrent/i);
-  assert.equal(JSON.parse(remote.objects.get('current.json')).version, winner.version);
-});
-
-test('R2 rollback captures the current ETag before reading and verifying its old release', { timeout:5000 }, async t => {
-  const old = await snapshot(t), original = await snapshot(t, { revision:'b'.repeat(40) }), winner = await snapshot(t, { revision:'c'.repeat(40) }), remote = await r2Server(t);
-  await publishSnapshot({ fromDir:old.root, store:remote.store });
-  await publishSnapshot({ fromDir:original.root, store:remote.store });
-  const pause = remote.pauseNext('GET', `snapshots/${old.version}/release.json`);
-  const delayed = rollbackPublication({ store:remote.store, version:old.version });
-  await pause.reached;
-  try { await publishSnapshot({ fromDir:winner.root, store:remote.store }); }
-  finally { pause.resume(); }
-  await assert.rejects(delayed, /current.*changed|concurrent/i);
-  assert.equal(JSON.parse(remote.objects.get('current.json')).version, winner.version);
-});
-
-test('R2 publication errors never print runtime credential values', async t => {
-  const source = await snapshot(t);
-  await assert.rejects(run(process.execPath, [cli, 'publish', '--from', source.root, '--r2'], { env:{ ...process.env, CATALOG_R2_ACCOUNT_ID:'invalid-account', CATALOG_R2_BUCKET:'test-bucket', CATALOG_R2_ACCESS_KEY_ID:'credential-must-stay-private', CATALOG_R2_SECRET_ACCESS_KEY:'secret-must-stay-private' } }), error => {
-    assert.doesNotMatch(error.stderr, /credential-must-stay-private|secret-must-stay-private/);
-    assert.match(error.stderr, /R2 configuration/i);
-    return true;
-  });
+test('changed shared images and missing details fail publication read verification', async t => {
+  const source = await snapshot(t), outDir = await directory(t);
+  await buildStaticPublication({ fromDir:source.root, outDir });
+  const pointer = await current(outDir), imagePath = pointer.assets[`assets/${ID}/cover.png`];
+  await writeFile(path.join(outDir, imagePath), Buffer.from('corrupt image'));
+  await assert.rejects(readCurrentSnapshot({ read:localRead(outDir) }), /checksum|size/i);
+  await writeFile(path.join(outDir, imagePath), IMAGE);
+  await rm(path.join(outDir, pointer.snapshotPath, `${ID}.json`));
+  await assert.rejects(readCurrentSnapshot({ read:localRead(outDir) }), /missing.*file/i);
 });
