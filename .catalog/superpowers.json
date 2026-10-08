@@ -6,7 +6,7 @@
     "slug": "superpowers",
     "revision": 1,
     "createdAt": "2026-10-08T02:18:53.855Z",
-    "updatedAt": "2026-10-08T02:18:53.855Z",
+    "updatedAt": "2026-10-08T03:02:35.608Z",
     "sourceKeys": [
       "github:obra/superpowers:all-skills"
     ],
@@ -91,9 +91,13 @@
       ]
     },
     "cover": {
-      "kind": "concept",
-      "preset": "engineering",
-      "alt": "Software development concept cover"
+      "kind": "source-image",
+      "url": "/assets/collections/superpowers.png",
+      "sourceUrl": "https://github.com/qufei1993/awesome-skills",
+      "rightsStatus": "needs-review",
+      "alt": "GPT Image generated concept cover of a software development workflow; not an upstream screenshot",
+      "width": 1672,
+      "height": 941
     },
     "verification": {
       "source": "verified",
@@ -105,7 +109,8 @@
         "Read the pinned upstream README, LICENSE, complete recursive tree, all 15 Skill entries, and 59 supporting files; retrieved blobs were checked against their Git blob SHA.",
         "Source and file checks cover the Skill library. Some Skills reference sibling directories; their resource and runtime behavior still require review.",
         "Tool-specific hooks and integrations outside skills/ are not included. This collection is not the complete upstream plugin installation.",
-        "No upstream Skill instructions, plugin installation, or development workflow were executed."
+        "No upstream Skill instructions, plugin installation, or development workflow were executed.",
+        "The software development workflow concept cover was generated for Skills Hub with GPT Image. It is an illustration, not an official Superpowers image, screenshot, or execution result."
       ]
     },
     "review": {
@@ -620,7 +625,7 @@
           "调试",
           "代码评审"
         ],
-        "coverAlt": "软件开发流程概念封面",
+        "coverAlt": "GPT Image 生成的软件开发流程概念封面，非上游项目截图",
         "skills": {
           "brainstorming": {
             "summary": "在任何创意工作前使用，包括创建功能、构建组件、添加功能或修改行为。在实现前探索用户意图、需求与设计。"
@@ -684,5 +689,6 @@
         }
       }
     }
-  }
+  },
+  "coverFile": "cover.png"
 }

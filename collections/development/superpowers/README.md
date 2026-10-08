@@ -2,6 +2,8 @@
 
 Guide coding agents through design, planning, implementation, debugging, and review with reusable development Skills.
 
+![Software development concept cover generated for Skills Hub with GPT Image](cover.png)
+
 ## Overview
 
 Superpowers provides 15 composable Skills for software development. This collection includes the repository's complete Skills directory, with its supporting files and cross-Skill references. Tool-specific plugin hooks and integrations remain part of the upstream project.

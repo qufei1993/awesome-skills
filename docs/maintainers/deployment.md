@@ -10,6 +10,8 @@ Production includes complete, active, approved records and rejects failed instal
 
 Pending records are excluded from production. Explicit previews may include complete pending records; incomplete README-only submissions remain excluded from all snapshots. Checks validate structure and recorded data without fetching upstream Skills, executing them, or downloading remote covers.
 
+Pull request and merge-group validation retain a downloadable `catalog-preview-<snapshot-SHA>` artifact for 30 days. It contains `catalog-preview.zip` and its SHA256 checksum; the ZIP contains the complete preview snapshot without a wrapping directory. CI reuses the preview from `npm run check`, verifies every snapshot file and hash, binds `sourceRevision` to the actual checked-out commit, and reports both that snapshot SHA and the PR head SHA (not applicable for merge groups). Incomplete drafts are excluded. This review artifact grants no production approval and is not a deployment.
+
 ## Build and publish locally
 
 ```sh
