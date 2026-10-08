@@ -1,17 +1,17 @@
 import { watch as watchDirectory } from 'node:fs';
-import { access } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 import { buildCatalog } from './catalog.mjs';
-import { createLocalStore, publishSnapshot, rollbackPublication } from './publication.mjs';
+import { buildStaticPublication, readCurrentSnapshot } from './publication.mjs';
 import { startDataServer } from './data-server.mjs';
 
 const print = line => process.stdout.write(`${line}\n`);
 
-export async function startLocalPreview({ rootDir, siteDir, sitePort = 8775, dataPort = 8776, watch = true, sourceRevision, resolveSources = false, log = print }) {
+export async function startLocalPreview({ rootDir, siteDir, sitePort = 8775, dataPort = 8776, watch = true, sourceRevision, resolveSources = false, request, log = print }) {
   rootDir = path.resolve(rootDir);
   siteDir = path.resolve(siteDir);
   await access(path.join(siteDir, 'vite.config.ts'));
@@ -20,7 +20,7 @@ export async function startLocalPreview({ rootDir, siteDir, sitePort = 8775, dat
   const { createServer } = await import(pathToFileURL(vitePath).href);
   if (!sourceRevision) sourceRevision = (await promisify(execFile)('git', ['rev-parse', 'HEAD'], { cwd: rootDir })).stdout.trim();
   const snapshotDir = path.join(rootDir, 'dist/local-snapshot');
-  const store = await createLocalStore(path.join(rootDir, 'dist/local-data'));
+  const dataDir = path.join(rootDir, 'dist/local-data');
   let dataServer, siteServer, lastPublication, closed = false, timer;
   let queue = Promise.resolve();
   const watchers = [];
@@ -33,18 +33,17 @@ export async function startLocalPreview({ rootDir, siteDir, sitePort = 8775, dat
   }
   function publish() {
     return serialize(async () => {
-      await buildCatalog({ rootDir, outputDir: snapshotDir, preview: true, sourceRevision, resolveSources });
-      lastPublication = await publishSnapshot({ fromDir: snapshotDir, store, allowPreview: true });
+      const previousSnapshot = await readCurrentSnapshot({
+        read: async key => {
+          try { return await readFile(path.join(dataDir, key)); }
+          catch (error) { if (error.code === 'ENOENT') return null; throw error; }
+        },
+        allowPreview: true,
+      });
+      await buildCatalog({ rootDir, outputDir: snapshotDir, preview: true, sourceRevision, resolveSources, request });
+      lastPublication = await buildStaticPublication({ fromDir: snapshotDir, outDir: dataDir, previousSnapshot, allowPreview: true });
       notify();
-      log(`已更新 ${lastPublication.count} 个合集；新增图片 ${lastPublication.uploadedImages} 张，复用图片 ${lastPublication.reusedImages} 张。`);
-      return lastPublication;
-    });
-  }
-  function rollback(version) {
-    return serialize(async () => {
-      lastPublication = await rollbackPublication({ store, version, allowPreview: true });
-      notify();
-      log('已恢复指定版本，官网预览已更新。');
+      log(`已更新 ${lastPublication.count} 个合集；发布数据包含 ${lastPublication.imageCount} 张本地图片。`);
       return lastPublication;
     });
   }
@@ -58,7 +57,7 @@ export async function startLocalPreview({ rootDir, siteDir, sitePort = 8775, dat
   }
   try {
     await publish();
-    dataServer = await startDataServer({ directory: store.rootDir, port: dataPort });
+    dataServer = await startDataServer({ directory: dataDir, port: dataPort });
     const variables = { VITE_COLLECTIONS_BASE_URL: dataServer.url, VITE_COLLECTIONS_ALLOW_PREVIEW: 'true' };
     const previous = Object.fromEntries(Object.keys(variables).map(key => [key, process.env[key]]));
     try {
@@ -85,7 +84,7 @@ export async function startLocalPreview({ rootDir, siteDir, sitePort = 8775, dat
     return {
       siteUrl: `http://127.0.0.1:${siteServer.httpServer.address().port}`,
       dataUrl: dataServer.url,
-      publish, rollback, close,
+      publish, close,
       get lastPublication() { return lastPublication; },
     };
   } catch (error) { await close(); throw error; }

@@ -6,7 +6,7 @@ import os from 'node:os';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { indexItem } from '../scripts/lib/site-contract.mjs';
-import { collectionInputs, loadPreviousSnapshot, mergedMainApproval } from '../scripts/lib/generation-context.mjs';
+import { collectionInputs, loadPublishedSnapshot, loadPreviousSnapshot, mergedMainApproval } from '../scripts/lib/generation-context.mjs';
 
 const SHA='a'.repeat(40),REPO='qufei1993/awesome-skills',BASE='https://data.example.com/catalog/';
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
@@ -79,7 +79,17 @@ test('temporary inputs without Git use fixed dates and never the current clock',
   assert.deepEqual(result.dates,{createdAt:'1970-01-01T00:00:00.000Z',updatedAt:'1970-01-01T00:00:00.000Z'});
   assert.deepEqual(await collectionInputs({rootDir:root,directory}),result);
 });
-test('a verified R2 production baseline is pinned when current changes later',async t=>{
+test('the data package and generation use the same pinned published snapshot',async t=>{
+  const root=await temporary(t),data=await published();
+  const first=await loadPublishedSnapshot({rootDir:root,baseUrl:BASE,request:remote(data)});
+  assert.equal(hash(first.files.get('manifest.json')),data.release.version);
+  first.files.get('index.json').fill(0);
+  const previous=await loadPreviousSnapshot({rootDir:root,baseUrl:BASE,request:()=>{throw new Error('The package baseline must stay pinned');}});
+  assert.equal(previous.get('taste').revision,2);
+  const copy=await loadPublishedSnapshot({rootDir:root,baseUrl:BASE,request:()=>{throw new Error('The baseline must not be fetched twice');}});
+  assert.deepEqual(copy.files.get('index.json'),data.files['index.json']);
+});
+test('a verified production baseline is pinned when current changes later',async t=>{
   const root=await temporary(t),data=await published();
   const previous=await loadPreviousSnapshot({rootDir:root,baseUrl:BASE,request:remote(data)});
   assert.equal(previous.get('taste').id,'e3a003dc-3ea5-4cc5-b5a4-088d1b74985c');assert.equal(previous.get('taste').revision,2);

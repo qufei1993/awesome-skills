@@ -3,3 +3,6 @@ dist/
 .superpowers/
 *.log
 .DS_Store
+.wrangler/
+.env*
+.dev.vars*

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { cp, mkdtemp, readFile, rm, writeFile, mkdir } from 'node:fs/promises';
+import { cp, mkdtemp, readFile, readdir, rm, writeFile, mkdir } from 'node:fs/promises';
 import { chromium } from 'playwright';
 import { createHash, randomUUID } from 'node:crypto';
 import path from 'node:path';
@@ -21,9 +21,25 @@ try {
     catch(error) {if (error.code !== 'ENOENT') throw error;}
   }
   const records = await loadCatalog({ rootDir: temporary, mode: 'submission', resolveSources: true });
+  const upstreamResponses = new Map();
+  const upstreamCache = path.join(temporary, 'dist/upstream-cache');
+  for (const relative of await readdir(upstreamCache, { recursive: true })) {
+    if (!relative.endsWith('.json')) continue;
+    const cached = JSON.parse(await readFile(path.join(upstreamCache, relative), 'utf8'));
+    assert.equal(cached.digest, createHash('sha256').update(JSON.stringify(cached.payload)).digest('hex'));
+    upstreamResponses.set(cached.endpoint, cached.payload);
+  }
+  const request = async endpoint => {
+    if (upstreamResponses.has(endpoint)) return upstreamResponses.get(endpoint);
+    const fixedCommitScope = /^(\/repos\/[^/]+\/[^/]+\/commits\/)([a-f0-9]{40})%2F/i.exec(endpoint);
+    if (fixedCommitScope && upstreamResponses.get(`${fixedCommitScope[1]}${fixedCommitScope[2]}`)?.sha === fixedCommitScope[2]) {
+      return { status: 404, message: 'Not Found' };
+    }
+    assert.fail(`Upstream fixture missing: ${endpoint}`);
+  };
   const expectedCollections = records.filter(record => record.complete && record.document.status === 'active').map(record => record.document);
   const expectedById = new Map(expectedCollections.map(document => [document.id, JSON.parse(JSON.stringify(document))]));
-  preview = await startLocalPreview({ rootDir: temporary, siteDir, sitePort: 0, dataPort: 0, watch: false, sourceRevision: 'a'.repeat(40), resolveSources: true, log: () => {} });
+  preview = await startLocalPreview({ rootDir: temporary, siteDir, sitePort: 0, dataPort: 0, watch: false, sourceRevision: 'a'.repeat(40), resolveSources: true, request, log: () => {} });
   const first = preview.lastPublication;
   const firstPointer = await (await fetch(`${preview.dataUrl}/current.json`)).json();
   assert.equal(firstPointer.version, first.version);
@@ -35,8 +51,8 @@ try {
   const sourceImages = collections.filter(item => item.cover.kind === 'source-image');
   const externalCovers = Object.fromEntries(sourceImages.filter(item => item.cover.url.startsWith('https://')).map(item => [item.slug, item.cover.url]));
   const initialImageKeys = new Set(Object.values(firstPointer.assets));
-  assert.equal(first.uploadedImages, initialImageKeys.size);
-  assert.equal(first.reusedImages, 0);
+  assert.equal(first.imageCount, initialImageKeys.size);
+  assert.equal(first.retainedVersion, null);
   const featured = collections.find(item => item.category === 'marketing') ?? collections[0];
   browser = await chromium.launch({ channel: 'chrome', headless: true });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
@@ -115,17 +131,22 @@ try {
   await page.locator(titleSelector).waitFor();
   const tasteZh = path.join(temporary, 'collections/design/taste/README.zh.md');
   const tasteEn = path.join(temporary, 'collections/design/taste/README.md');
-  await writeFile(tasteZh, (await readFile(tasteZh, 'utf8')).replace(/^# .+$/m, '# Taste Skill · 本地更新验证'));
-  await writeFile(tasteEn, (await readFile(tasteEn, 'utf8')).replace(/^# .+$/m, '# Taste Skill · Local update verification'));
+  const originalZh = await readFile(tasteZh, 'utf8');
+  const originalEn = await readFile(tasteEn, 'utf8');
+  await writeFile(tasteZh, originalZh.replace(/^# .+$/m, '# Taste Skill · 本地更新验证'));
+  await writeFile(tasteEn, originalEn.replace(/^# .+$/m, '# Taste Skill · Local update verification'));
   const textUpdate = await preview.publish();
   assert.notEqual(textUpdate.version, first.version);
   assert.equal(textUpdate.count, collections.length);
-  assert.equal(textUpdate.uploadedImages, 0);
-  assert.equal(textUpdate.reusedImages, initialImageKeys.size);
+  assert.equal(textUpdate.retainedVersion, first.version);
+  const textPointer = await (await fetch(`${preview.dataUrl}/current.json`)).json();
+  assert.deepEqual(textPointer.assets, firstPointer.assets);
+  assert.equal(textUpdate.imageCount, initialImageKeys.size);
   await page.waitForFunction(() => document.querySelector('a[href="/collections/taste"] h3')?.textContent.includes('本地更新验证'));
   assert.equal(await page.locator(videoCover).getAttribute('src'), originalImage);
   await assertListing(firstPointer);
   const imageFile = path.join(temporary, 'collections/media/product-video/cover.png');
+  const originalCover = await readFile(imageFile);
   const pixel = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jBv8AAAAASUVORK5CYII=', 'base64');
   let png;
   do {
@@ -148,21 +169,25 @@ try {
   const imagePointer = await (await fetch(`${preview.dataUrl}/current.json`)).json();
   const updatedImageKeys = new Set(Object.values(imagePointer.assets));
   assert.equal([...updatedImageKeys].filter(key => !initialImageKeys.has(key)).length, 1);
-  assert.equal(imageUpdate.uploadedImages, 1);
-  assert.equal(imageUpdate.reusedImages, [...updatedImageKeys].filter(key => initialImageKeys.has(key)).length);
+  assert.equal(imageUpdate.retainedVersion, textUpdate.version);
+  assert.equal(imageUpdate.imageCount, new Set([...initialImageKeys, ...updatedImageKeys]).size);
+  for (const imageKey of initialImageKeys) assert.equal((await fetch(`${preview.dataUrl}/${imageKey}`)).status, 200);
   await page.waitForFunction(previous => document.querySelector('a[href="/collections/product-video"] img')?.getAttribute('src') !== previous, originalImage);
   await page.locator(videoCover).scrollIntoViewIfNeeded();
   await page.waitForFunction(() => { const image = document.querySelector('a[href="/collections/product-video"] img'); return image?.complete && image.naturalWidth === 1; });
   await assertListing(imagePointer);
-  const validMarkdown = await readFile(tasteEn, 'utf8');
   await writeFile(tasteEn, '# Invalid collection\n');
   await assert.rejects(() => preview.publish());
   const afterFailure = await (await fetch(`${preview.dataUrl}/current.json`)).json();
   assert.deepEqual(afterFailure, imagePointer);
   assert.ok((await page.locator(titleSelector).innerText()).includes('本地更新验证'));
-  await writeFile(tasteEn, validMarkdown);
-  await preview.rollback(first.version);
-  assert.deepEqual(await (await fetch(`${preview.dataUrl}/current.json`)).json(), firstPointer);
+  await writeFile(tasteEn, originalEn);
+  await writeFile(tasteZh, originalZh);
+  await writeFile(imageFile, originalCover);
+  const restored = await preview.publish();
+  const restoredPointer = await (await fetch(`${preview.dataUrl}/current.json`)).json();
+  assert.equal(restored.retainedVersion, imageUpdate.version);
+  assert.deepEqual(restoredPointer.assets, firstPointer.assets);
   await page.waitForFunction(title => document.querySelector('a[href="/collections/taste"] h3')?.textContent.replace('↗', '').trim() === title, originalTitle);
   assert.equal(await page.locator(videoCover).getAttribute('src'), originalImage);
   await page.locator(videoCover).scrollIntoViewIfNeeded();
@@ -170,12 +195,12 @@ try {
     const image = document.querySelector('a[href="/collections/product-video"] img');
     return image?.complete && image.naturalWidth === dimensions.width && image.naturalHeight === dimensions.height;
   }, originalDimensions);
-  await assertListing(firstPointer);
+  await assertListing(restoredPointer);
   assert.deepEqual(errors, []);
   await mkdir(path.join(root, 'dist'), { recursive: true });
   await page.screenshot({ path: path.join(root, 'dist/local-verification.png'), fullPage: true });
   await preview.close();
-  preview = await startLocalPreview({ rootDir: temporary, siteDir, sitePort: 0, dataPort: 0, sourceRevision: 'a'.repeat(40), resolveSources: true, log: () => {} });
+  preview = await startLocalPreview({ rootDir: temporary, siteDir, sitePort: 0, dataPort: 0, sourceRevision: 'a'.repeat(40), resolveSources: true, request, log: () => {} });
   const watchedVersion = preview.lastPublication.version;
   await page.goto(`${preview.siteUrl}/collections`);
   await page.locator(titleSelector).waitFor();
@@ -184,13 +209,14 @@ try {
   await page.waitForFunction(() => document.querySelector('a[href="/collections/taste"] h3')?.textContent.includes('自动监听验证'));
   assert.notEqual(preview.lastPublication.version, watchedVersion);
   assert.equal(preview.lastPublication.count, collections.length);
-  assert.equal(preview.lastPublication.uploadedImages, 0);
-  assert.equal(preview.lastPublication.reusedImages, updatedImageKeys.size);
-  await assertListing(await (await fetch(`${preview.dataUrl}/current.json`)).json());
+  const watchedPointer = await (await fetch(`${preview.dataUrl}/current.json`)).json();
+  assert.deepEqual(watchedPointer.assets, firstPointer.assets);
+  assert.equal(preview.lastPublication.imageCount, initialImageKeys.size);
+  await assertListing(watchedPointer);
   assert.deepEqual(errors, []);
-  const report = { collections: collections.length, homeFeatured: featured.slug, counts, detailVisits, sourceImageCount: sourceImages.length, externalCovers, remoteCoversMocked: true, remoteCovers: { mocked: true, urls: [...remoteURLs], fulfilledURLs: [...mockedURLs] }, initial: first, textUpdate, imageUpdate, failedPublishPreserved: true, rollbackRestored: true, watchedUpdateApplied: true, browserErrors: 0 };
+  const report = { collections: collections.length, homeFeatured: featured.slug, counts, detailVisits, sourceImageCount: sourceImages.length, externalCovers, upstreamResponsesReplayed: true, remoteCoversMocked: true, remoteCovers: { mocked: true, urls: [...remoteURLs], fulfilledURLs: [...mockedURLs] }, initial: first, textUpdate, imageUpdate, restored, unchangedCoverPathsReused: true, changedCoverPaths: 1, failedPublishPreserved: true, sourceRestorationApplied: true, watchedUpdateApplied: true, browserErrors: 0 };
   await writeFile(path.join(root, 'dist/local-verification.json'), JSON.stringify(report, null, 2) + '\n');
-  process.stdout.write(`本地联调通过：${collections.length} 个合集，${sourceImages.length} 张来源图片；文案更新新增 0 张图片；封面更新新增 1 张图片；自动监听、失败保留和回滚均通过。\n`);
+  process.stdout.write(`本地联调通过：${collections.length} 个合集，${sourceImages.length} 张来源图片；文案更新复用封面路径；封面更新新增 1 个图片路径；自动监听、失败保留和恢复贡献内容均通过。\n`);
 } finally {
   await browser?.close();
   await preview?.close();

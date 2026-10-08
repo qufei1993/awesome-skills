@@ -45,7 +45,7 @@ CI 将每个 GitHub 链接解析到固定提交。文件链接包含一个技能
 
 ## 校验与发布
 
-PR 的 CI 检查 README 格式，解析上游技能，生成可下载的预览快照。维护者查看 README 和预览，审核后将 PR 合并到 `main`。可信发布 CI 核对已合并的 PR，生成正式数据。
+PR 的 CI 检查 README 格式，解析上游技能，准备静态预览文件。维护者查看 README 和预览，审核后将 PR 合并到 `main`。可信发布 CI 核对已合并的 PR，自动部署正式数据。
 
 正式数据要求资料完整、有效且审核通过。预览包含资料完整的待审数据，供维护者审核。核验状态以实际依据为准：`needs-review` 表示待核对，`not-tested` 表示待实测。安装或流程实测失败时阻断正式发布。
 
@@ -61,6 +61,8 @@ AGENTS.md 是共享入口，CLAUDE.md 引用它。AI 工具读取贡献指南，
 
 ## 网站数据管线
 
-管线生成 JSON 快照，再发布给官网运行时读取。发布器对 `manifest.json` 的原始字节计算 SHA256 作为版本，JSON 保存在 `snapshots/<version>/`；完整版本准备好后切换 `current.json`。本地封面使用共享的 `images/<SHA256>.<ext>` 对象，相同图片共用一个已上传对象。
+Cloudflare Workers Static Assets 是静态文件托管服务，用于发布生成的 JSON 和本地封面。官网继续使用 Cloudflare Pages，在运行时读取这些数据。合集 PR 合并后独立部署数据。
 
-`npm run dev:site -- --site ../skills-hub-web` 监听本仓库，发布本地预览数据并运行官网。云端发布需要配置 R2 和 `VITE_COLLECTIONS_BASE_URL`。命令、官网配置和回退步骤见[部署说明](maintainers/deployment.zh.md)。
+CI 准备完整的静态部署文件。JSON 保存在 `snapshots/<version>/`；`current.json` 指向对应版本。版本是清单原始字节的 SHA256。本地封面使用 `images/<SHA256>.<ext>`，相同图片共用一个文件。
+
+`npm run dev:site -- --site ../skills-hub-web` 监听本仓库，提供预览数据并运行官网。云端配置与 PR 测试见[部署说明](maintainers/deployment.zh.md)。

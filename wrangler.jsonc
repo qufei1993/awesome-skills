@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "skills-hub-collections",
+  "compatibility_date": "2026-10-08",
+  "workers_dev": true,
+  "assets": {
+    "directory": "./dist/assets",
+    "html_handling": "none",
+    "not_found_handling": "none"
+  }
+}

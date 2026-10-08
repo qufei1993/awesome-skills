@@ -20,7 +20,15 @@ function parseJSON(bytes,label) {
   try { return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes)); }
   catch { throw new Error(`Invalid JSON in ${label}`); }
 }
-async function verifyFiles(files,{allowPreview=false,expectedRevision,limits=LIMITS}={}) {
+export async function verifySnapshotFiles(files,{allowPreview=false,expectedRevision,limits:customLimits}={}) {
+  const limits={...LIMITS,...customLimits};
+  if (!(files instanceof Map)) throw new Error('Snapshot files must be a Map');
+  if (files.size>limits.maxFiles+1) throw new Error('Snapshot file count limit exceeded');
+  let fileBytes=0;
+  for (const [name,bytes] of files) {
+    safePath(name);
+    if (!(bytes instanceof Uint8Array) || bytes.length>limits.maxFileBytes || (fileBytes+=bytes.length)>limits.maxTotalBytes) throw new Error('Snapshot file body or size limit exceeded');
+  }
   const manifest=parseJSON(files.get('manifest.json'),'manifest.json');
   exactKeys(manifest,['schemaVersion','preview','sourceRevision','files'],'manifest');
   if (manifest.schemaVersion!==1 || typeof manifest.preview!=='boolean' || !SHA.test(manifest.sourceRevision ?? '')) throw new Error('Invalid manifest schema or source revision');
@@ -83,7 +91,7 @@ export async function verifySnapshot({fromDir,allowPreview=false,expectedRevisio
       }
     }
   }
-  await visit(root);return verifyFiles(files,{allowPreview,expectedRevision,limits});
+  await visit(root);return verifySnapshotFiles(files,{allowPreview,expectedRevision,limits});
 }
 async function targetPaths(targetDir) {
   const root=await realpath(targetDir),state=path.join(root,'.catalog-sync'),parent=path.join(root,'public/data');

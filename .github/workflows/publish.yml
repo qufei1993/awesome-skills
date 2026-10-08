@@ -16,6 +16,7 @@ jobs:
   publish:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
       GITHUB_TOKEN: ${{ github.token }}
       CATALOG_DATA_BASE_URL: ${{ vars.CATALOG_DATA_BASE_URL }}
@@ -25,7 +26,7 @@ jobs:
           ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - name: Check latest main revision before building
+      - name: Check latest main revision
         id: latest
         env:
           GH_TOKEN: ${{ github.token }}
@@ -35,8 +36,19 @@ jobs:
             echo 'publish=true' >> "$GITHUB_OUTPUT"
           else
             echo 'publish=false' >> "$GITHUB_OUTPUT"
-            echo 'Skipped an older queued revision. The current data version is unchanged.' >> "$GITHUB_STEP_SUMMARY"
+            echo 'A newer main revision will publish the data.' >> "$GITHUB_STEP_SUMMARY"
           fi
+      - name: Check publication settings
+        if: steps.latest.outputs.publish == 'true'
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          node --input-type=module <<'NODE'
+          if (!/^[a-f0-9]{32}$/i.test(process.env.CLOUDFLARE_ACCOUNT_ID || '') || !process.env.CLOUDFLARE_API_TOKEN || !process.env.CATALOG_DATA_BASE_URL) {
+            throw new Error('Configure CLOUDFLARE_ACCOUNT_ID, CATALOG_DATA_BASE_URL and the CLOUDFLARE_API_TOKEN Actions secret before publishing.');
+          }
+          NODE
       - uses: actions/setup-node@v4
         if: steps.latest.outputs.publish == 'true'
         with:
@@ -46,67 +58,36 @@ jobs:
         if: steps.latest.outputs.publish == 'true'
       - run: npm run check
         if: steps.latest.outputs.publish == 'true'
-      - name: Check R2 publication configuration
-        if: steps.latest.outputs.publish == 'true'
-        id: destination
-        env:
-          PUBLICATION_MODE: ${{ vars.CATALOG_PUBLICATION_MODE }}
-          CATALOG_R2_ACCOUNT_ID: ${{ vars.CATALOG_R2_ACCOUNT_ID }}
-          CATALOG_R2_BUCKET: ${{ vars.CATALOG_R2_BUCKET }}
-          CATALOG_R2_ACCESS_KEY_ID: ${{ secrets.CATALOG_R2_ACCESS_KEY_ID }}
-          CATALOG_R2_SECRET_ACCESS_KEY: ${{ secrets.CATALOG_R2_SECRET_ACCESS_KEY }}
-        run: |
-          node --input-type=module <<'NODE'
-          import { appendFile } from 'node:fs/promises';
-          const mode = process.env.PUBLICATION_MODE || 'disabled';
-          if (mode === 'disabled') {
-            await appendFile(process.env.GITHUB_OUTPUT, 'enabled=false\n');
-            await appendFile(process.env.GITHUB_STEP_SUMMARY, 'Validation completed. Configure R2 and set CATALOG_PUBLICATION_MODE=r2 to enable automatic data uploads.\n');
-          } else if (mode === 'r2') {
-            const required = ['CATALOG_DATA_BASE_URL', 'CATALOG_R2_ACCOUNT_ID', 'CATALOG_R2_BUCKET', 'CATALOG_R2_ACCESS_KEY_ID', 'CATALOG_R2_SECRET_ACCESS_KEY'];
-            if (required.some(name => !process.env[name])) throw new Error('R2 publication is enabled but its configuration is incomplete');
-            await appendFile(process.env.GITHUB_OUTPUT, 'enabled=true\n');
-          } else {
-            throw new Error('Unsupported data publication mode');
-          }
-          NODE
       - run: npm run validate:publish -- --resolve-upstream
-        if: steps.destination.outputs.enabled == 'true'
-      - name: Build reviewed production data
-        if: steps.destination.outputs.enabled == 'true'
-        run: npm run build -- --reviewed-main --output dist/collections --source-revision "$GITHUB_SHA"
-      - name: Upload data and switch the current version
-        if: steps.destination.outputs.enabled == 'true'
+        if: steps.latest.outputs.publish == 'true'
+      - name: Generate reviewed data and static files
+        if: steps.latest.outputs.publish == 'true'
+        id: package
+        run: |
+          npm run build -- --reviewed-main --output dist/collections --source-revision "$GITHUB_SHA"
+          npm run package:data -- --from dist/collections --output dist/assets
+          npm run deploy:data -- --dry-run
+      - name: Check latest main revision before deployment
+        if: steps.latest.outputs.publish == 'true' && steps.package.outputs.changed == 'true'
+        id: deploy
         env:
           GH_TOKEN: ${{ github.token }}
-          CATALOG_R2_ACCOUNT_ID: ${{ vars.CATALOG_R2_ACCOUNT_ID }}
-          CATALOG_R2_BUCKET: ${{ vars.CATALOG_R2_BUCKET }}
-          CATALOG_R2_ACCESS_KEY_ID: ${{ secrets.CATALOG_R2_ACCESS_KEY_ID }}
-          CATALOG_R2_SECRET_ACCESS_KEY: ${{ secrets.CATALOG_R2_SECRET_ACCESS_KEY }}
         run: |
-          node --input-type=module <<'NODE'
-          import { execFile } from 'node:child_process';
-          import { promisify } from 'node:util';
-          import { appendFile, writeFile } from 'node:fs/promises';
-          import { createR2Store, publishSnapshot } from './scripts/lib/publication.mjs';
-          const execute = promisify(execFile);
-          const store = await createR2Store({ accountId:process.env.CATALOG_R2_ACCOUNT_ID, bucket:process.env.CATALOG_R2_BUCKET, accessKeyId:process.env.CATALOG_R2_ACCESS_KEY_ID, secretAccessKey:process.env.CATALOG_R2_SECRET_ACCESS_KEY });
-          const result = await publishSnapshot({
-            fromDir:'dist/collections',
-            store,
-            beforeCurrent:async ({ sourceRevision }) => {
-              if (sourceRevision !== process.env.GITHUB_SHA) throw new Error('Snapshot source revision does not match this workflow commit');
-              let stdout;
-              try {
-                ({ stdout } = await execute('gh', ['api', `repos/${process.env.GITHUB_REPOSITORY}/commits/main`, '--jq', '.sha'], { timeout:30000, maxBuffer:1024 * 1024 }));
-              } catch { throw new Error('Latest main revision could not be verified; current.json was not changed'); }
-              const latestRevision = stdout.trim();
-              if (!/^[a-f0-9]{40}$/i.test(latestRevision)) throw new Error('Latest main revision is invalid; current.json was not changed');
-              return latestRevision === sourceRevision;
-            },
-          });
-          await writeFile('publication-result.json', JSON.stringify(result) + '\n');
-          await appendFile(process.env.GITHUB_STEP_SUMMARY, result.currentUpdated
-            ? `Published ${result.count} collections to R2. Current version: ${result.version}. Images uploaded: ${result.uploadedImages}; reused: ${result.reusedImages}.\n`
-            : `Prepared version ${result.version}. A newer main revision kept the current data version unchanged.\n`);
-          NODE
+          latest_revision="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)"
+          if [ "$latest_revision" = "$GITHUB_SHA" ]; then
+            echo 'publish=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'publish=false' >> "$GITHUB_OUTPUT"
+            echo 'A newer main revision will deploy the data.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Deploy collection data
+        if: steps.deploy.outputs.publish == 'true'
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: npm run deploy:data
+      - name: Verify published files
+        if: steps.deploy.outputs.publish == 'true' || steps.latest.outputs.publish == 'true' && steps.package.outputs.changed == 'false'
+        run: |
+          npm run test:data -- --url "$CATALOG_DATA_BASE_URL"
+          echo "Verified collection data from $GITHUB_SHA on Workers Static Assets." >> "$GITHUB_STEP_SUMMARY"

@@ -18,7 +18,7 @@ Generated JSON is a build artifact under `dist/`. Directory links define which S
 
 ## Stable data
 
-The first generation creates stable identities and an initial revision. The previous production snapshot is the baseline for subsequent generation. Unchanged collection input reuses its recorded source commits. Changed input is resolved again; stable identities and version history are retained. Trusted CI reads `current.json` and its snapshot from the R2 public data root set in `CATALOG_DATA_BASE_URL`. Local builds use available cached data or an explicit baseline.
+The first generation creates stable identities and an initial revision. The previous production snapshot is the baseline for subsequent generation. Unchanged collection input reuses its recorded source commits. Changed input is resolved again; stable identities and version history are retained. Trusted CI reads `current.json` and its snapshot from the published data address set in `CATALOG_DATA_BASE_URL`. Local builds use available cached data or an explicit baseline.
 
 ## Review and verification
 
@@ -32,4 +32,4 @@ Record verification states from actual evidence. Unknown licenses use `NOASSERTI
 
 `npm run validate` checks README format offline. `npm run validate -- --resolve-upstream` also resolves linked sources. `npm run build`, `npm run build:preview`, and `npm run dev:site` resolve upstream data automatically. `npm run check` needs network access during its preview build.
 
-Covers are optional. Local covers enter the snapshot; HTTPS covers stay direct links. See [deployment](deployment.md) for website preview, publication, and rollback.
+Covers are optional. Local covers enter the snapshot; HTTPS covers stay direct links. See [deployment](deployment.md) for website preview and publication.

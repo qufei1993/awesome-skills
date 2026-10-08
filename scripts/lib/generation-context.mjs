@@ -132,15 +132,15 @@ async function existingBaseline(target,baseUrl,head,rootDir) {
   const metadataPath=path.join(target,'metadata.json');if((await lstat(metadataPath)).isSymbolicLink())throw new Error('Previous snapshot metadata cannot be a symbolic link');
   const metadata=JSON.parse(await readFile(metadataPath,'utf8'));
   if(metadata.baseUrl!==baseUrl || metadata.head!==head || typeof metadata.empty!=='boolean')throw new Error('Previous snapshot cache identity mismatch');
-  if(metadata.empty)return new Map();
+  if(metadata.empty)return null;
   if(!SHA.test(metadata.sourceRevision??''))throw new Error('Invalid cached source revision');
   if(!await ancestorRevision(rootDir,metadata.sourceRevision,head))throw new Error('Cached baseline revision is not an ancestor of this checkout');
-  return snapshotDocuments(await verifySnapshot({fromDir:path.join(target,'snapshot'),expectedRevision:metadata.sourceRevision}));
+  return verifySnapshot({fromDir:path.join(target,'snapshot'),expectedRevision:metadata.sourceRevision});
 }
 async function retrieveBaseline({rootDir,baseUrl,request}) {
   const head=await checkout(rootDir),{parent,target}=await snapshotCache(rootDir,baseUrl,head);
   const cached=await existingBaseline(target,baseUrl,head,rootDir);if(cached!==undefined)return cached;
-  const verified=await readCurrentSnapshot({store:publicStore(baseUrl,request)});
+  const verified=await readCurrentSnapshot({read:publicStore(baseUrl,request).get});
   const sourceRevision=verified?.manifest.sourceRevision;
   if(verified && !await ancestorRevision(rootDir,sourceRevision,head))throw new Error('Published baseline revision is not an ancestor of this checkout');
   const stage=await mkdtemp(path.join(parent,'.previous-snapshot-'));
@@ -149,16 +149,21 @@ async function retrieveBaseline({rootDir,baseUrl,request}) {
     await writeFile(path.join(stage,'metadata.json'),JSON.stringify({baseUrl,head,empty:!verified,...(verified?{sourceRevision}:{})})+'\n');
     await rename(stage,target);
   }finally{await rm(stage,{recursive:true,force:true});}
-  return verified?snapshotDocuments(verified):new Map();
+  return verified;
 }
-export async function loadPreviousSnapshot({rootDir,baseUrl,request=fetch}={}) {
+export async function loadPublishedSnapshot({rootDir,baseUrl,request=fetch}={}) {
   baseUrl=canonicalBaseUrl(baseUrl);
   const key=`${await realpath(rootDir)}\0${baseUrl}\0${await checkout(rootDir)??'local'}`;
   if(!baselineLoads.has(key))baselineLoads.set(key,retrieveBaseline({rootDir,baseUrl,request}));
   try {
-    const baseline=await baselineLoads.get(key),copy=new Map([...baseline].map(([slug,document])=>[slug,structuredClone(document)]));
-    copy.assetHashes=new Map(baseline.assetHashes??[]);return copy;
+    const baseline=await baselineLoads.get(key);
+    if(!baseline)return null;
+    return {manifest:structuredClone(baseline.manifest),index:structuredClone(baseline.index),files:new Map([...baseline.files].map(([name,bytes])=>[name,Buffer.from(bytes)]))};
   }catch(error){baselineLoads.delete(key);throw error;}
+}
+export async function loadPreviousSnapshot(options) {
+  const verified=await loadPublishedSnapshot(options);
+  return verified?snapshotDocuments(verified):new Map();
 }
 export async function mergedMainApproval({rootDir,request=fetch}={}) {
   if(process.env.GITHUB_ACTIONS!=='true' || !['push','workflow_dispatch'].includes(process.env.GITHUB_EVENT_NAME) || process.env.GITHUB_REF!=='refs/heads/main' || process.env.GITHUB_REPOSITORY!==REPOSITORY)throw new Error('Reviewed main approval requires a trusted GitHub Actions main event');
