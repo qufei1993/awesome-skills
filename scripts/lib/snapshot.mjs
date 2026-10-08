@@ -58,8 +58,7 @@ async function verifyFiles(files,{allowPreview=false,expectedRevision,limits=LIM
       if (!asset.startsWith(`assets/${document.id}/`) || !files.has(asset)) throw new Error('Missing cover asset');
       usedAssets.add(asset);return {isFile:()=>true};
     }});
-    if (document.cover.kind==='source-image' && !document.cover.url.startsWith('/data/collections/assets/')) throw new Error('Cover must belong to this snapshot');
-    if (!manifest.preview && (document.status!=='active' || document.review.status!=='approved' || document.verification.source!=='verified' || document.verification.files!=='verified' || document.skills.some(s=>s.resourceCheck!=='verified') || ['installation','workflow'].some(k=>document.verification[k]==='failed') || (document.cover.kind==='source-image' && document.cover.rightsStatus!=='verified'))) throw new Error('Production snapshot contains unpublished or unverified details');
+    if (!manifest.preview && (document.status!=='active' || document.review.status!=='approved' || ['installation','workflow'].some(k=>document.verification[k]==='failed'))) throw new Error('Production snapshot contains unpublished details or failed tests');
     if (slugs.has(document.slug)) throw new Error('Duplicate collection slug');slugs.add(document.slug);
     if (document.id!==item.id || !isDeepStrictEqual(indexItem(document),item)) throw new Error(`Index and details disagree: ${filename}`);
   }

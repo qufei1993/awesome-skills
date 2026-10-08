@@ -1,3 +1,4 @@
+import { categories } from './categories.mjs';
 import {
   mkdir,
   mkdtemp,
@@ -12,16 +13,7 @@ import path from "node:path";
 
 const UUID =
   /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
-const categories = [
-  "development",
-  "product",
-  "research",
-  "productivity",
-  "marketing",
-  "design",
-  "video",
-  "other",
-];
+
 
 function invalid(file, field, message) {
   throw new Error(`${file}: ${field} ${message}`);
@@ -94,6 +86,16 @@ function url(value, file, field) {
     parsed.password
   )
     invalid(file, field, "must be an HTTP(S) URL without credentials");
+}
+
+export function externalCoverUrl(value, file) {
+  text(value, file, "cover.url");
+  const authority = /^https:\/\/([^/?#]+)/i.exec(value);
+  let parsed;
+  try { parsed = new URL(value); } catch { /* Report the cover-specific error below. */ }
+  if (!authority || /[\s\\]/.test(value) || authority[1].includes("@") || parsed?.protocol !== "https:" || parsed.username || parsed.password)
+    invalid(file, "cover.url", "must be an HTTPS URL without credentials or an archived local image");
+  return parsed.href;
 }
 
 function relativePath(value, file, field, allowRoot = false) {
@@ -484,7 +486,7 @@ export async function validateCollection(data, file, rootDir, { validateLocalCov
       }
       if (!coverFile.isFile())
         invalid(file, "cover.url", "must point to a local file");
-    } else url(data.cover.url, file, "cover.url");
+    } else externalCoverUrl(data.cover.url, file);
   }
 
   object(data.verification, file, "verification");

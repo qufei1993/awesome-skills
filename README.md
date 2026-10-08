@@ -1,42 +1,39 @@
 # Awesome Skills
 
-Task-focused Skill collections for Skills Hub. Skills stay in their upstream repositories. This catalog records their purpose, sources, installation lists, and verification status.
+Task-focused Skill collections for Skills Hub. Skills stay in their upstream repositories.
 
-[Chinese version](README.zh.md) · [Contributing](CONTRIBUTING.md) · [Format](docs/format.md) · [Deployment](docs/deployment.md)
+[Chinese version](README.zh.md) · [Contribution guide](CONTRIBUTING.md) · [AI rules](AGENTS.md)
 
 ## Browse collections
 
-This directory is generated from collection Markdown in the language of this page. Pending collections are available for review. A listing does not imply approval or successful installation. Collections without an English presentation use their slug until a translation is available.
+Listings may include pending collections. The three existing website collections retain their display approval; verification and testing states remain visible in published data.
 
 <!-- catalog:start -->
-- [Skills for Real Engineers](collections/engineering/README.md) — Bring engineering practice into agent collaboration, from clarifying requirements to implementation and verification. (pending review)
-- [Product Promo Videos](collections/product-video/README.md) — Clarify the brief, build the visuals, and combine Skills to create a product promo video. (pending review)
-- [Taste Skill · Frontend Design](collections/taste/README.md) — Give AI-generated interfaces a stronger design direction, from typography and visual style to motion. (pending review)
+### Development & Engineering
+
+- [Skills for Real Engineers](collections/development/engineering/README.md) — Bring engineering practice into agent collaboration, from clarifying requirements to implementation and verification.
+
+### Design & Visuals
+
+- [Taste Skill · Frontend Design](collections/design/taste/README.md) — Give AI-generated interfaces a stronger design direction, from typography and visual style to motion.
+
+### Audio & Video
+
+- [Product Promo Videos](collections/media/product-video/README.md) — Clarify the brief, build the visuals, and combine Skills to create a product promo video.
+
 <!-- catalog:end -->
 
 ## Contribute
 
-Submit in English or Chinese. Author collections, sourced recommendations, and original selections across repositories are welcome. Explain the task, each Skill's role, and why they work together.
+Write the collection overview, scenarios, usage advice, and GitHub links in one Markdown file using the [contribution guide](CONTRIBUTING.md).
 
-Use Node.js 22 and create a draft:
+Real collections: [Skills for Real Engineers](collections/development/engineering/README.md) · [302 AI product video](collections/media/product-video/README.md). [Shared AI rules](AGENTS.md).
 
-```sh
-npm ci
-npm run new:collection -- my-collection
-```
+<details>
+<summary>Maintainer references</summary>
 
-Drafts use English by default. Use `--lang zh` for a Chinese submission. Follow the [template instructions](templates/README.md), replace the source placeholders, and run `npm run check`.
+- [Internal data](docs/maintainers/format.md)
+- [Data publication and local preview](docs/maintainers/deployment.md)
+- [Repository design](docs/design.md)
 
-Each Skill has its own entry point and installation list. Covers are optional. Edit Markdown; JSON and the catalog directory are generated.
-
-## Documentation
-
-Project documentation and templates use English in the default file. Chinese versions use the `.zh.md` suffix. Update both versions together and keep each document in one language.
-
-AI tools share one [AGENTS.md](AGENTS.md). [CLAUDE.md](CLAUDE.md) references that file.
-
-## Publication status
-
-The initial Taste, Engineering, and Product Video collections retain their identities and installation records. Their reviews are pending. Installation and workflow checks remain `not-tested`. The 13/31/14 installation counts describe expanded lists, not successful tests.
-
-Production snapshots contain eligible active, approved collections. Preview snapshots include complete pending records and require explicit local preview mode for synchronization. Website integration and GitHub review requirements still need maintainer configuration. See the [verification report](docs/verification.md).
+</details>

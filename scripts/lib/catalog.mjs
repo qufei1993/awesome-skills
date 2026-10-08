@@ -1,8 +1,10 @@
+import { categories, categoryLabels } from './categories.mjs';
 import { mkdir, mkdtemp, readFile, readdir, lstat, rename, rm, realpath, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { parseCollectionMarkdown, parseTranslationMarkdown } from './markdown.mjs';
-import { validateCollection, indexItem } from './site-contract.mjs';
+import { parseContributionMarkdown } from './contribution.mjs';
+import { validateCollection, indexItem, externalCoverUrl } from './site-contract.mjs';
 
 const SHA = /^[a-f0-9]{40}$/i;
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -137,21 +139,28 @@ function testEvidence(data, file) {
   }
 }
 function releaseGate(data, file) {
-  for (const field of ['source','files']) if (data.verification[field] !== 'verified') fail(file,`verification.${field}`,'must be verified before publication');
   for (const field of ['installation','workflow']) if (data.verification[field] === 'failed') fail(file,`verification.${field}`,'failed tests prevent publication');
-  for (const skill of data.skills) if (skill.resourceCheck !== 'verified') fail(file,`skills.${skill.id}.resourceCheck`,'must be verified before publication');
-  if (data.cover.kind === 'source-image' && data.cover.rightsStatus !== 'verified') fail(file,'cover.rightsStatus','must be verified before publication');
 }
-async function coverAsset(rootDir, directory, parsed, file) {
+async function coverAsset(rootDir, directory, parsed, file, publicReadmes) {
   const {document,coverFile} = parsed;
   if (coverFile === undefined) {
-    if (document.cover?.kind === 'source-image') fail(file,'cover.file','must name an archived repository image');
+    if (Object.values(publicReadmes ?? {}).some(contribution=>contribution.cover && !contribution.cover.url.startsWith('https://'))) fail(file,'cover.file','must archive the local cover shown in each public README');
+    if (Object.values(publicReadmes ?? {}).some(contribution=>contribution.cover) && document.cover?.kind !== 'source-image') fail(file,'cover.kind','must use source-image for the cover shown in public READMEs');
+    if (document.cover?.kind === 'source-image') {
+      const url=externalCoverUrl(document.cover.url,file);
+      const contributions=Object.values(publicReadmes ?? {});
+      if (!contributions.length || contributions.some(contribution=>contribution.cover?.url !== url)) fail(file,'cover.url','must match the HTTPS cover shown in each public README');
+      document.cover.url=url;
+    }
     return undefined;
   }
   if (document.cover?.kind !== 'source-image') fail(file,'cover.file','requires a source-image cover');
+  if (/^https?:/i.test(document.cover.url ?? '') || Object.values(publicReadmes ?? {}).some(contribution=>contribution.cover?.url.startsWith('https://'))) fail(file,'cover.file','cannot coexist with an external cover URL');
   safePath(coverFile,file,'cover.file');
+  if (Object.values(publicReadmes ?? {}).some(contribution=>contribution.cover && decodeURIComponent(contribution.cover.url) !== coverFile)) fail(file,'cover.file','must match the local cover shown in each public README');
   const target = path.join(directory,coverFile);
   const actual = await contained(rootDir,target,file,'cover.file');
+  if (!inside(await realpath(directory),actual)) fail(file,'cover.file','symbolic link escapes the collection directory');
   const info = await stat(actual);
   if (!info.isFile() || info.size > 5 * 1024 * 1024 || !info.size) fail(file,'cover.file','must be a nonempty image file at most 5 MiB');
   const bytes = await readFile(actual);
@@ -186,8 +195,27 @@ function presentationOf(data) {
 }
 function checkPresentation(presentation,data,file) {
   if (!plain(presentation)) fail(file,'translation','must be an object');
-  for (const id of Object.keys(presentation.skills ?? {})) if (!data.skills.some(s=>s.id === id)) fail(file,`translation.skills.${id}`,'refers to an unknown Skill ID');
-  for (const id of Object.keys(presentation.provenance?.evidence ?? {})) if (!data.provenance.evidence.some(e=>e.id === id)) fail(file,`translation.provenance.evidence.${id}`,'refers to an unknown evidence ID');
+  keys(presentation,['title','description','overview','scenarios','usage','tags','coverAlt','provenance','skills'],file,'translation');
+  if (presentation.skills !== undefined) {
+    if (!plain(presentation.skills)) fail(file,'translation.skills','must be an object');
+    for (const [id,skill] of Object.entries(presentation.skills)) {
+      if (!plain(skill)) fail(file,`translation.skills.${id}`,'must be an object');
+      keys(skill,['summary','role'],file,`translation.skills.${id}`);
+      if (!data.skills.some(s=>s.id === id)) fail(file,`translation.skills.${id}`,'refers to an unknown Skill ID');
+    }
+  }
+  if (presentation.provenance !== undefined) {
+    if (!plain(presentation.provenance)) fail(file,'translation.provenance','must be an object');
+    keys(presentation.provenance,['selectionReason','evidence'],file,'translation.provenance');
+    if (presentation.provenance.evidence !== undefined) {
+      if (!plain(presentation.provenance.evidence)) fail(file,'translation.provenance.evidence','must be an object');
+      for (const [id,evidence] of Object.entries(presentation.provenance.evidence)) {
+        if (!plain(evidence)) fail(file,`translation.provenance.evidence.${id}`,'must be an object');
+        keys(evidence,['title','location','finding'],file,`translation.provenance.evidence.${id}`);
+        if (!data.provenance.evidence.some(e=>e.id === id)) fail(file,`translation.provenance.evidence.${id}`,'refers to an unknown evidence ID');
+      }
+    }
+  }
 }
 function applyPresentation(data,presentation) {
   for (const field of ['title','description','overview','scenarios','usage','tags']) if (presentation[field] !== undefined) data[field]=presentation[field];
@@ -196,13 +224,15 @@ function applyPresentation(data,presentation) {
   if (presentation.provenance?.selectionReason !== undefined) data.provenance.selectionReason=presentation.provenance.selectionReason;
   for (const evidence of data.provenance.evidence) Object.assign(evidence,presentation.provenance?.evidence?.[evidence.id] ?? {});
 }
-async function translations(rootDir,directory,parsed) {
+async function translations(rootDir,directory,parsed,canonicalFile,{publicReadmes=false}={}) {
   const data=parsed.document,localized={...data.localizations};
   const directoryPresentations={ [parsed.language]:{title:data.title,description:data.description} };
   for (const language of ['en','zh']) {
     const file=path.join(directory,`README.${language}.md`);
+    if (file === canonicalFile) continue;
     let source;
     try { await contained(rootDir,file,file,'translation'); source=await readFile(file,'utf8'); } catch(error) {if (error.code === 'ENOENT') continue; throw error;}
+    if (publicReadmes && !/^---[ \t]*(?:\r?\n|$)/.test(source.replace(/^\uFEFF/,''))) continue;
     const translated=parseTranslationMarkdown(source,{filename:file});
     if (translated.id !== data.id) fail(file,'id','must match the canonical collection identity');
     if (translated.language !== language) fail(file,'language','must match the translation filename');
@@ -259,13 +289,14 @@ function checkBase(records, base) {
     if (!next) fail(previous.file,'id','stable identity was removed; archive existing collections instead');
     const data=next.document;
     for (const field of ['slug','createdAt']) if (old[field] !== undefined && old[field] !== data[field]) fail(next.file,field,'must preserve the existing stable identity');
+    if (previous.kind === 'submission') continue;
     if ((old.sourceKeys ?? []).some(key => !data.sourceKeys?.includes(key))) fail(next.file,'sourceKeys','must preserve historical source keys');
     for (const skill of old.skills) {
       if (data.skills.some(s => s.id === skill.id)) continue;
       const same=data.skills.find(s => s.entry.repo.toLowerCase() === skill.entry.repo.toLowerCase() && s.entry.entryPoint === skill.entry.entryPoint);
       if (same && same.id !== skill.id) fail(next.file,'skills.id','must preserve an existing item identity');
     }
-    const changed=comparable(data) !== comparable(old) || canonical(next.curator) !== canonical(previous.curator) || next.language !== previous.language || next.asset?.bytes && previous.asset?.bytes && !next.asset.bytes.equals(previous.asset.bytes);
+    const changed=comparable(data) !== comparable(old) || canonical(next.curator) !== canonical(previous.curator) || next.language !== previous.language || previous.publicReadmes && canonical(next.publicReadmes) !== canonical(previous.publicReadmes) || next.asset?.bytes && previous.asset?.bytes && !next.asset.bytes.equals(previous.asset.bytes);
     if (changed) {
       if (old.revision !== undefined && data.revision !== old.revision + 1) fail(next.file,'revision','content changes require exactly the next revision');
       if (old.updatedAt !== undefined && !(Date.parse(data.updatedAt) > Date.parse(old.updatedAt))) fail(next.file,'updatedAt','content changes require a later timestamp');
@@ -276,36 +307,227 @@ function checkBase(records, base) {
     }
   }
 }
-async function readCatalog(rootDir, mode, {allowMissingCollections=false}={}) {
+async function canonicalFile(directory) {
+  const english=path.join(directory,'README.md');
+  try {await lstat(english); return english;} catch(error) {if (error.code !== 'ENOENT') throw error;}
+  return path.join(directory,'README.zh.md');
+}
+async function maintainerFile(directory) {
+  const files=[];
+  for (const name of ['record.md','record.zh.md']) {
+    const file=path.join(directory,name);
+    try {await lstat(file); files.push(file);} catch(error) {if (error.code !== 'ENOENT') throw error;}
+  }
+  if (files.length > 1) fail(directory,'record','requires exactly one maintainer record');
+  return files[0];
+}
+function submissionPresentation({title,description,overview,scenarios,usage}) {
+  return {title,description,overview,scenarios,usage};
+}
+async function internalMetadata(rootDir) {
+  const directory=path.join(rootDir,'.catalog'),records=new Map();
+  try {await lstat(directory);} catch(error) {if (error.code === 'ENOENT') return records; throw error;}
+  await contained(rootDir,directory,directory,'metadata');
+  if (!(await stat(directory)).isDirectory()) fail(directory,'metadata','must be a directory');
+  for (const name of await readdir(directory)) {
+    if (!name.endsWith('.json')) continue;
+    const slug=name.slice(0,-5),file=path.join(directory,name);
+    if (!SLUG.test(slug)) fail(file,'metadata.slug','must be a lowercase slug filename');
+    await contained(rootDir,file,file,'metadata');
+    if (!(await stat(file)).isFile()) fail(file,'metadata','must be a JSON file');
+    let parsed;
+    try {parsed=JSON.parse(await readFile(file,'utf8'));} catch(error) {fail(file,'metadata.JSON',`must be valid JSON: ${error.message}`);}
+    if (!plain(parsed)) fail(file,'metadata','must be an object');
+    keys(parsed,['language','document','coverFile'],file,'metadata');
+    if (!['en','zh'].includes(parsed.language)) fail(file,'metadata.language','must be en or zh');
+    if (!plain(parsed.document)) fail(file,'metadata.document','must be an object');
+    if (parsed.document.slug !== slug) fail(file,'metadata.slug','must match its filename');
+    for (const [location,presentation] of [['document',parsed.document],...Object.entries(parsed.document.localizations ?? {}).map(([language,value])=>[`localizations.${language}`,value])]) {
+      for (const field of ['title','description','overview','scenarios','usage']) if (Object.hasOwn(presentation ?? {},field)) fail(file,`metadata.${location}.${field}`,'display fields must come only from public README files');
+    }
+    if (parsed.coverFile !== undefined) safePath(parsed.coverFile,file,'metadata.coverFile');
+    ownedFields(parsed.document,file);
+    if (parsed.document.localizations !== undefined) {
+      if (!plain(parsed.document.localizations)) fail(file,'metadata.localizations','must be an object');
+      keys(parsed.document.localizations,['en','zh'],file,'metadata.localizations');
+      for (const presentation of Object.values(parsed.document.localizations)) checkPresentation(presentation,parsed.document,file);
+    }
+    records.set(slug,{file,parsed});
+  }
+  return records;
+}
+async function contributionCover(directory,contribution,file) {
+  if (!contribution.cover || contribution.cover.url.startsWith('https://')) return;
+  const local=decodeURIComponent(contribution.cover.url).replace(/^\.\//,'');
+  safePath(local,file,'cover.url');
+  const actual=await contained(directory,path.join(directory,local),file,'cover.url');
+  if (!(await stat(actual)).isFile()) fail(file,'cover.url','must name a file inside the collection directory');
+}
+function matchingContributions(contribution,canonicalContribution,file) {
+  if (canonical([...contribution.links].sort()) !== canonical([...canonicalContribution.links].sort())) fail(file,'links','must match the canonical submission links');
+  if (contribution.sourceUrl !== canonicalContribution.sourceUrl) fail(file,'sourceUrl','must match the canonical submission attribution');
+  if (contribution.cover?.url !== canonicalContribution.cover?.url) fail(file,'cover.url','must match the canonical submission cover URL');
+}
+function commonDirectory(items) {
+  let prefix=items[0].directory === '.' ? [] : items[0].directory.split('/');
+  for (const item of items.slice(1)) {
+    const parts=item.directory === '.' ? [] : item.directory.split('/');
+    const differing=prefix.findIndex((part,index)=>part !== parts[index]);
+    if (differing >= 0) prefix=prefix.slice(0,differing);
+  }
+  return prefix.join('/') || '.';
+}
+const directoryWithin=(directory,boundary)=>boundary === '.' || directory === boundary || directory.startsWith(`${boundary}/`);
+function publicInstallationScope(data,contribution,file) {
+  const unique=new Map();
+  for (const skill of data.skills) for (const item of skill.installationItems ?? []) unique.set(`${item.repo.toLowerCase()}\0${item.commit}\0${item.directory}`,item);
+  const items=[...unique.values()],covered=new Set();
+  for (const link of contribution.links) {
+    const parts=new URL(link).pathname.slice(1).split('/').map(decodeURIComponent),repo=`${parts[0]}/${parts[1]}`,kind=parts[2];
+    const directory=kind === 'blob' ? parts.slice(4,-1).join('/') || '.' : kind === 'tree' ? parts.slice(4).join('/') || '.' : '.';
+    const matches=items.filter(item=>item.repo.toLowerCase() === repo && (kind === 'blob' ? item.directory === directory : directoryWithin(item.directory,directory)));
+    if (!matches.length) fail(file,'links','scope does not match any recorded installation directory');
+    if (SHA.test(parts[3] ?? '') && matches.some(item=>item.commit?.toLowerCase() !== parts[3].toLowerCase())) fail(file,'links','commit must match the recorded installation version');
+    if (kind !== 'blob') {
+      const declared=data.provenance?.repositoryScope;
+      const boundaries=declared?.repo?.toLowerCase() === repo ? declared.directories : data.skills.flatMap(skill=>{
+        const group=(skill.installationItems ?? []).filter(item=>item.repo.toLowerCase() === repo);
+        return !group.length ? [] : skill.installationMode === 'bundle' ? [commonDirectory(group)] : group.map(item=>item.directory);
+      });
+      if (!boundaries?.some(boundary=>directoryWithin(directory,boundary))) fail(file,'links','scope must stay within the recorded repository or bundle directories');
+    }
+    for (const item of matches) covered.add(item);
+  }
+  if (covered.size !== items.length) fail(file,'links','must cover every recorded installation directory');
+}
+async function publicPresentations(rootDir,directory,data,baseLanguage,{metadataFile,requiredLanguage}={}) {
+  const publicReadmes={},browseFiles={},directoryPresentations={};
+  let canonicalContribution;
+  for (const [name,language] of [['README.md','en'],['README.zh.md','zh']]) {
+    const file=path.join(directory,name);
+    let source;
+    try {await contained(rootDir,file,file,'README'); source=await readFile(file,'utf8');} catch(error) {if (error.code === 'ENOENT') continue; throw error;}
+    if (/^---[ \t]*(?:\r?\n|$)/.test(source.replace(/^\uFEFF/,''))) {
+      if (metadataFile) fail(metadataFile,'metadata','cannot coexist with a full public README');
+      fail(file,'README','must be a simple public contribution beside the maintainer record');
+    }
+    const contribution=parseContributionMarkdown(source,{filename:file});
+    if (canonicalContribution) matchingContributions(contribution,canonicalContribution,file);
+    else {canonicalContribution=contribution; publicInstallationScope(data,contribution,file);}
+    await contributionCover(directory,contribution,file);
+    const presentation=submissionPresentation(contribution);
+    if (baseLanguage === 'en' && language === 'zh') {
+      const english=mergePresentation(mergePresentation(presentationOf(data),data.localizations?.en),directoryPresentations.en);
+      const chinese=data.localizations?.zh;
+      if (chinese) checkPresentation(chinese,data,file);
+      applyPresentation(data,{...chinese,...presentation});
+      data.localizations={...data.localizations,en:english}; delete data.localizations.zh;
+      baseLanguage='zh';
+    } else if (language === baseLanguage) Object.assign(data,presentation);
+    else data.localizations={...data.localizations,[language]:mergePresentation(data.localizations?.[language],presentation)};
+    publicReadmes[language]=contribution; browseFiles[language]=file; directoryPresentations[language]=presentation;
+  }
+  if (requiredLanguage && !publicReadmes[requiredLanguage]) fail(metadataFile,'metadata',`${requiredLanguage === 'en' ? 'README.md' : 'README.zh.md'} is required for its base language`);
+  if (!canonicalContribution) fail(directory,'README','requires at least one simple public README beside the maintainer record');
+  return {publicReadmes,browseFiles,directoryPresentations,baseLanguage};
+}
+async function submissionRecord(rootDir,entry,file,source) {
+  if (entry.historical) fail(file,'category','lightweight submissions require a fixed category and nested slug directory');
+  const contribution=parseContributionMarkdown(source,{filename:file});
+  await contributionCover(entry.directory,contribution,file);
+  const language=path.basename(file) === 'README.md' ? 'en' : 'zh';
+  const directoryPresentations={[language]:submissionPresentation(contribution)};
+  const browseFiles={[language]:file};
+  for (const [name,translationLanguage] of [['README.md','en'],['README.zh.md','zh']]) {
+    const translationFile=path.join(entry.directory,name);
+    if (translationFile === file) continue;
+    let translationSource;
+    try {await contained(rootDir,translationFile,translationFile,'translation'); translationSource=await readFile(translationFile,'utf8');}
+    catch(error) {if (error.code === 'ENOENT') continue; throw error;}
+    const translated=parseContributionMarkdown(translationSource,{filename:translationFile});
+    matchingContributions(translated,contribution,translationFile);
+    await contributionCover(entry.directory,translated,translationFile);
+    directoryPresentations[translationLanguage]=submissionPresentation(translated);
+    browseFiles[translationLanguage]=translationFile;
+  }
+  const document={slug:entry.name,category:entry.category,...directoryPresentations[language],status:'draft',skills:[],links:contribution.links};
+  if (contribution.sourceUrl !== undefined) document.sourceUrl=contribution.sourceUrl;
+  if (contribution.cover !== undefined) document.cover=contribution.cover;
+  return {kind:'submission',document,file,language,baseLanguage:language,directoryPresentations,browseFiles,complete:false};
+}
+async function readCatalog(rootDir, mode, {allowMissingCollections=false,allowHistoricalFlat=false}={}) {
+  const metadata=await internalMetadata(rootDir);
   const collectionDir=path.join(rootDir,'collections');
   let entries;
   try {entries=await readdir(collectionDir,{withFileTypes:true});}
   catch (error) {
     if (!allowMissingCollections || error.code !== 'ENOENT') throw error;
     await stat(rootDir);
-    try {await lstat(collectionDir);} catch (missing) {if (missing.code === 'ENOENT') return []; throw missing;}
+    try {await lstat(collectionDir);} catch (missing) {if (missing.code === 'ENOENT') {if (metadata.size) fail(rootDir,'metadata','orphan data has no matching collection directory'); return [];} throw missing;}
     throw error;
   }
+  await contained(rootDir,collectionDir,collectionDir,'collections');
   const records=[];
   const registries = {id:new Map(),slug:new Map(),sourceKeys:new Map()};
-  for (const entry of entries.sort((a,b)=>a.name.localeCompare(b.name))) {
-    if (entry.name.startsWith('.')) continue;
-    const directory=path.join(collectionDir,entry.name);
-    const info=await stat(directory);
-    if (!info.isDirectory()) continue;
+  const candidates=[];
+  for (const category of entries.sort((a,b)=>a.name.localeCompare(b.name))) {
+    if (category.name.startsWith('.')) continue;
+    const categoryDir=path.join(collectionDir,category.name);
+    if (!(await stat(categoryDir)).isDirectory()) continue;
+    await contained(rootDir,categoryDir,category.name,'category');
+    let flat=false;
+    for (const name of ['README.md','README.zh.md','record.md','record.zh.md']) {
+      try {await lstat(path.join(categoryDir,name));flat=true;} catch(error) {if (error.code !== 'ENOENT') throw error;}
+    }
+    if (flat && !allowHistoricalFlat) fail(categoryDir,'category','requires a nested slug directory for each collection');
+    if (flat || !categories.includes(category.name)) {
+      if (!allowHistoricalFlat) fail(categoryDir,'category','is unknown; use a fixed category directory');
+      candidates.push({name:category.name,directory:categoryDir,historical:true});
+      continue;
+    }
+    for (const entry of await readdir(categoryDir,{withFileTypes:true})) {
+      if (entry.name.startsWith('.')) continue;
+      const directory=path.join(categoryDir,entry.name);
+      if (!(await stat(directory)).isDirectory()) continue;
+      candidates.push({name:entry.name,directory,category:category.name});
+    }
+  }
+  for (const [slug,{file}] of metadata) if (!candidates.some(entry=>entry.name === slug)) fail(file,'metadata','is orphan data without a matching collection directory');
+  for (const entry of candidates) {
+    const directory=entry.directory;
     if (!SLUG.test(entry.name)) fail(entry.name,'directory','must be a lowercase slug');
     await contained(rootDir,directory,entry.name,'directory');
-    const filename=path.join(directory,'README.md');
-    await contained(rootDir,filename,entry.name,'README.md');
-    const parsed=parseCollectionMarkdown(await readFile(filename,'utf8'),{filename});
+    const recordFile=await maintainerFile(directory),internal=metadata.get(entry.name),filename=internal?.file ?? recordFile ?? await canonicalFile(directory);
+    if (internal && recordFile) fail(filename,'metadata','cannot coexist with a legacy record file');
+    await contained(rootDir,filename,entry.name,path.basename(filename));
+    const source=internal ? undefined : await readFile(filename,'utf8');
+    if (!internal && !/^---[ \t]*(?:\r?\n|$)/.test(source.replace(/^\uFEFF/,''))) {
+      if (recordFile) fail(filename,'record','must contain a complete frontmatter maintainer record');
+      const record=await submissionRecord(rootDir,entry,filename,source);
+      if (registries.slug.has(entry.name)) fail(filename,'slug',`conflicts with ${registries.slug.get(entry.name)}`);
+      registries.slug.set(entry.name,filename);
+      records.push(record);
+      continue;
+    }
+    const parsed=internal?.parsed ?? parseCollectionMarkdown(source,{filename});
+    if (['README.zh.md','record.zh.md'].includes(path.basename(filename)) && parsed.language !== 'zh') fail(filename,'language','must match the canonical filename');
+    if (path.basename(filename) === 'record.md' && parsed.language !== 'en') fail(filename,'language','must match the canonical filename');
     const data=parsed.document;
+    if (entry.historical) {
+      if (data.category === 'video') data.category='media';
+    } else {
+      if (data.category !== undefined && data.category !== entry.category) fail(filename,'category','must match its category directory');
+      data.category=entry.category;
+    }
     const curator=curatorFields(parsed.curator ?? data.curator,filename);
     if (curator !== undefined) data.curator=curator;
-    const {baseLanguage,directoryPresentations}=await translations(rootDir,directory,parsed);
+    let {baseLanguage,directoryPresentations}=internal ? {baseLanguage:parsed.language,directoryPresentations:{}} : await translations(rootDir,directory,parsed,filename,{publicReadmes:!!recordFile});
+    const publicData=internal || recordFile ? await publicPresentations(rootDir,directory,data,baseLanguage,internal ? {metadataFile:filename,requiredLanguage:parsed.language}:{}) : undefined;
+    if (publicData) {directoryPresentations=publicData.directoryPresentations; baseLanguage=publicData.baseLanguage;}
     if (data.slug !== entry.name) fail(filename,'slug','must match its collection directory');
     ownedFields(data,filename);
     sourcePaths(data,filename);
-    const asset=await coverAsset(rootDir,directory,parsed,filename);
+    const asset=await coverAsset(rootDir,directory,parsed,filename,publicData?.publicReadmes);
     const pending = (data.review?.status ?? 'pending') === 'pending' || data.status === 'draft';
     const validated=validationDocument(data,pending);
     await validateCollection(validated,`${validated.id}.json`,rootDir,{validateLocalCover:async url => {
@@ -321,7 +543,7 @@ async function readCatalog(rootDir, mode, {allowMissingCollections=false}={}) {
     }
     let complete=true;
     try { await validateCollection(data,`${data.id}.json`,rootDir,{validateLocalCover:async()=>asset.info}); } catch { complete=false; }
-    records.push({document:data,file:filename,language:parsed.language,baseLanguage,directoryPresentations,curator,asset,complete});
+    records.push({document:data,file:filename,language:parsed.language,baseLanguage,directoryPresentations,curator,asset,complete,...publicData});
   }
   return records;
 }
@@ -329,7 +551,7 @@ export async function loadCatalog({rootDir,mode='submission',baseDir} = {}) {
   if (typeof rootDir !== 'string') throw new Error('rootDir is required');
   if (!['submission','production','publish'].includes(mode)) throw new Error('mode must be submission or production');
   const records=await readCatalog(path.resolve(rootDir),mode === 'publish' ? 'production' : mode);
-  if (baseDir) checkBase(records,await readCatalog(path.resolve(baseDir),'submission',{allowMissingCollections:true}));
+  if (baseDir) checkBase(records,await readCatalog(path.resolve(baseDir),'submission',{allowMissingCollections:true,allowHistoricalFlat:true}));
   return records;
 }
 export async function validateCatalog(options) {
@@ -337,14 +559,15 @@ export async function validateCatalog(options) {
   return {records, count:records.length, incomplete:records.filter(r=>!r.complete).map(r=>r.file)};
 }
 function markdownText(value) { return value.replace(/[\[\]<>\r\n]/g,' ').replace(/\|/g,'\\|'); }
-function directoryLine(record,language) {
+function directoryLine(record,language,rootDir) {
   const data=record.document;
   const display=record.directoryPresentations[language];
   const translated=typeof display?.title === 'string' && typeof display?.description === 'string';
   const label=translated ? display.title : data.slug;
   const description=translated ? ` — ${markdownText(display.description)}` : ` — ${language === 'en' ? 'Translation pending' : '待翻译'}`;
   const review=data.review?.status === 'approved' ? '' : language === 'en' ? ' (pending review)' : '（待审核）';
-  return `- [${markdownText(label)}](collections/${data.slug}/README.md)${description}${review}`;
+  const file=record.browseFiles?.[language] ?? Object.values(record.browseFiles ?? {})[0] ?? record.file;
+  return `- [${markdownText(label)}](${path.relative(rootDir,file).split(path.sep).join("/")})${description}${review}`;
 }
 async function readmeUpdates(rootDir,records) {
   const updates=[];
@@ -356,7 +579,10 @@ async function readmeUpdates(rootDir,records) {
     const source=original ?? '# Awesome Skills\n';
     const start=source.indexOf(START),end=source.indexOf(END);
     if ((start < 0) !== (end < 0) || (start >=0 && end < start) || source.indexOf(START,start+START.length) >= 0 || source.indexOf(END,end+END.length) >=0) throw new Error(`${name}: malformed catalog markers`);
-    const lines=records.filter(r=>r.document.status !== 'archived').map(record=>directoryLine(record,language));
+    const lines=categories.flatMap((category,i)=>{
+      const group=records.filter(r=>r.document.status !== 'archived' && r.document.category === category);
+      return group.length ? [`### ${categoryLabels[language][i]}`,'',...group.map(record=>directoryLine(record,language,rootDir)),''] : [];
+    });
     const block=`${START}\n${lines.join('\n')}\n${END}`;
     const updated=start <0 ? `${source.trimEnd()}\n\n${block}\n` : `${source.slice(0,start)}${block}${source.slice(end+END.length)}`;
     updates.push({filename,source:updated,existed:original !== undefined});
@@ -401,13 +627,13 @@ async function replaceDirectory(staged,outputDir,commitAdditional) {
   }
 }
 async function safeOutputParent(parent,root) {
-  if (!inside(root,parent)) return;
+  const withinRepository=inside(root,parent);
   let existing=parent;
   for (;;) {
     try {
       const actual=await realpath(existing);
-      if (!inside(root,actual)) throw new Error('outputDir symbolic link escapes the repository');
-      return;
+      if (withinRepository && !inside(root,actual)) throw new Error('outputDir symbolic link escapes the repository');
+      return path.join(actual,path.relative(existing,parent));
     } catch (error) {
       if (error.code !== 'ENOENT') throw error;
       const ancestor=path.dirname(existing);
@@ -426,8 +652,17 @@ export async function buildCatalog({rootDir,outputDir=path.join(rootDir,'dist/co
   outputDir=path.resolve(outputDir);
   const root=await realpath(rootDir),lexicalRoot=path.resolve(rootDir);
   if (inside(lexicalRoot,outputDir)) outputDir=path.join(root,path.relative(lexicalRoot,outputDir));
-  if (outputDir === root || inside(outputDir,path.join(root,'collections')) || inside(path.join(root,'collections'),outputDir)) throw new Error('outputDir must not contain or overwrite source collections');
-  await safeOutputParent(path.dirname(outputDir),root);
+  const sources=[path.join(root,'collections'),path.join(root,'.catalog')];
+  for (const source of [...sources]) {
+    try {sources.push(await realpath(source));} catch(error) {if (error.code !== 'ENOENT') throw error;}
+  }
+  const protectSources=target=>{
+    if (target === root || sources.some(source=>inside(target,source)||inside(source,target))) throw new Error('outputDir must not contain, overwrite or enter source collections or .catalog metadata');
+  };
+  protectSources(outputDir);
+  try {protectSources(await realpath(outputDir));} catch(error) {if (error.code !== 'ENOENT') throw error;}
+  const resolvedParent=await safeOutputParent(path.dirname(outputDir),root);
+  protectSources(path.join(resolvedParent,path.basename(outputDir)));
   await mkdir(path.dirname(outputDir),{recursive:true});
   const parentReal=await realpath(path.dirname(outputDir));
   if (inside(root,path.dirname(outputDir)) && !inside(root,parentReal)) throw new Error('outputDir symbolic link escapes the repository');

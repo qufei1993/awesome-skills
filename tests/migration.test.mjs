@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cp, mkdir, mkdtemp, readFile, readdir, rm, stat, symlink, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, readdir, rm, stat, symlink, rename, writeFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { randomUUID } from 'node:crypto';
@@ -18,6 +18,17 @@ const ids = [
   ['d2ca0659-07ee-44a5-8d99-d3295f5e2f0c', 'engineering', 'cover.png'],
   ['de64301b-09cf-4968-9fc2-24ede5cd4dd6', 'product-video', undefined],
 ];
+const categoryFor = slug => ({taste:'design',engineering:'development','product-video':'media'})[slug];
+async function rearrange(rootDir) {
+  for (const [,slug] of ids) {
+    const category=categoryFor(slug);
+    await mkdir(path.join(rootDir,'collections',category),{recursive:true});
+    const old=path.join(rootDir,'collections',slug);
+    const file=path.join(old,'README.md');
+    await writeFile(file,(await readFile(file,'utf8')).replace(/^category:.*\n/m,''));
+    await rename(old,path.join(rootDir,'collections',category,slug));
+  }
+}
 const reviewNote = '新仓库接入等待来源、资源与封面审核';
 const curator = { name: 'Skills Hub', url: 'https://github.com/qufei1993/awesome-skills' };
 
@@ -53,6 +64,7 @@ test('real migrated preview matches website details and index while production e
   const rootDir = await mkdtemp(path.join(os.tmpdir(), 'migration-test-'));
   t.after(() => rm(rootDir, { recursive: true, force: true }));
   await cp(historicalCollections, path.join(rootDir, 'collections'), { recursive: true });
+  await rearrange(rootDir);
   await writeFile(path.join(rootDir, 'README.md'), '# Migration integration test\n');
   const preview = await buildCatalog({ rootDir, preview: true, outputDir: path.join(rootDir, 'preview') });
   assert.equal(preview.records.length, 3);
@@ -66,13 +78,14 @@ test('real migrated preview matches website details and index while production e
     const expected = await original(id);
     expected.review = { status: 'pending', notes: [...expected.review.notes, reviewNote] };
     expected.curator = curator;
+    if (expected.category === 'video') expected.category='media';
     if (coverFile) expected.cover.url = `/data/collections/assets/${id}/${coverFile}`;
     assert.deepEqual(detail, expected, slug);
     await validateCollection(detail, `${id}.json`, rootDir, {
       validateLocalCover: url => stat(path.join(preview.outputDir, url.slice('/data/collections/'.length))),
     });
     assert.deepEqual(preview.index.collections.find(item => item.id === id), indexItem(detail));
-    if (coverFile) assert.deepEqual(await readFile(path.join(preview.outputDir, 'assets', id, coverFile)), await readFile(path.join(rootDir, 'collections', slug, coverFile)));
+    if (coverFile) assert.deepEqual(await readFile(path.join(preview.outputDir, 'assets', id, coverFile)), await readFile(path.join(rootDir, 'collections', categoryFor(slug), slug, coverFile)));
     assert.equal(detail.verification.installation, 'not-tested');
     assert.equal(detail.verification.workflow, 'not-tested');
   }
@@ -91,7 +104,8 @@ test('historical migration assertions permit a fourth community draft and a revi
   await cp(path.join(project, 'tests/migration.test.mjs'), path.join(copy, 'tests/migration.test.mjs'));
   await symlink(path.join(project, 'node_modules'), path.join(copy, 'node_modules'));
   await cp(historicalCollections, path.join(copy, 'collections'), { recursive: true });
-  const tasteFile = path.join(copy, 'collections/taste/README.md');
+  await rearrange(copy);
+  const tasteFile = path.join(copy, 'collections/design/taste/README.md');
   const taste = parseCollectionMarkdown(await readFile(tasteFile, 'utf8'));
   taste.document.description += '（社区更新）';
   taste.document.revision += 1;
@@ -100,11 +114,12 @@ test('historical migration assertions permit a fourth community draft and a revi
   const fourth = await original(ids[2][0]);
   fourth.id = randomUUID();
   fourth.slug = 'community-fourth';
+  fourth.category='media';
   fourth.sourceKeys = ['editorial:community-fourth'];
   fourth.status = 'draft';
   fourth.review = { status: 'pending', notes: [] };
-  await mkdir(path.join(copy, 'collections', fourth.slug));
-  await writeFile(path.join(copy, 'collections', fourth.slug, 'README.md'), serializeCollectionMarkdown(fourth));
+  await mkdir(path.join(copy, 'collections', fourth.category, fourth.slug));
+  await writeFile(path.join(copy, 'collections', fourth.category, fourth.slug, 'README.md'), serializeCollectionMarkdown(fourth));
   assert.equal((await loadCatalog({ rootDir: copy })).length, 4);
   const env = { ...process.env };
   delete env.NODE_TEST_CONTEXT;

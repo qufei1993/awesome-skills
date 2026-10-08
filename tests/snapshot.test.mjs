@@ -1,12 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, writeFile, readdir, symlink, cp, chmod, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, writeFile, readdir, symlink, cp, chmod, rm, rename } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { zipSync, strToU8 } from 'fflate';
 import { execFileSync } from 'node:child_process';
 import { buildCatalog } from '../scripts/lib/catalog.mjs';
+import { serializeCollectionMarkdown } from '../scripts/lib/markdown.mjs';
 import { verifySnapshot, installSnapshot, rollbackSnapshot, decodeSnapshotZip, downloadSnapshot } from '../scripts/lib/snapshot.mjs';
 
 const SHA = 'a'.repeat(40);
@@ -23,6 +24,59 @@ async function site() { return mkdtemp(path.join(os.tmpdir(), 'catalog-site-test
 async function zipSnapshot(data) {
   return zipSync({'index.json':data.bytes,'manifest.json':strToU8(JSON.stringify(data.manifest))});
 }
+async function displayMigrationSnapshot(t, change=()=>{}) {
+  const root=await site();t.after(()=>rm(root,{recursive:true,force:true}));
+  const document=JSON.parse(await readFile(new URL('./fixtures/site/de64301b-09cf-4968-9fc2-24ede5cd4dd6.json',import.meta.url),'utf8'));
+  document.category='media';document.verification.source='needs-review';
+  document.cover={kind:'source-image',url:'/assets/cover.png',sourceUrl:'https://example.com/source',alt:'Archived cover',rightsStatus:'needs-review'};
+  change(document);
+  const directory=path.join(root,'collections/media',document.slug);await mkdir(directory,{recursive:true});
+  await writeFile(path.join(directory,'README.md'),serializeCollectionMarkdown(document,{language:'zh',coverFile:'cover.png'}));
+  await writeFile(path.join(directory,'cover.png'),Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jk1sAAAAASUVORK5CYII=','base64'));
+  const result=await buildCatalog({rootDir:root,preview:true,sourceRevision:SHA});
+  const manifestPath=path.join(result.outputDir,'manifest.json'),manifest=JSON.parse(await readFile(manifestPath,'utf8'));
+  manifest.preview=false;await writeFile(manifestPath,JSON.stringify(manifest));
+  return {fromDir:result.outputDir,document};
+}
+test('production verifier preserves approved display migrations with outstanding verification', async t => {
+  const {fromDir,document}=await displayMigrationSnapshot(t);
+  const result=await verifySnapshot({fromDir});
+  assert.equal(result.index.collections.length,1);
+  const detail=JSON.parse(result.files.get(`${document.id}.json`));
+  assert.equal(detail.review.status,'approved');
+  assert.equal(detail.verification.source,'needs-review');assert.equal(detail.verification.files,'needs-review');
+  assert.equal(detail.verification.installation,'not-tested');assert.equal(detail.verification.workflow,'not-tested');
+  assert.deepEqual(detail.skills.map(skill=>skill.resourceCheck),['needs-review','needs-review','needs-review']);
+  assert.equal(detail.cover.rightsStatus,'needs-review');
+});
+test('production verifier rejects failed tests and pending display approval', async t => {
+  for (const field of ['installation','workflow']) {
+    const {fromDir}=await displayMigrationSnapshot(t,document=>{
+      document.verification[field]='failed';
+      document.verification[`${field}Evidence`]={testedAt:'2026-10-01',versions:[{repo:'obra/superpowers',commit:'8ca22dba9a94f28898bbce59f2537ff4d87c747d'}],itemIds:['brainstorming'],resultRef:'test-result.txt',environment:'temporary test fixture'};
+    });
+    await assert.rejects(verifySnapshot({fromDir}),/unpublished|failed/i);
+  }
+  const {fromDir}=await displayMigrationSnapshot(t,document=>{document.review={status:'pending',notes:[]};});
+  await assert.rejects(verifySnapshot({fromDir}),/unpublished|approved/i);
+});
+test('external-cover support still rejects missing local assets and index/detail cover disagreements with valid hashes', async t => {
+  for (const change of ['missing-asset','different-index-cover']) {
+    const {fromDir,document}=await displayMigrationSnapshot(t);
+    const manifestPath=path.join(fromDir,'manifest.json'),manifest=JSON.parse(await readFile(manifestPath,'utf8'));
+    if (change === 'missing-asset') {
+      const asset=`assets/${document.id}/cover.png`;
+      await rm(path.join(fromDir,asset)); manifest.files=manifest.files.filter(file=>file.path !== asset);
+    } else {
+      const indexPath=path.join(fromDir,'index.json'),index=JSON.parse(await readFile(indexPath,'utf8'));
+      index.collections[0].cover.url='https://images.example.com/different-cover.png';
+      const bytes=Buffer.from(JSON.stringify(index)); await writeFile(indexPath,bytes);
+      const entry=manifest.files.find(file=>file.path === 'index.json'); entry.size=bytes.length; entry.sha256=hash(bytes);
+    }
+    await writeFile(manifestPath,JSON.stringify(manifest));
+    await assert.rejects(verifySnapshot({fromDir}),change === 'missing-asset' ? /cover.*(existing|asset)/i : /index.*details.*disagree/i);
+  }
+});
 test('verifies a fixed revision and installs the complete snapshot', async () => {
   const data=await snapshot(), target=await site();
   const result=await verifySnapshot({fromDir:data.root,expectedRevision:SHA});
@@ -135,6 +189,12 @@ test('remote consumer refuses release assets from another host or repository', a
 test('real three-collection preview installs through the CLI with all details and covers', async () => {
   const target=await site(),root=await site(),output=path.join(root,'snapshot');
   await cp(path.join(process.cwd(),'tests/fixtures/migrated/collections'),path.join(root,'collections'),{recursive:true});
+  for (const [slug,category] of [['taste','design'],['engineering','development'],['product-video','media']]) {
+    const directory=path.join(root,'collections',slug),file=path.join(directory,'README.md');
+    await writeFile(file,(await readFile(file,'utf8')).replace(/^category:.*\n/m,''));
+    await mkdir(path.join(root,'collections',category),{recursive:true});
+    await rename(directory,path.join(root,'collections',category,slug));
+  }
   await writeFile(path.join(root,'README.md'),'# Snapshot integration\n');
   await buildCatalog({rootDir:root,outputDir:output,preview:true,sourceRevision:SHA});
   const verified=await verifySnapshot({fromDir:output,allowPreview:true,expectedRevision:SHA});

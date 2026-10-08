@@ -1,0 +1,2 @@
+export const categories = ['development','design','product','writing','marketing','research','data','productivity','media','other'];
+export const categoryLabels = {en:['Development & Engineering','Design & Visuals','Product & Projects','Writing & Content','Marketing & Growth','Research & Learning','Data & Analysis','Office & Productivity','Audio & Video','Other & General'],zh:['开发与工程','设计与视觉','产品与项目','写作与内容','营销与增长','研究与学习','数据与分析','办公与效率','音视频制作','其他与综合']};
