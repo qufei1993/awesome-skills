@@ -15,7 +15,7 @@ A snapshot is a complete set of collection data and cover assets. PR artifacts a
 
 Previews include pending records for review. Production consumers require production snapshots with complete, active, approved records. Failed installation or workflow results block publication. Source, resource, rights, and test states reflect actual evidence; `needs-review` and `not-tested` remain visible.
 
-Trusted CI uses `CATALOG_USE_RELEASE_BASELINE=1` to load the previous production Release snapshot. Unchanged input retains its source commits, identity, and version history. A resolution or publication failure keeps the previous published version.
+The first publication creates the initial snapshot. For later publications, trusted CI uses `CATALOG_USE_RELEASE_BASELINE=1` to load the previous production Release snapshot. Unchanged input retains its source commits, identity, and version history. A resolution or publication failure keeps the previous published version.
 
 ## Preview locally
 
@@ -27,7 +27,7 @@ npm --prefix ../skills-hub-web ci
 npm run dev:site -- --site ../skills-hub-web
 ```
 
-This generates a preview, serves its data, and starts the existing website. Default ports are 8775 for the website and 8776 for data. It watches READMEs, local covers, and compatibility metadata. Valid changes publish a complete preview version; failed changes leave the previous data available.
+This generates a preview, serves its data, and starts the website. Default ports are 8775 for the website and 8776 for data. It watches READMEs and local covers. Valid changes publish a complete preview version; failed changes leave the previous data available.
 
 Change an opening summary temporarily, check the website, then restore that edit and check again.
 
@@ -84,7 +84,7 @@ npm run publish:data -- publish --from dist/collections --r2
 
 Preview uploads additionally require `--preview --test-destination` and belong only in a test destination. Report cloud publication or website updates only after checking the actual public endpoint and version.
 
-## Rollback and compatibility
+## Rollback and snapshot copying
 
 Retain published snapshots and images. Switch runtime publication to a verified version:
 
@@ -92,7 +92,7 @@ Retain published snapshots and images. Switch runtime publication to a verified 
 npm run publish:data -- rollback --to dist/published --version VERSION_SHA256
 ```
 
-Direct snapshot copying remains available:
+Copy a complete snapshot into the website checkout:
 
 ```sh
 npm run sync:site -- --from dist/collections --target ../skills-hub-web

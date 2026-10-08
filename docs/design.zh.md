@@ -19,10 +19,6 @@ Awesome Skills 是 Skills Hub 的公开合集内容源与贡献入口。贡献�
 
 ```text
 awesome-skills/
-  .catalog/
-    engineering.json
-    product-video.json
-    taste.json
   collections/
     development/
       engineering/
@@ -43,7 +39,7 @@ awesome-skills/
 
 CI 将每个 GitHub 链接解析到固定提交。文件链接包含一个技能；目录和仓库链接递归包含其中的技能。简介、安装目录和许可依据从同一提交读取。生成的 JSON 放在 `dist/`。
 
-三份迁移的 `.catalog/*.json` 保留已有身份、版本、分组和安装关系。后续生成以上一次正式快照为基线。输入不变时复用来源提交；输入变化时递增生成的版本号。
+首次生成创建稳定身份和初始版本。后续生成以上一次正式快照为基线。输入不变时复用来源提交；输入变化时递增生成的版本号。
 
 生成与审核细节见[数据规则](maintainers/format.zh.md)，字段定义见[官网数据契约](../scripts/lib/site-contract.mjs)。
 
@@ -63,10 +59,8 @@ HTTPS 图片链接直接使用；本地图片进入快照。封面可选，与�
 
 AGENTS.md 是共享入口，CLAUDE.md 引用它。AI 工具读取贡献指南，搜索已有合集，根据用户提供的来源编辑 README，保留署名，使用来源依据并汇报本地修改。执行上游指令、推送、提交 PR、合并和部署需要用户提出要求。
 
-## 网站数据管线与迁移
+## 网站数据管线
 
 管线生成 JSON 快照，再发布给官网运行时读取。发布器对 `manifest.json` 的原始字节计算 SHA256 作为版本，JSON 保存在 `snapshots/<version>/`；完整版本准备好后切换 `current.json`。本地封面使用共享的 `images/<SHA256>.<ext>` 对象，相同图片共用一个已上传对象。
 
 `npm run dev:site -- --site ../skills-hub-web` 监听本仓库，发布本地预览数据并运行官网。云端发布需要配置 R2 和 `VITE_COLLECTIONS_BASE_URL`。命令、官网配置和回退步骤见[部署说明](maintainers/deployment.zh.md)。
-
-首批迁移包含 Taste Skill、Skills for Real Engineers 和产品宣传视频，保留稳定 ID、安装关系、译文及已有审批。展示/安装数量为 13/13、31/31、3/14。新增合集使用自动生成流程。

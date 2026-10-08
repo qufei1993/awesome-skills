@@ -18,7 +18,7 @@ for (let index = 0; index < args.length; index++) {
   }
 }
 const preview = await startLocalPreview(options);
-process.stdout.write(`官网预览：${preview.siteUrl}/collections\n数据地址：${preview.dataUrl}/current.json\n${options.watch === false ? '自动监听已关闭。' : '修改 collections 或 .catalog 后会自动发布本地数据并更新预览。'}\n`);
+process.stdout.write(`官网预览：${preview.siteUrl}/collections\n数据地址：${preview.dataUrl}/current.json\n${options.watch === false ? '自动监听已关闭。' : '修改 collections 后会自动发布本地数据并更新预览。'}\n`);
 let stopping = false;
 async function stop() {
   if (stopping) return;

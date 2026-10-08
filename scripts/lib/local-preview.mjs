@@ -78,12 +78,9 @@ export async function startLocalPreview({ rootDir, siteDir, sitePort = 8775, dat
           void publish().catch(error => log(`更新失败，保留上一次数据：${error.message}`));
         }, 350);
       };
-      for (const directory of ['collections', '.catalog']) {
-        try { await access(path.join(rootDir,directory)); } catch(error) {if (error.code === 'ENOENT') continue; throw error;}
-        const watcher = watchDirectory(path.join(rootDir, directory), { recursive: true }, changed);
-        watcher.on('error', error => log(`文件监听失败：${error.message}`));
-        watchers.push(watcher);
-      }
+      const watcher = watchDirectory(path.join(rootDir, 'collections'), { recursive: true }, changed);
+      watcher.on('error', error => log(`文件监听失败：${error.message}`));
+      watchers.push(watcher);
     }
     return {
       siteUrl: `http://127.0.0.1:${siteServer.httpServer.address().port}`,

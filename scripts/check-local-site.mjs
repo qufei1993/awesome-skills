@@ -16,7 +16,6 @@ const temporary = await mkdtemp(path.join(os.tmpdir(), 'skills-hub-local-site-')
 let preview, browser;
 try {
   await cp(path.join(root, 'collections'), path.join(temporary, 'collections'), { recursive: true });
-  await cp(path.join(root, '.catalog'), path.join(temporary, '.catalog'), { recursive: true });
   for (const cached of ['upstream-cache','generated-catalog.json']) {
     try { await cp(path.join(root,'dist',cached),path.join(temporary,'dist',cached),{recursive:true}); }
     catch(error) {if (error.code !== 'ENOENT') throw error;}
@@ -41,7 +40,7 @@ try {
   const featured = collections.find(item => item.category === 'marketing') ?? collections[0];
   browser = await chromium.launch({ channel: 'chrome', headless: true });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
-  const remoteFixture = await readFile(path.join(root, 'tests/fixtures/migrated/collections/engineering/cover.png'));
+  const remoteFixture = await readFile(path.join(root, 'collections/media/product-video/cover.png'));
   const remoteURLs = new Set(Object.values(externalCovers).map(url => new URL(url).href.split('#')[0]));
   const mockedURLs = new Set();
   await page.route(url => remoteURLs.has(url.href), async route => {
@@ -108,19 +107,8 @@ try {
     assert.equal(manifest.skills.length, item.installationCount);
     assert.deepEqual(manifest.skills.map(skill => [`${manifest.sources[skill.source].repo.toLowerCase()}\0${manifest.sources[skill.source].ref.toLowerCase()}\0${skill.path}`, skill.name]).sort(), [...installations].map(([key, installation]) => [key, installation.name]).sort());
     assert.equal(Number((await page.locator('.rc-dock-selection > p').first().innerText()).match(/\d+/)?.[0]), item.installationCount);
-    const bundles = detail.skills.filter(skill => skill.installationMode === 'bundle');
-    assert.equal(await page.locator('.rc-package-count').count(), bundles.length);
-    for (const bundle of bundles) {
-      const row = rows.nth(detail.skills.indexOf(bundle));
-      await row.locator('details > summary').click();
-      await row.locator('.rc-package li').first().waitFor({ state: 'visible' });
-      assert.deepEqual((await row.locator('.rc-package li').allTextContents()).map(name => name.trim()), bundle.installationItems.map(installation => installation.name));
-    }
-    if (item.slug === 'product-video') {
-      assert.equal(bundles.length, 1);
-      assert.equal(bundles[0].installationItems.length, 12);
-      assert.equal(await page.locator('.rc-package li').count(), 12);
-    }
+    assert.ok(detail.skills.every(skill => skill.installationMode === 'skill' && skill.installationItems.length === 1));
+    assert.equal(await page.locator('.rc-package-count').count(), 0);
     detailVisits.push(item.slug);
   }
   await page.goto(`${preview.siteUrl}/collections`);

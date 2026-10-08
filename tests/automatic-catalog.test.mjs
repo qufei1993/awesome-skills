@@ -6,7 +6,6 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { buildCatalog } from '../scripts/lib/catalog.mjs';
 import { serializeContributionMarkdown } from '../scripts/lib/contribution.mjs';
-import { serializeCollectionMarkdown } from '../scripts/lib/markdown.mjs';
 
 const sha='a'.repeat(40);
 const blob=Buffer.from('---\nname: plan-work\ndescription: Plan the work before implementing it.\n---\n\nDo not execute this fixture.\n');
@@ -62,6 +61,17 @@ test('README edits advance generated revision and failed resolution preserves pu
   await assert.rejects(buildCatalog({rootDir,preview:true,resolveSources:true,request:()=>{throw new Error('Upstream unavailable');}}),/Upstream unavailable/);
   assert.deepEqual(await readFile(path.join(next.outputDir,'index.json')),before);
 });
+test('a source-attributed collection keeps its version when rebuilt after a README edit',async t=>{
+  const {rootDir,directory,data}=await fixture(t);
+  const sourceUrl='https://publisher.example.com/planning';
+  await writeFile(path.join(directory,'README.md'),serializeContributionMarkdown({...data,sourceUrl}));
+  const first=await buildCatalog({rootDir,preview:true,resolveSources:true,request});
+  await writeFile(path.join(directory,'README.md'),serializeContributionMarkdown({...data,sourceUrl,title:'Planning updated'}));
+  const next=await buildCatalog({rootDir,preview:true,resolveSources:true,request});
+  assert.equal(next.records[0].revision,first.records[0].revision+1);
+  const again=await buildCatalog({rootDir,preview:true,resolveSources:true,request:()=>{throw new Error('Unchanged inputs must reuse source pins');}});
+  assert.deepEqual(again.records,next.records);
+});
 test('an unpublished main change becomes the proposal baseline even when the last release is older',async t=>{
   const current=await fixture(t),base=await fixture(t);
   const published=(await buildCatalog({rootDir:current.rootDir,preview:true,resolveSources:true,request})).records[0];
@@ -71,19 +81,13 @@ test('an unpublished main change becomes the proposal baseline even when the las
   assert.equal(result.records[0].revision,published.revision+2);
   assert.equal(result.records[0].sourceKeys.filter(k=>k.startsWith('readme:')).length,3);
 });
-test('legacy presentation updates advance revision without editing retained system data',async t=>{
-  const current=await fixture(t),base=await fixture(t);
-  const old=JSON.parse(await readFile(new URL('./fixtures/site/d2ca0659-07ee-44a5-8d99-d3295f5e2f0c.json',import.meta.url)));
-  old.category='development';old.cover={kind:'concept',preset:'engineering',alt:'Engineering'};
-  for (const f of [current,base]) await rm(path.join(f.rootDir,'collections'),{recursive:true});
-  for (const [f,document] of [[base,old],[current,{...old,description:'A revised introduction.'}]]) {
-    const directory=path.join(f.rootDir,'collections/development',old.slug);
-    await mkdir(directory,{recursive:true});
-    await writeFile(path.join(directory,'README.md'),serializeCollectionMarkdown(document));
-  }
-  const result=await buildCatalog({rootDir:current.rootDir,baseDir:base.rootDir,preview:true,resolveSources:true,request});
-  assert.equal(result.records[0].revision,old.revision+1);
-  assert.equal(result.records[0].id,old.id);
-  assert.deepEqual(result.records[0].skills,old.skills);
-  assert.equal(result.records[0].review.status,'pending');
+test('source generation reads public READMEs independently of old metadata and record files',async t=>{
+  const {rootDir,directory}=await fixture(t);
+  await mkdir(path.join(rootDir,'.catalog'));
+  await writeFile(path.join(rootDir,'.catalog/planning.json'),'This file is not a collection input.');
+  await writeFile(path.join(directory,'record.md'),'This file is not a collection input.');
+  const result=await buildCatalog({rootDir,preview:true,resolveSources:true,request});
+  assert.equal(result.records.length,1);
+  assert.equal(result.records[0].title,'Planning');
+  assert.equal(result.records[0].skills[0].originalDescription,'Plan the work before implementing it.');
 });

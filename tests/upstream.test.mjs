@@ -73,20 +73,43 @@ test('a branch containing slashes is resolved as the longest valid ref before di
   assert.ok(!mock.calls.includes('/repos/example/tools/commits/feature'));
 });
 
-test('collection and Skill identities are deterministic and preserve existing identities across updates', async () => {
+test('the collection source link reaches website provenance for fresh and cached generation', async () => {
+  const sourceUrl = 'https://publisher.example.com/collections/useful-skills';
+  const submission = record(['https://github.com/example/tools'], { sourceUrl });
+  const mock = upstream({ 'skills/first/SKILL.md': skill('first') });
+  const first = await resolve(submission, mock);
+  const evidence = first.document.provenance.evidence.find(item => item.url === sourceUrl);
+  assert.ok(evidence, 'Website details must retain the README selection source');
+  assert.equal(evidence.publisher, 'publisher.example.com');
+  assert.equal(evidence.kind, 'article');
+  assert.deepEqual(evidence.supportsItemIds, [first.document.skills[0].id]);
+  const cached = await resolve(submission, { previous: first.document, request: () => { throw new Error('Unchanged input must reuse fixed sources'); } });
+  assert.deepEqual(cached.document.provenance.evidence, first.document.provenance.evidence);
+});
+
+test('collection and Skill identities remain stable when README content changes', async () => {
   const mock = upstream({ 'skills/first/SKILL.md': skill('first') });
   const first = await resolve(record(['https://github.com/example/tools']), mock);
   const again = await resolve(record(['https://github.com/example/tools']), mock);
   assert.equal(first.document.id, again.document.id);
   assert.equal(first.document.skills[0].id, again.document.skills[0].id);
   const previous = structuredClone(first.document);
-  previous.id = '110b7da3-cbb7-48ea-854b-0c476c7b2520';
-  previous.skills[0].id = 'legacy-first';
-  previous.sourceKeys.push('legacy-source-key');
+  previous.sourceKeys.push('source-history');
   const changed = await resolve(record(['https://github.com/example/tools']), { ...mock, previous, inputDigest: 'd'.repeat(64) });
   assert.equal(changed.document.id, previous.id);
-  assert.equal(changed.document.skills[0].id, 'legacy-first');
-  assert.ok(changed.document.sourceKeys.includes('legacy-source-key'));
+  assert.equal(changed.document.skills[0].id, first.document.skills[0].id);
+  assert.ok(changed.document.sourceKeys.includes('source-history'));
+});
+
+test('cached collection and Skill identities must correspond to their generated source paths', async () => {
+  const mock = upstream({ 'skills/first/SKILL.md': skill('first') });
+  const first = await resolve(record(['https://github.com/example/tools']), mock);
+  const changedCollection = structuredClone(first.document);
+  changedCollection.id = '110b7da3-cbb7-48ea-854b-0c476c7b2520';
+  await assert.rejects(resolve(record(['https://github.com/example/tools']), { ...mock, previous: changedCollection }), /identity/);
+  const changedSkill = structuredClone(first.document);
+  changedSkill.skills[0].id = 'different-source';
+  await assert.rejects(resolve(record(['https://github.com/example/tools']), { ...mock, previous: changedSkill }), /identity/);
 });
 
 test('unchanged input reuses previous fixed commits and data without network requests or a new timestamp', async () => {

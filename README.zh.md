@@ -6,21 +6,21 @@
 
 ## 浏览合集
 
-目录可以包含待审合集。现有三份官网合集保留展示审批，发布数据仍明确展示核验与实测状态。
+目录可以包含待审合集。维护者通过 PR 审核每份合集，发布数据展示核验与实测状态。
 
 <!-- catalog:start -->
 ### 开发与工程
 
-- [Skills for Real Engineers](collections/development/engineering/README.zh.md) — 从需求澄清到实现与验证，把工程经验带进 Agent 协作。
+- [Skills for Real Engineers](collections/development/engineering/README.zh.md) — 从需求澄清到实现与验证，把工程经验带进 Agent 协作。（待审核）
 - [Superpowers · 软件开发](collections/development/superpowers/README.zh.md) — 用可组合的开发 Skills，引导编程 Agent 完成设计、规划、实现、调试与评审。（待审核）
 
 ### 设计与视觉
 
-- [Taste Skill · 前端设计](collections/design/taste/README.zh.md) — 从排版、风格到动效，让 AI 生成的界面更有设计感。
+- [Taste Skill · 前端设计](collections/design/taste/README.zh.md) — 从排版、风格到动效，让 AI 生成的界面更有设计感。（待审核）
 
 ### 音视频制作
 
-- [产品宣传视频](collections/media/product-video/README.zh.md) — 先明确需求，再制作画面，用 Skills 配合完成产品宣传视频。
+- [产品宣传视频](collections/media/product-video/README.zh.md) — 先明确需求，再制作画面，用 Skills 配合完成产品宣传视频。（待审核）
 
 <!-- catalog:end -->
 

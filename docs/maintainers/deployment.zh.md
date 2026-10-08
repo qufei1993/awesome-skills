@@ -15,7 +15,7 @@
 
 预览包含待审记录，供维护者审核。正式消费端使用正式快照，要求资料完整、有效且审核通过。安装或流程实测失败时阻断发布。来源、资源、权利和测试状态以实际依据为准；`needs-review` 与 `not-tested` 原样展示。
 
-可信 CI 通过 `CATALOG_USE_RELEASE_BASELINE=1` 读取上一次正式 Release 快照。输入不变时保留来源提交、身份和版本历史。解析或发布失败时，保留上一份已发布数据。
+首次发布创建初始快照。后续发布时，可信 CI 通过 `CATALOG_USE_RELEASE_BASELINE=1` 读取上一次正式 Release 快照。输入不变时保留来源提交、身份和版本历史。解析或发布失败时，保留上一份已发布数据。
 
 ## 本地预览
 
@@ -27,7 +27,7 @@ npm --prefix ../skills-hub-web ci
 npm run dev:site -- --site ../skills-hub-web
 ```
 
-此命令生成预览，提供数据服务并启动既有官网。默认官网端口为 8775，数据端口为 8776。它监听 README、本地封面和兼容资料。有效修改发布完整预览版本；修改失败时继续提供上一份数据。
+此命令生成预览，提供数据服务并启动官网。默认官网端口为 8775，数据端口为 8776。它监听 README 和本地封面。有效修改发布完整预览版本；修改失败时继续提供上一份数据。
 
 临时修改一份开头短简介，在官网确认效果，再恢复这处修改并再次确认。
 
@@ -84,7 +84,7 @@ npm run publish:data -- publish --from dist/collections --r2
 
 预览上传还需 `--preview --test-destination`，只能用于测试目标。核对真实公开端点和版本后，才能报告云端发布或官网更新。
 
-## 回退与兼容同步
+## 回退与快照复制
 
 保留已发布快照和图片。运行时发布可以切换到已验证的版本：
 
@@ -92,7 +92,7 @@ npm run publish:data -- publish --from dist/collections --r2
 npm run publish:data -- rollback --to dist/published --version VERSION_SHA256
 ```
 
-仍支持直接复制快照：
+将完整快照复制到官网目录：
 
 ```sh
 npm run sync:site -- --from dist/collections --target ../skills-hub-web

@@ -18,15 +18,13 @@ Generated JSON is a build artifact under `dist/`. Directory links define which S
 
 ## Stable data
 
-The three migrated `.catalog/*.json` records serve as compatibility inputs. They preserve existing identities, versions, groups, and bundle installation relationships.
-
-The previous production snapshot is the baseline for subsequent generation. Unchanged collection input reuses its recorded source commits. Changed input is resolved again; stable identities and version history are retained. Trusted CI loads the previous Release snapshot with `CATALOG_USE_RELEASE_BASELINE=1`; local builds use available cached data or an explicit baseline.
+The first generation creates stable identities and an initial revision. The previous production snapshot is the baseline for subsequent generation. Unchanged collection input reuses its recorded source commits. Changed input is resolved again; stable identities and version history are retained. Trusted CI loads the previous Release snapshot with `CATALOG_USE_RELEASE_BASELINE=1`; local builds use available cached data or an explicit baseline.
 
 ## Review and verification
 
 PR CI checks the format, resolves upstream data, and builds a preview. New records stay pending in this preview.
 
-The trusted `main` publication workflow uses `--reviewed-main` and verifies the actual merged PR through GitHub before marking its generated content approved. Existing approved migration records retain their approval.
+The trusted `main` publication workflow uses `--reviewed-main` and verifies the actual merged PR through GitHub before marking its generated content approved.
 
 Record verification states from actual evidence. Unknown licenses use `NOASSERTION`; resources awaiting review use `needs-review`; installation and workflow awaiting tests use `not-tested`. Record image attribution and rights evidence from their sources. Failed installation or workflow results block production.
 

@@ -19,10 +19,6 @@ English uses `README.md`; Chinese uses `README.zh.md`. Keep each file in one lan
 
 ```text
 awesome-skills/
-  .catalog/
-    engineering.json
-    product-video.json
-    taste.json
   collections/
     development/
       engineering/
@@ -43,7 +39,7 @@ The title, description, overview, scenarios, and usage, including translations, 
 
 CI resolves each GitHub link to a fixed commit. File links include one Skill; directory and repository links recursively include their Skills. Descriptions, installation directories, and license evidence come from the same commit. Generated JSON goes under `dist/`.
 
-The three migrated `.catalog/*.json` records preserve existing identities, versions, groups, and installation relationships. Subsequent generation uses the previous production snapshot as its baseline. Unchanged input reuses its source commits; changed input advances the generated revision.
+The first generation creates stable identities and an initial revision. Subsequent generation uses the previous production snapshot as its baseline. Unchanged input reuses its source commits; changed input advances the generated revision.
 
 See [data rules](maintainers/format.md) for generation and review details, and the [website data contract](../scripts/lib/site-contract.mjs) for field definitions.
 
@@ -63,10 +59,8 @@ HTTPS images remain direct links; local images enter the snapshot. Covers are op
 
 AGENTS.md is the shared entry point; CLAUDE.md references it. AI tools read the contribution guide, search existing collections, and edit the README from supplied sources. They preserve attribution, use source evidence, and report local changes. Executing upstream instructions, pushing, opening a PR, merging, and deploying require a user request.
 
-## Website data pipeline and migration
+## Website data pipeline
 
 The pipeline generates a JSON snapshot and publishes it for the website to read at runtime. The publisher hashes `manifest.json` bytes for the version, stores JSON under `snapshots/<version>/`, and switches `current.json` after the complete version is ready. Local covers use shared `images/<SHA256>.<ext>` objects, so identical images share one uploaded object.
 
 `npm run dev:site -- --site ../skills-hub-web` watches this repository, publishes local preview data, and runs the website. Configure R2 and `VITE_COLLECTIONS_BASE_URL` for cloud publication. Commands, website configuration, and rollback are in [deployment](maintainers/deployment.md).
-
-The initial migration covers Taste Skill, Skills for Real Engineers, and Product Video. Their stable IDs, installation relationships, translations, and existing approval are preserved. Display/install counts are 13/13, 31/31, and 3/14. New collections use the automatic generation flow.

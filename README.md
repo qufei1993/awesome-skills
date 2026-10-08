@@ -6,21 +6,21 @@ Task-focused Skill collections for Skills Hub. Skills stay in their upstream rep
 
 ## Browse collections
 
-Listings may include pending collections. The three existing website collections retain their display approval; verification and testing states remain visible in published data.
+Listings may include pending collections. Maintainers review each collection through its PR. Published data shows verification and testing states.
 
 <!-- catalog:start -->
 ### Development & Engineering
 
-- [Skills for Real Engineers](collections/development/engineering/README.md) — Bring engineering practice into agent collaboration, from clarifying requirements to implementation and verification.
+- [Skills for Real Engineers](collections/development/engineering/README.md) — Bring engineering practice into agent collaboration, from clarifying requirements to implementation and verification. (pending review)
 - [Superpowers · Software Development](collections/development/superpowers/README.md) — Guide coding agents through design, planning, implementation, debugging, and review with reusable development Skills. (pending review)
 
 ### Design & Visuals
 
-- [Taste Skill · Frontend Design](collections/design/taste/README.md) — Give AI-generated interfaces a stronger design direction, from typography and visual style to motion.
+- [Taste Skill · Frontend Design](collections/design/taste/README.md) — Give AI-generated interfaces a stronger design direction, from typography and visual style to motion. (pending review)
 
 ### Audio & Video
 
-- [Product Promo Videos](collections/media/product-video/README.md) — Clarify the brief, build the visuals, and combine Skills to create a product promo video.
+- [Product Promo Videos](collections/media/product-video/README.md) — Clarify the brief, build the visuals, and combine Skills to create a product promo video. (pending review)
 
 <!-- catalog:end -->
 

@@ -42,12 +42,18 @@ function parseLink(value) {
   fail('GitHub URL must reference a repository, tree directory, or SKILL.md blob');
 }
 
-function stableUuid(slug) {
+export function collectionId(slug) {
   const bytes = Buffer.from(hash('sha256', `skills-hub:collection:v1:${slug}`).slice(0, 32), 'hex');
   bytes[6] = (bytes[6] & 0x0f) | 0x40;
   bytes[8] = (bytes[8] & 0x3f) | 0x80;
   const hex = bytes.toString('hex');
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
+function skillId(repo, entryPoint) {
+  const directory = path.posix.dirname(entryPoint);
+  const name = (directory === '.' ? 'skill' : path.posix.basename(directory)).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'skill';
+  return `${name}-${hash('sha256', `${repo.toLowerCase()}\0${entryPoint}`).slice(0, 12)}`;
 }
 
 async function defaultRequest(endpoint) {
@@ -214,6 +220,20 @@ function coverFor(contribution, slug, category) {
   return { cover, coverFile };
 }
 
+function retainCollectionSource(document, contribution) {
+  if (!contribution.sourceUrl) return;
+  if (document.provenance.evidence.some(item => item.id === 'collection-source' && item.url === contribution.sourceUrl)) return;
+  const hostname = new URL(contribution.sourceUrl).hostname;
+  const evidence = {
+    id: 'collection-source', kind: hostname === 'github.com' ? 'repository' : 'article',
+    url: contribution.sourceUrl, title: 'Collection selection source', publisher: hostname,
+    checkedAt: document.updatedAt, location: 'Collection README source link',
+    finding: 'The collection README cites this URL as the source of its selection.',
+    supportsItemIds: document.skills.map(skill => skill.id),
+  };
+  document.provenance.evidence = [...document.provenance.evidence.filter(item => item.id !== evidence.id), evidence];
+}
+
 export async function resolveSubmission(record, { rootDir, inputDigest, dates, previous, request = defaultRequest } = {}) {
   const previousDocument = previous?.document || previous;
   if (!DIGEST.test(inputDigest || '')) fail('README inputDigest must be a SHA-256 digest');
@@ -221,6 +241,10 @@ export async function resolveSubmission(record, { rootDir, inputDigest, dates, p
   const slug = record.document?.slug, category = record.document?.category;
   if (typeof slug !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) fail('submission requires a valid collection slug');
   if (previousDocument && previousDocument.slug !== slug) fail('previous collection identity does not match the submission slug');
+  if (previousDocument && previousDocument.id !== collectionId(slug)) fail('previous collection identity must match its generated slug');
+  for (const skill of previousDocument?.skills ?? []) {
+    if (typeof skill.entry?.repo !== 'string' || typeof skill.entry?.entryPoint !== 'string' || skill.id !== skillId(skill.entry.repo, skill.entry.entryPoint)) fail('previous Skill identity must match its repository path');
+  }
   if (!Array.isArray(contribution.links) || !contribution.links.length) fail('submission requires GitHub Skill links');
   contribution.links.forEach(parseLink);
   const { cover, coverFile } = coverFor(contribution, slug, category);
@@ -228,6 +252,7 @@ export async function resolveSubmission(record, { rootDir, inputDigest, dates, p
   if (currentInput === `readme:${inputDigest}`) {
     const document=structuredClone(previousDocument);
     if (cover.kind === 'source-image') document.cover.sourceUrl=cover.sourceUrl;
+    retainCollectionSource(document, contribution);
     return { language: record.language, document, ...(coverFile ? { coverFile } : {}) };
   }
   for (const field of ['createdAt', 'updatedAt']) if (typeof dates?.[field] !== 'string' || !dates[field].endsWith('Z') || !Number.isFinite(Date.parse(dates[field]))) fail(`submission ${field} must be a valid UTC timestamp`);
@@ -249,9 +274,7 @@ export async function resolveSubmission(record, { rootDir, inputDigest, dates, p
       if (installationNames.has(metadata.name) && installationNames.get(metadata.name) !== key) fail(`installation name ${metadata.name} conflicts between different sources or directories`);
       installationNames.set(metadata.name, key);
       const directory = path.posix.dirname(entry.path);
-      const old = previousDocument?.skills?.find(item => item.entry?.repo.toLowerCase() === source.repo && item.entry.entryPoint === entry.path);
-      const identityName = (directory === '.' ? 'skill' : path.posix.basename(directory)).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'skill';
-      const id = old?.id || `${identityName}-${hash('sha256', `${source.repo}\0${entry.path}`).slice(0, 12)}`;
+      const id = skillId(source.repo, entry.path);
       const skill = {
         id, name: metadata.name, summary: metadata.description, originalDescription: metadata.description,
         entry: { repo: source.repo, commit: source.commit, entryPoint: entry.path },
@@ -264,7 +287,7 @@ export async function resolveSubmission(record, { rootDir, inputDigest, dates, p
     sources.push({ source, supportedIds });
   }
   const document = {
-    schemaVersion: 1, id: previousDocument?.id || stableUuid(slug), slug,
+    schemaVersion: 1, id: collectionId(slug), slug,
     revision: previousDocument?.revision || 1,
     createdAt: previousDocument?.createdAt || dates.createdAt, updatedAt: dates.updatedAt,
     sourceKeys: [...new Set([...(previousDocument?.sourceKeys || []).filter(key => key !== `readme:${inputDigest}`), `collection:${slug}`]), `readme:${inputDigest}`],
@@ -284,5 +307,6 @@ export async function resolveSubmission(record, { rootDir, inputDigest, dates, p
   };
   if (previousDocument?.sortOrder !== undefined) document.sortOrder = previousDocument.sortOrder;
   if (previousDocument?.curator !== undefined) document.curator = structuredClone(previousDocument.curator);
+  retainCollectionSource(document, contribution);
   return { language: record.language, document, ...(coverFile ? { coverFile } : {}) };
 }
