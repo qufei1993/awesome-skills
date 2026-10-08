@@ -1,0 +1,315 @@
+{
+  "language": "zh",
+  "document": {
+    "schemaVersion": 1,
+    "id": "de64301b-09cf-4968-9fc2-24ede5cd4dd6",
+    "slug": "product-video",
+    "revision": 4,
+    "createdAt": "2026-10-01T02:01:39Z",
+    "updatedAt": "2026-10-08T01:29:54.586Z",
+    "sourceKeys": [
+      "article:https://302.ai/blog/302-ai-best-practice-how-to-use-remotion-skill-to-make-video/#main"
+    ],
+    "status": "active",
+    "sourceKind": "external-recommendation",
+    "tags": [
+      "产品宣传",
+      "Remotion",
+      "动画",
+      "需求梳理",
+      "视觉设计"
+    ],
+    "provenance": {
+      "recommender": {
+        "name": "302 AI",
+        "url": "https://302.ai/blog/302-ai-best-practice-how-to-use-remotion-skill-to-make-video/"
+      },
+      "evidence": [
+        {
+          "id": "302-ai-remotion-case",
+          "kind": "article",
+          "url": "https://302.ai/blog/302-ai-best-practice-how-to-use-remotion-skill-to-make-video/",
+          "title": "Remotion Skill 实测：用 React 代码生成视频，AI视频制作完整教程 | 302.AI",
+          "publisher": "302 AI",
+          "publishedAt": "2026-01-28",
+          "checkedAt": "2026-10-01",
+          "location": "实战案例：从需求构建到视频交付的完整流程；使用配置；使用Superpowers Skill构建目标需求",
+          "finding": "原文在视频案例中列出 Remotion、Superpowers、Brainstorming 和 UI-UX-Pro-Max，并描述用 Brainstorming 梳理目标后继续制作视频。此证据支持能力搭配关系，不证明我们所选 commit 或配套项均与原文当时相同。",
+          "supportsItemIds": [
+            "brainstorming",
+            "remotion-best-practices",
+            "ui-ux-pro-max"
+          ]
+        }
+      ]
+    },
+    "cover": {
+      "kind": "source-image",
+      "url": "/assets/collections/product-video.png",
+      "sourceUrl": "https://github.com/qufei1993/awesome-skills",
+      "alt": "GPT 图像模型生成的产品视频制作概念封面，非案例成片",
+      "rightsStatus": "needs-review",
+      "width": 1672,
+      "height": 941,
+      "background": "#eee4d8"
+    },
+    "verification": {
+      "source": "verified",
+      "files": "needs-review",
+      "installation": "not-tested",
+      "workflow": "not-tested",
+      "checkedAt": "2026-10-01",
+      "notes": [
+        "本候选依据当前官网已保存的固定 commit、入口和安装清单转换；本次文档整理重新阅读了 302 AI 原文。",
+        "未在本次任务中重新访问每一个远端入口、核对完整资源或许可证据，也未执行安装或制作视频。",
+        "302 AI 的案例结果属于原发布者；Skills Hub 不把它写成自身流程实测。",
+        "所有 NOASSERTION 均表示本候选未重新确认许可，不能据此推断上游没有许可。",
+        "提交 PR 前逐项读取三个展示技能固定版本 SKILL.md 的 description；此次读取不代表完成目录资源、安装或视频制作验证。"
+      ]
+    },
+    "review": {
+      "status": "approved",
+      "reviewer": "user",
+      "reviewedAt": "2026-10-08T01:29:54.586Z",
+      "notes": [
+        "用户明确批准将现有官网展示内容接入统一 JSON 结构；此次仅批准展示迁移，保留现有来源、文件、素材与安装核验状态。",
+        "用户要求按官网封面比例使用 GPT 图像模型重新生成组合合集封面；生成图由本仓库提供，只是制作概念示意，不属于 302 AI 的案例画面或成片。此次仅调整封面，保留既有核验状态。",
+        "按用户已确认的技能简介规则，补齐固定版本上游 description 及对应译文，不再使用产品视频场景的自定义摘要；展示角色与安装关系保持不变。"
+      ]
+    },
+    "sortOrder": 30,
+    "localizations": {
+      "en": {
+        "tags": [
+          "Product promotion",
+          "Remotion",
+          "Animation",
+          "Requirements",
+          "Visual design"
+        ],
+        "coverAlt": "GPT-generated concept cover for product video creation, not a finished case-study video",
+        "provenance": {
+          "evidence": {
+            "302-ai-remotion-case": {
+              "title": "Remotion Skill Hands-on: Generate Videos with React Code — An AI Video Production Tutorial | 302.AI",
+              "location": "Practical example: the process from requirements to video delivery; configuration; defining requirements with the Superpowers Skill",
+              "finding": "The original video example lists Remotion, Superpowers, Brainstorming, and UI-UX-Pro-Max, and describes clarifying goals with Brainstorming before making the video. This supports the combination of capabilities. It does not show that our selected commits or accompanying items match the versions used in the article."
+            }
+          }
+        },
+        "skills": {
+          "brainstorming": {
+            "summary": "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation.",
+            "role": "Clarify requirements"
+          },
+          "remotion-best-practices": {
+            "summary": "Router for all Remotion skills",
+            "role": "Create the video"
+          },
+          "ui-ux-pro-max": {
+            "summary": "UI/UX design intelligence for web, mobile, and desktop. This skill should be used when designing, building, reviewing, or fixing interfaces, including pages, components, design systems, accessibility, interaction, responsive layout, typography, color, charts, and stack-specific UI implementation. Searchable local data: 79 searchable styles (50 active), 192 product palettes and reasoning profiles, 74 font pairings, 119 UX guidelines, 105 icons, 17 GSAP presets, 25 chart types, and 22 stacks.",
+            "role": "Refine the visuals"
+          }
+        }
+      }
+    },
+    "curator": {
+      "name": "Skills Hub",
+      "url": "https://github.com/qufei1993/awesome-skills"
+    },
+    "skills": [
+      {
+        "id": "brainstorming",
+        "role": "明确需求",
+        "entry": {
+          "repo": "obra/superpowers",
+          "commit": "8ca22dba9a94f28898bbce59f2537ff4d87c747d",
+          "entryPoint": "skills/brainstorming/SKILL.md"
+        },
+        "installationMode": "skill",
+        "installationItems": [
+          {
+            "name": "brainstorming",
+            "repo": "obra/superpowers",
+            "commit": "8ca22dba9a94f28898bbce59f2537ff4d87c747d",
+            "directory": "skills/brainstorming",
+            "entryPoint": "SKILL.md",
+            "license": {
+              "identifier": "NOASSERTION"
+            }
+          }
+        ],
+        "resourceCheck": "needs-review",
+        "resourceNotes": "保留整个技能目录及其配套资源。本次文档整理未重新核对固定版本的资源引用与安装环境。",
+        "name": "brainstorming",
+        "summary": "在任何创意工作前使用，包括创建功能、构建组件、添加功能或修改行为。在实现前探索用户意图、需求与设计。",
+        "originalDescription": "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation."
+      },
+      {
+        "id": "remotion-best-practices",
+        "role": "制作视频",
+        "entry": {
+          "repo": "remotion-dev/skills",
+          "commit": "a1b09e904a995f8bbf6d3b865fc612eedf7a4c43",
+          "entryPoint": "skills/remotion-best-practices/SKILL.md"
+        },
+        "installationMode": "bundle",
+        "installationItems": [
+          {
+            "name": "remotion-best-practices",
+            "repo": "remotion-dev/skills",
+            "commit": "a1b09e904a995f8bbf6d3b865fc612eedf7a4c43",
+            "directory": "skills/remotion-best-practices",
+            "entryPoint": "SKILL.md",
+            "license": {
+              "identifier": "NOASSERTION"
+            }
+          },
+          {
+            "name": "remotion-captions",
+            "repo": "remotion-dev/skills",
+            "commit": "a1b09e904a995f8bbf6d3b865fc612eedf7a4c43",
+            "directory": "skills/remotion-captions",
+            "entryPoint": "SKILL.md",
+            "license": {
+              "identifier": "NOASSERTION"
+            }
+          },
+          {
+            "name": "remotion-create",
+            "repo": "remotion-dev/skills",
+            "commit": "a1b09e904a995f8bbf6d3b865fc612eedf7a4c43",
+            "directory": "skills/remotion-create",
+            "entryPoint": "SKILL.md",
+            "license": {
+              "identifier": "NOASSERTION"
+            }
+          },
+          {
+            "name": "remotion-docs",
+            "repo": "remotion-dev/skills",
+            "commit": "a1b09e904a995f8bbf6d3b865fc612eedf7a4c43",
+            "directory": "skills/remotion-docs",
+            "entryPoint": "SKILL.md",
+            "license": {
+              "identifier": "NOASSERTION"
+            }
+          },
+          {
+            "name": "remotion-interactivity",
+            "repo": "remotion-dev/skills",
+            "commit": "a1b09e904a995f8bbf6d3b865fc612eedf7a4c43",
+            "directory": "skills/remotion-interactivity",
+            "entryPoint": "SKILL.md",
+            "license": {
+              "identifier": "NOASSERTION"
+            }
+          },
+          {
+            "name": "remotion-maps",
+            "repo": "remotion-dev/skills",
+            "commit": "a1b09e904a995f8bbf6d3b865fc612eedf7a4c43",
+            "directory": "skills/remotion-maps",
+            "entryPoint": "SKILL.md",
+            "license": {
+              "identifier": "NOASSERTION"
+            }
+          },
+          {
+            "name": "remotion-markup",
+            "repo": "remotion-dev/skills",
+            "commit": "a1b09e904a995f8bbf6d3b865fc612eedf7a4c43",
+            "directory": "skills/remotion-markup",
+            "entryPoint": "SKILL.md",
+            "license": {
+              "identifier": "NOASSERTION"
+            }
+          },
+          {
+            "name": "remotion-multimedia",
+            "repo": "remotion-dev/skills",
+            "commit": "a1b09e904a995f8bbf6d3b865fc612eedf7a4c43",
+            "directory": "skills/remotion-multimedia",
+            "entryPoint": "SKILL.md",
+            "license": {
+              "identifier": "NOASSERTION"
+            }
+          },
+          {
+            "name": "remotion-render",
+            "repo": "remotion-dev/skills",
+            "commit": "a1b09e904a995f8bbf6d3b865fc612eedf7a4c43",
+            "directory": "skills/remotion-render",
+            "entryPoint": "SKILL.md",
+            "license": {
+              "identifier": "NOASSERTION"
+            }
+          },
+          {
+            "name": "remotion-saas",
+            "repo": "remotion-dev/skills",
+            "commit": "a1b09e904a995f8bbf6d3b865fc612eedf7a4c43",
+            "directory": "skills/remotion-saas",
+            "entryPoint": "SKILL.md",
+            "license": {
+              "identifier": "NOASSERTION"
+            }
+          },
+          {
+            "name": "remotion-studio",
+            "repo": "remotion-dev/skills",
+            "commit": "a1b09e904a995f8bbf6d3b865fc612eedf7a4c43",
+            "directory": "skills/remotion-studio",
+            "entryPoint": "SKILL.md",
+            "license": {
+              "identifier": "NOASSERTION"
+            }
+          },
+          {
+            "name": "remotion-upgrade",
+            "repo": "remotion-dev/skills",
+            "commit": "a1b09e904a995f8bbf6d3b865fc612eedf7a4c43",
+            "directory": "skills/remotion-upgrade",
+            "entryPoint": "SKILL.md",
+            "license": {
+              "identifier": "NOASSERTION"
+            }
+          }
+        ],
+        "resourceCheck": "needs-review",
+        "resourceNotes": "按当前官网保存的固定版本清单展开为主 Skill 与配套 Skills；本候选未重新逐项核对资源引用或确认这 12 项均为最小必需依赖。接入前须核对完整目录与包展开依据。",
+        "name": "remotion-best-practices",
+        "summary": "所有 Remotion 技能的路由入口。",
+        "originalDescription": "Router for all Remotion skills"
+      },
+      {
+        "id": "ui-ux-pro-max",
+        "role": "打磨视觉",
+        "entry": {
+          "repo": "nextlevelbuilder/ui-ux-pro-max-skill",
+          "commit": "09170eec67eefd46a7ae85de61b40c194020f997",
+          "entryPoint": ".claude/skills/ui-ux-pro-max/SKILL.md"
+        },
+        "installationMode": "skill",
+        "installationItems": [
+          {
+            "name": "ui-ux-pro-max",
+            "repo": "nextlevelbuilder/ui-ux-pro-max-skill",
+            "commit": "09170eec67eefd46a7ae85de61b40c194020f997",
+            "directory": ".claude/skills/ui-ux-pro-max",
+            "entryPoint": "SKILL.md",
+            "license": {
+              "identifier": "NOASSERTION"
+            }
+          }
+        ],
+        "resourceCheck": "needs-review",
+        "resourceNotes": "保留整个技能目录及其配套资源。本次文档整理未重新核对固定版本的资源引用与安装环境。",
+        "name": "ui-ux-pro-max",
+        "summary": "为网页、移动端和桌面提供 UI/UX 设计指导。适用于设计、构建、审查或修复界面，包括页面、组件、设计系统、可访问性、交互、响应式布局、字体、颜色、图表及不同技术栈的界面实现。本地可搜索资料包含 79 种样式（50 种启用）、192 组产品配色和推理方案、74 组字体搭配、119 条用户体验指南、105 个图标、17 组 GSAP 预设、25 种图表和 22 个技术栈。",
+        "originalDescription": "UI/UX design intelligence for web, mobile, and desktop. This skill should be used when designing, building, reviewing, or fixing interfaces, including pages, components, design systems, accessibility, interaction, responsive layout, typography, color, charts, and stack-specific UI implementation. Searchable local data: 79 searchable styles (50 active), 192 product palettes and reasoning profiles, 74 font pairings, 119 UX guidelines, 105 icons, 17 GSAP presets, 25 chart types, and 22 stacks."
+      }
+    ]
+  },
+  "coverFile": "cover.png"
+}

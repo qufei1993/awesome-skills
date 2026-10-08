@@ -1,0 +1,172 @@
+name: Publish catalog data
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: catalog-data-publication
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run validate:publish
+      - name: Build fixed production snapshot
+        run: npm run build -- --output dist/collections --source-revision "$GITHUB_SHA"
+      - name: Record manifest checksum
+        run: |
+          node --input-type=module <<'NODE'
+          import { createHash } from 'node:crypto';
+          import { readFile, appendFile } from 'node:fs/promises';
+          const bytes = await readFile('dist/collections/manifest.json');
+          const manifest = JSON.parse(bytes);
+          if (manifest.preview || manifest.sourceRevision !== process.env.GITHUB_SHA) {
+            throw new Error('Snapshot must be production and match this commit');
+          }
+          const version = createHash('sha256').update(bytes).digest('hex');
+          await appendFile(process.env.GITHUB_STEP_SUMMARY,
+            `Production snapshot: ${manifest.sourceRevision}; data version: ${version}. Pending collections are excluded.\n`);
+          NODE
+      - name: Archive snapshot without a wrapping directory
+        run: zip -q -r ../../catalog.zip .
+        working-directory: dist/collections
+      - name: Checksum archive
+        run: sha256sum catalog.zip > catalog.zip.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: catalog-${{ github.sha }}
+          path: |
+            catalog.zip
+            catalog.zip.sha256
+          if-no-files-found: error
+      - name: Create or verify immutable release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="snapshot-$GITHUB_SHA"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            release_dir="$(mktemp -d)"
+            trap 'rm -rf "$release_dir"' EXIT
+            gh release download "$tag" --pattern 'catalog.zip*' --dir "$release_dir"
+            CATALOG_RELEASE_DIR="$release_dir" node --input-type=module <<'NODE'
+          import { createHash } from 'node:crypto';
+          import { mkdir, readFile, writeFile } from 'node:fs/promises';
+          import path from 'node:path';
+          import { decodeSnapshotZip, verifySnapshot } from './scripts/lib/snapshot.mjs';
+          const root = process.env.CATALOG_RELEASE_DIR;
+          const archive = await readFile(path.join(root, 'catalog.zip'));
+          const checksum = (await readFile(path.join(root, 'catalog.zip.sha256'), 'utf8')).trim();
+          if (!/^[a-f0-9]{64}\s+\*?catalog\.zip$/.test(checksum) || createHash('sha256').update(archive).digest('hex') !== checksum.slice(0, 64)) {
+            throw new Error('Existing release archive checksum is invalid');
+          }
+          const extracted = path.join(root, 'snapshot');
+          for (const [name, bytes] of decodeSnapshotZip(archive)) {
+            const filename = path.join(extracted, name);
+            await mkdir(path.dirname(filename), { recursive:true }); await writeFile(filename, bytes);
+          }
+          const prior = await verifySnapshot({ fromDir:extracted, expectedRevision:process.env.GITHUB_SHA });
+          const local = await verifySnapshot({ fromDir:'dist/collections', expectedRevision:process.env.GITHUB_SHA });
+          if (prior.files.size !== local.files.size || [...local.files].some(([name, bytes]) => !prior.files.get(name)?.equals(bytes))) {
+            throw new Error('Existing immutable release differs from this snapshot');
+          }
+          console.log('Existing immutable release verified; no release assets overwritten.');
+          NODE
+          else
+            if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" >/dev/null 2>&1; then
+              echo 'Snapshot tag already exists; refusing to reuse an unchecked tag.'
+              exit 1
+            fi
+            gh release create "$tag" catalog.zip catalog.zip.sha256 \
+              --target "$GITHUB_SHA" --title "$tag" \
+              --notes 'Production collection snapshot. Pending collections are excluded. Installation and workflow results are recorded separately in each collection.'
+          fi
+      - name: Check explicit data publication configuration
+        id: destination
+        env:
+          PUBLICATION_MODE: ${{ vars.CATALOG_PUBLICATION_MODE }}
+          CATALOG_R2_ACCOUNT_ID: ${{ vars.CATALOG_R2_ACCOUNT_ID }}
+          CATALOG_R2_BUCKET: ${{ vars.CATALOG_R2_BUCKET }}
+          CATALOG_R2_ACCESS_KEY_ID: ${{ secrets.CATALOG_R2_ACCESS_KEY_ID }}
+          CATALOG_R2_SECRET_ACCESS_KEY: ${{ secrets.CATALOG_R2_SECRET_ACCESS_KEY }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { appendFile } from 'node:fs/promises';
+          const mode = process.env.PUBLICATION_MODE || 'disabled';
+          if (mode === 'disabled') {
+            await appendFile(process.env.GITHUB_OUTPUT, 'enabled=false\n');
+            await appendFile(process.env.GITHUB_STEP_SUMMARY, 'Data upload: disabled. Snapshot release created or verified; data was not uploaded and current.json was not changed.\n');
+          } else if (mode === 'r2') {
+            const required = ['CATALOG_R2_ACCOUNT_ID', 'CATALOG_R2_BUCKET', 'CATALOG_R2_ACCESS_KEY_ID', 'CATALOG_R2_SECRET_ACCESS_KEY'];
+            if (required.some(name => !process.env[name])) throw new Error('R2 publication is enabled but its configuration is incomplete');
+            await appendFile(process.env.GITHUB_OUTPUT, 'enabled=true\n');
+          } else {
+            throw new Error('Unsupported data publication mode');
+          }
+          NODE
+      - name: Refuse to publish an older queued revision
+        if: steps.destination.outputs.enabled == 'true'
+        id: latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          latest_revision="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)"
+          if [ "$latest_revision" = "$GITHUB_SHA" ]; then
+            echo 'publish=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'publish=false' >> "$GITHUB_OUTPUT"
+            echo 'Data upload: skipped because this queued revision is no longer the latest main commit. current.json was not changed.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Publish verified data to the configured R2 bucket
+        if: steps.latest.outputs.publish == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CATALOG_R2_ACCOUNT_ID: ${{ vars.CATALOG_R2_ACCOUNT_ID }}
+          CATALOG_R2_BUCKET: ${{ vars.CATALOG_R2_BUCKET }}
+          CATALOG_R2_ACCESS_KEY_ID: ${{ secrets.CATALOG_R2_ACCESS_KEY_ID }}
+          CATALOG_R2_SECRET_ACCESS_KEY: ${{ secrets.CATALOG_R2_SECRET_ACCESS_KEY }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { execFile } from 'node:child_process';
+          import { promisify } from 'node:util';
+          import { appendFile, writeFile } from 'node:fs/promises';
+          import { createR2Store, publishSnapshot } from './scripts/lib/publication.mjs';
+          const execute = promisify(execFile);
+          const store = await createR2Store({ accountId:process.env.CATALOG_R2_ACCOUNT_ID, bucket:process.env.CATALOG_R2_BUCKET, accessKeyId:process.env.CATALOG_R2_ACCESS_KEY_ID, secretAccessKey:process.env.CATALOG_R2_SECRET_ACCESS_KEY });
+          const result = await publishSnapshot({
+            fromDir:'dist/collections',
+            store,
+            beforeCurrent:async ({ sourceRevision }) => {
+              if (sourceRevision !== process.env.GITHUB_SHA) throw new Error('Snapshot source revision does not match this workflow commit');
+              let stdout;
+              try {
+                ({ stdout } = await execute('gh', ['api', `repos/${process.env.GITHUB_REPOSITORY}/commits/main`, '--jq', '.sha'], { timeout:30000, maxBuffer:1024 * 1024 }));
+              } catch { throw new Error('Latest main revision could not be verified; current.json was not changed'); }
+              const latestRevision = stdout.trim();
+              if (!/^[a-f0-9]{40}$/i.test(latestRevision)) throw new Error('Latest main revision is invalid; current.json was not changed');
+              return latestRevision === sourceRevision;
+            },
+          });
+          await writeFile('publication-result.json', JSON.stringify(result) + '\n');
+          await appendFile(process.env.GITHUB_STEP_SUMMARY, result.currentUpdated
+            ? `Data uploaded and current.json switched to ${result.version} (${result.count} collections). Images uploaded: ${result.uploadedImages}; reused: ${result.reusedImages}. No website rebuild was requested.\n`
+            : `Data upload: immutable files prepared for ${result.version}, but the current.json update was skipped because this revision is no longer the latest main commit. The previous pointer was unchanged.\n`);
+          NODE

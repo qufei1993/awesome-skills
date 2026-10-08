@@ -1,0 +1,28 @@
+name: Suggest a collection
+description: Share a collection idea or source links; a complete draft is optional.
+title: "[Collection] "
+body:
+  - type: textarea
+    id: task
+    attributes:
+      label: Collection title and short summary
+      description: Give the collection a title and describe its task in one sentence.
+    validations:
+      required: true
+  - type: textarea
+    id: skills
+    attributes:
+      label: Skill links
+      description: Paste GitHub links to Skill files, directories, or repositories.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Overview, scenarios, and usage (optional)
+      description: If known, add a short overview, 1–5 simple tasks, and usage advice. You can leave these for a later draft.
+  - type: textarea
+    id: source
+    attributes:
+      label: Source or cover (optional)
+      description: Credit the source if this is someone else's collection. You can also upload a cover image or paste an image URL and explain its source.

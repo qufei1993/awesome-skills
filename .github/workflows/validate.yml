@@ -1,0 +1,55 @@
+name: Validate collections
+
+on:
+  pull_request:
+  merge_group:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: proposal
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+          path: baseline
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: proposal/package-lock.json
+      - run: npm ci
+        working-directory: proposal
+      - run: npm run check
+        working-directory: proposal
+      - run: npm run validate -- --base-dir ../baseline
+        working-directory: proposal
+
+  publish-readiness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: proposal
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+          path: baseline
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: proposal/package-lock.json
+      - run: npm ci
+        working-directory: proposal
+      - run: npm run validate:publish -- --base-dir ../baseline
+        working-directory: proposal
