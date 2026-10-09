@@ -6,6 +6,9 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { indexItem } from '../scripts/lib/site-contract.mjs';
 import { buildStaticPublication, readCurrentSnapshot } from '../scripts/lib/publication.mjs';
+import { verifySnapshotFiles } from '../scripts/lib/snapshot.mjs';
+import { loadPublishedSnapshot } from '../scripts/lib/generation-context.mjs';
+import { checkStaticData } from '../scripts/check-static-data.mjs';
 
 const REVISION = 'a'.repeat(40);
 const ID = 'de64301b-09cf-4968-9fc2-24ede5cd4dd6';
@@ -17,7 +20,7 @@ async function directory(t) {
   t.after(() => rm(root, { recursive:true, force:true }));
   return root;
 }
-async function snapshot(t, { revision=REVISION, preview=false, image=IMAGE, duplicate=false, extension='png', title, externalCover, externalOnly=false }={}) {
+async function snapshot(t, { revision=REVISION, preview=false, image=IMAGE, duplicate=false, extension='png', title, externalCover, externalOnly=false, skillCount=0 }={}) {
   const root = await directory(t);
   const document = JSON.parse(await readFile(new URL(`./fixtures/site/${ID}.json`, import.meta.url), 'utf8'));
   document.category = 'media';
@@ -25,6 +28,20 @@ async function snapshot(t, { revision=REVISION, preview=false, image=IMAGE, dupl
   document.verification.source = document.verification.files = 'verified';
   document.verification.installation = document.verification.workflow = 'not-tested';
   document.skills.forEach(skill => { skill.resourceCheck = 'verified'; });
+  if (skillCount) {
+    const template = document.skills[0];
+    document.skills = Array.from({ length:skillCount }, (_, index) => {
+      const skill = structuredClone(template), name = `fixture-skill-${index}`;
+      skill.id = skill.name = name;
+      skill.summary = `${name} ${'a'.repeat(200000)}`;
+      skill.entry.entryPoint = `skills/${name}/SKILL.md`;
+      skill.installationItems[0].name = name;
+      skill.installationItems[0].directory = `skills/${name}`;
+      return skill;
+    });
+    document.localizations.en.skills = {};
+    document.provenance.evidence.forEach(evidence => { evidence.supportsItemIds = document.skills.map(skill => skill.id); });
+  }
   if (title) document.title = title;
   document.cover = { kind:'source-image', url:`/data/collections/assets/${ID}/cover.${extension}`, sourceUrl:'https://example.com/cover', alt:'Fixture cover', rightsStatus:'verified', rightsEvidenceUrl:'https://example.com/rights' };
   if (externalOnly) document.cover.url = externalCover;
@@ -100,6 +117,40 @@ test('the read-only publication reader verifies every snapshot file', async t =>
   const verified = await readCurrentSnapshot({ read:localRead(outDir) });
   assert.equal(verified.release.version, source.version);
   for (const [name, bytes] of source.files) assert.deepEqual(verified.files.get(name), bytes);
+});
+
+test('publishes and reads a bilingual index above 10 MiB through hosted checks and generation baselines', async t => {
+  const source = await snapshot(t, { skillCount:40 }), outDir = await directory(t);
+  assert.ok(source.files.get('index.json').length > 10 * 1024 * 1024);
+  assert.ok(source.files.get('index.json').length < 20 * 1024 * 1024);
+  assert.ok(source.files.get(`${ID}.json`).length < 20 * 1024 * 1024);
+  assert.ok([...source.files.values()].reduce((total, bytes) => total + bytes.length, 0) < 100 * 1024 * 1024);
+  const detail = JSON.parse(source.files.get(`${ID}.json`));
+  assert.ok(detail.skills.every(skill => Buffer.byteLength(skill.summary) < 1024 * 1024));
+  await buildStaticPublication({ fromDir:source.root, outDir });
+  const read = localRead(outDir), verified = await readCurrentSnapshot({ read });
+  assert.equal(verified.release.version, source.version);
+  assert.equal(verified.index.collections[0].itemCount, 40);
+  for (const [name, bytes] of source.files) assert.deepEqual(verified.files.get(name), bytes);
+  const baseUrl = 'https://data.example.com/';
+  const request = async (url, options) => {
+    assert.equal(options.credentials, 'omit'); assert.equal(options.redirect, 'manual');
+    const key = new URL(url).pathname.slice(1), bytes = await read(key);
+    return new Response(bytes ?? 'Missing file', { status:bytes ? 200 : 404, headers:{ 'Content-Length':String(bytes?.length ?? 12), 'Content-Type':key.endsWith('.json') ? 'application/json' : 'image/png', 'Access-Control-Allow-Origin':'*', 'Cache-Control':key === 'current.json' ? 'no-store' : 'public, max-age=31536000, immutable' } });
+  };
+  const hosted = await checkStaticData({ url:baseUrl, assetsDir:outDir, request });
+  assert.equal(hosted.version, source.version); assert.equal(hosted.count, 1);
+  const baseline = await loadPublishedSnapshot({ rootDir:await directory(t), baseUrl, request });
+  assert.equal(digest(baseline.files.get('manifest.json')), source.version);
+  for (const [name, bytes] of source.files) assert.deepEqual(baseline.files.get(name), bytes);
+});
+
+test('rejects an index above 20 MiB before writing a publication', async t => {
+  const source = await snapshot(t, { skillCount:54 }), outDir = await directory(t);
+  assert.ok(source.files.get('index.json').length > 20 * 1024 * 1024);
+  await assert.rejects(verifySnapshotFiles(source.files), /Snapshot file body or size limit/i);
+  await assert.rejects(buildStaticPublication({ fromDir:source.root, outDir }), /Snapshot file size or count limit/i);
+  assert.deepEqual(await readdir(outDir), []);
 });
 
 test('retains the preceding version and shared images for an already open page', async t => {
@@ -233,7 +284,7 @@ test('reading current data refuses a pointer that disagrees with its version', a
 test('manifest limits are checked before downloading any snapshot files', async t => {
   const source = await snapshot(t), outDir = await directory(t);
   await buildStaticPublication({ fromDir:source.root, outDir });
-  const manifest = { ...source.manifest, files:[{ path:'index.json', size:11*1024*1024, sha256:'a'.repeat(64) }] };
+  const manifest = { ...source.manifest, files:[{ path:'index.json', size:20*1024*1024+1, sha256:'a'.repeat(64) }] };
   const bytes = Buffer.from(JSON.stringify(manifest)), version = digest(bytes);
   const pointer = { ...await current(outDir), version, snapshotPath:`snapshots/${version}/` };
   const pointerBytes = Buffer.from(JSON.stringify(pointer));

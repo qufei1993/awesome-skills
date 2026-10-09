@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 import { readCurrentSnapshot, readPublishedSnapshot } from './lib/publication.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const MAX_BYTES = 10 * 1024 * 1024;
+const MAX_BYTES = 20 * 1024 * 1024;
 function dataBaseUrl(value) {
   let url;
   try { url = new URL(value); } catch { throw new Error('Data check requires a valid public data URL'); }

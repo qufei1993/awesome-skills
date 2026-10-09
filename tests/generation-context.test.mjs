@@ -165,8 +165,8 @@ test('baseline URLs must be canonical HTTPS URLs without embedded credentials or
 });
 test('public baseline bodies are bounded by declared and streamed sizes',async t=>{
   for(const response of [
-    new Response('{}',{headers:{'content-length':String(10*1024*1024+1)}}),
-    new Response(new ReadableStream({start(controller){controller.enqueue(new Uint8Array(10*1024*1024+1));controller.close();}})),
+    new Response('{}',{headers:{'content-length':String(20*1024*1024+1)}}),
+    new Response(new ReadableStream({start(controller){controller.enqueue(new Uint8Array(20*1024*1024+1));controller.close();}})),
   ]){
     await assert.rejects(loadPreviousSnapshot({rootDir:await temporary(t),baseUrl:BASE,request:async()=>response}),/size|large|limit/i);
   }

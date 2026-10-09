@@ -15,6 +15,8 @@ CI 通过 `CATALOG_DATA_BASE_URL` 读取上一份发布快照。输入不变时�
 
 数据包包含版本化 JSON、共享本地封面，以及浏览器缓存和跨域访问规则。相同图片共用一个内容哈希。Cloudflare 部署时复用已有的相同文件。静态请求和文件存储按[静态文件计费规则](https://developers.cloudflare.com/workers/static-assets/billing-and-limitations/)免费。
 
+项目限制每个 JSON 文件不超过 20 MiB、每份快照总量不超过 100 MiB，单文件限制低于 Cloudflare 的 [25 MiB 上限](https://developers.cloudflare.com/changelog/post/2025-09-02-increased-static-asset-limits/)。
+
 每次部署保留当前版和前一版。重复发布相同版本时，校验已部署的数据。页面长时间打开并跨过多次数据发布后，刷新页面以读取当前数据。
 
 ## 配置发布
