@@ -73,6 +73,13 @@ test('a branch containing slashes is resolved as the longest valid ref before di
   assert.ok(!mock.calls.includes('/repos/example/tools/commits/feature'));
 });
 
+test('fixed commits resolve without probing the nested directory as a branch', async () => {
+  const mock = upstream({ 'skills/first/SKILL.md': skill('first') }, { refs: { [commit]: commit } });
+  const result = await resolve(record([`https://github.com/example/tools/tree/${commit}/skills/first`]), mock);
+  assert.equal(result.document.skills.length, 1);
+  assert.deepEqual(mock.calls.filter(endpoint => endpoint.includes('/commits/')), [`/repos/example/tools/commits/${commit}`]);
+});
+
 test('the collection source link reaches website provenance for fresh and cached generation', async () => {
   const sourceUrl = 'https://publisher.example.com/collections/useful-skills';
   const submission = record(['https://github.com/example/tools'], { sourceUrl });
@@ -184,33 +191,5 @@ for (const [name, files, options, expected] of [
 test('non-GitHub sources and unsafe paths fail before any HTTP request', async () => {
   for (const link of ['https://example.com/repo', 'https://github.com/example/tools/blob/main/%2E%2E/SKILL.md', 'https://github.com@example.com/example/tools', 'https://github.com/example/tools?token=secret']) {
     await assert.rejects(resolve(record([link]), { request: () => { throw new Error('Unexpected network'); } }), /GitHub|URL|path/);
-  }
-});
-
-test('default HTTP transport sends credentials only to api.github.com and refuses redirects', async () => {
-  const mock = upstream({ 'skills/first/SKILL.md': skill('first') });
-  const originalFetch = globalThis.fetch;
-  const originalToken = process.env.GITHUB_TOKEN;
-  process.env.GITHUB_TOKEN = 'fixture-test-token';
-  globalThis.fetch = async (url, options) => {
-    assert.equal(new URL(url).origin, 'https://api.github.com');
-    assert.equal(options.redirect, 'error');
-    assert.equal(options.headers.Authorization, 'Bearer fixture-test-token');
-    assert.ok(options.signal instanceof AbortSignal);
-    const parsed = new URL(url);
-    return new Response(JSON.stringify(await mock.request(`${parsed.pathname}${parsed.search}`)));
-  };
-  try {
-    const result = await resolve(record(['https://github.com/example/tools']), {});
-    assert.equal(result.document.skills.length, 1);
-    globalThis.fetch = async () => { throw new Error('A transport error with fixture-test-token must remain private'); };
-    await assert.rejects(resolve(record(['https://github.com/example/tools']), {}), error => {
-      assert.equal(error.message, 'upstream: GitHub API request failed or timed out');
-      return true;
-    });
-  } finally {
-    globalThis.fetch = originalFetch;
-    if (originalToken === undefined) delete process.env.GITHUB_TOKEN;
-    else process.env.GITHUB_TOKEN = originalToken;
   }
 });

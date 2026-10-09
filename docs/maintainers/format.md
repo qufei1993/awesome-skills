@@ -14,6 +14,8 @@ CI resolves the README's GitHub Skill links:
 - A directory or repository link recursively includes all contained `SKILL.md` files.
 - Each source resolves to a fixed commit. Skill descriptions come unchanged from upstream; installation directories and license evidence come from the same commit.
 
+Generation keeps shallow Git source caches under `dist/upstream-repositories/`. It reads complete trees and Skill files from fixed commits and verifies their Git hashes. Later builds reuse these caches.
+
 Generated JSON is a build artifact under `dist/`. Directory links define which Skills the collection includes. The detailed data contract is in [site-contract.mjs](../../scripts/lib/site-contract.mjs).
 
 ## Stable data

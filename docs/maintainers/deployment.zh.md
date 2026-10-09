@@ -39,7 +39,7 @@ CI 通过 `CATALOG_DATA_BASE_URL` 读取上一份发布快照。输入不变时�
 
 ## 测试 PR
 
-使用 Node.js 22 或更高版本。在合集仓库中按顺序运行：
+使用 Node.js 22 或更高版本，并安装 Git。在合集仓库中按顺序运行：
 
 ```sh
 npm ci

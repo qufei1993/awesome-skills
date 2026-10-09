@@ -2,13 +2,14 @@ import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { isAlias, isMap, parseDocument, visit } from 'yaml';
+import { createGitHubRequest } from './git-source.mjs';
 
 const SHA = /^[a-f0-9]{40}$/i;
 const DIGEST = /^[a-f0-9]{64}$/i;
 const MAX_RESPONSE_BYTES = 12 * 1024 * 1024;
 const MAX_BLOB_BYTES = 1024 * 1024;
 const MAX_SKILLS = 2000;
-const REQUEST_TIMEOUT_MS = 20_000;
+const REQUEST_TIMEOUT_MS = 150_000;
 const hash = (algorithm, bytes) => createHash(algorithm).update(bytes).digest('hex');
 const plain = value => value && typeof value === 'object' && !Array.isArray(value);
 const encode = value => encodeURIComponent(value).replace(/[!'()*]/g, character => `%${character.charCodeAt(0).toString(16).toUpperCase()}`);
@@ -56,33 +57,6 @@ function skillId(repo, entryPoint) {
   return `${name}-${hash('sha256', `${repo.toLowerCase()}\0${entryPoint}`).slice(0, 12)}`;
 }
 
-async function defaultRequest(endpoint) {
-  if (!endpoint.startsWith('/repos/') || endpoint.includes('://') || /[\u0000-\u0020\u007f\\]/.test(endpoint)) fail('HTTP requests must target a GitHub API repository endpoint');
-  const headers = { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2026-03-10' };
-  if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-  try {
-    const response = await fetch(`https://api.github.com${endpoint}`, { headers, redirect: 'error', signal: controller.signal });
-    if (!response.ok) throw Object.assign(new Error(`GitHub API request failed (${response.status})`), { status: response.status });
-    if (Number(response.headers.get('content-length')) > MAX_RESPONSE_BYTES) fail('GitHub API response exceeds the size limit');
-    const chunks = [];
-    let size = 0;
-    for await (const chunk of response.body) {
-      size += chunk.length;
-      if (size > MAX_RESPONSE_BYTES) {
-        controller.abort();
-        fail('GitHub API response exceeds the size limit');
-      }
-      chunks.push(chunk);
-    }
-    try { return JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { fail('GitHub API returned invalid JSON'); }
-  } catch (error) {
-    if (error.status) throw error;
-    if (error.message?.startsWith('upstream:')) throw error;
-    throw new Error('upstream: GitHub API request failed or timed out');
-  } finally { clearTimeout(timer); }
-}
 
 function apiClient(request, { rootDir, inputDigest }) {
   const pending = new Map();
@@ -129,7 +103,7 @@ async function resolveLink(link, api) {
     suffix = repository.default_branch.split('/');
     suffix.forEach(part => repositoryPath(part, 'default branch'));
   }
-  const maxRefParts = suffix.length - (parsed.kind === 'blob' ? 1 : 0);
+  const maxRefParts = SHA.test(suffix[0]) ? 1 : suffix.length - (parsed.kind === 'blob' ? 1 : 0);
   for (let length = maxRefParts; length >= 1; length--) {
     const ref = suffix.slice(0, length).join('/');
     let resolved;
@@ -234,7 +208,7 @@ function retainCollectionSource(document, contribution) {
   document.provenance.evidence = [...document.provenance.evidence.filter(item => item.id !== evidence.id), evidence];
 }
 
-export async function resolveSubmission(record, { rootDir, inputDigest, dates, previous, request = defaultRequest } = {}) {
+export async function resolveSubmission(record, { rootDir, inputDigest, dates, previous, request } = {}) {
   const previousDocument = previous?.document || previous;
   if (!DIGEST.test(inputDigest || '')) fail('README inputDigest must be a SHA-256 digest');
   const contribution = record.publicReadmes?.[record.language] || record.document;
@@ -257,7 +231,7 @@ export async function resolveSubmission(record, { rootDir, inputDigest, dates, p
   }
   for (const field of ['createdAt', 'updatedAt']) if (typeof dates?.[field] !== 'string' || !dates[field].endsWith('Z') || !Number.isFinite(Date.parse(dates[field]))) fail(`submission ${field} must be a valid UTC timestamp`);
   if (Date.parse(dates.updatedAt) < Date.parse(dates.createdAt)) fail('submission updatedAt must not precede createdAt');
-  const api = apiClient(request, { rootDir, inputDigest });
+  const api = apiClient(request ?? createGitHubRequest({ rootDir }), { rootDir, inputDigest });
   const sources = [], skills = [], byEntry = new Map(), installationNames = new Map();
   for (const link of contribution.links) {
     const source = await resolveLink(link, api);

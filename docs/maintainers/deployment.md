@@ -39,7 +39,7 @@ Later collection merges update data independently. Deploy the website again when
 
 ## Test a PR
 
-Use Node.js 22 or later. Run these commands from the collection repository:
+Use Node.js 22 or later and Git. Run these commands from the collection repository:
 
 ```sh
 npm ci
