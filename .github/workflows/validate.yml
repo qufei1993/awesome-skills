@@ -10,7 +10,7 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
     concurrency:
       group: catalog-pr-${{ github.event.pull_request.number || github.ref }}
       cancel-in-progress: true
@@ -129,6 +129,7 @@ jobs:
 
   publish-readiness:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     env:
       GITHUB_TOKEN: ${{ github.token }}
       CATALOG_DATA_BASE_URL: ${{ vars.CATALOG_DATA_BASE_URL }}

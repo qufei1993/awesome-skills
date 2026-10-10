@@ -9,7 +9,7 @@ const HASH = /^[a-f0-9]{64}$/;
 const UUID = '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}';
 const ASSET = new RegExp(`^assets/${UUID}/[a-zA-Z0-9._-]+\\.(?:png|jpe?g|webp|gif)$`, 'i');
 const SNAPSHOT_FILE = new RegExp(`^(?:index\\.json|${UUID}\\.json|assets/${UUID}/[a-zA-Z0-9._-]+\\.(?:png|jpe?g|webp|gif))$`, 'i');
-const MAX_FILE_BYTES = 10 * 1024 * 1024;
+const MAX_FILE_BYTES = 20 * 1024 * 1024;
 const MAX_TOTAL_BYTES = 100 * 1024 * 1024;
 const MAX_STATIC_FILES = 20000;
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');

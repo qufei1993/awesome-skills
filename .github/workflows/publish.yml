@@ -17,7 +17,7 @@ jobs:
   publish:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
     env:
       GITHUB_TOKEN: ${{ github.token }}
       CATALOG_DATA_BASE_URL: ${{ vars.CATALOG_DATA_BASE_URL }}

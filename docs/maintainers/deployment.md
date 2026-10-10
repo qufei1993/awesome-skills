@@ -15,6 +15,8 @@ CI reads the previous published snapshot through `CATALOG_DATA_BASE_URL`. Unchan
 
 The package includes versioned JSON, shared local covers, and browser cache and cross-origin access headers. Identical images share one content hash. Cloudflare reuses matching assets during deployment. Static requests and asset storage are free under the [Static Assets pricing rules](https://developers.cloudflare.com/workers/static-assets/billing-and-limitations/).
 
+The project caps JSON files at 20 MiB, below Cloudflare's [25 MiB single-file limit](https://developers.cloudflare.com/changelog/post/2025-09-02-increased-static-asset-limits/). Each snapshot has a total file size limit of 100 MiB.
+
 Each deployment retains the current and preceding data versions. Repeating the same version verifies the existing deployment. Refresh pages kept open across multiple data publications to read the current data.
 
 ## Configure publication
@@ -39,7 +41,7 @@ Later collection merges update data independently. Deploy the website again when
 
 ## Test a PR
 
-Use Node.js 22 or later. Run these commands from the collection repository:
+Use Node.js 22 or later and Git. Run these commands from the collection repository:
 
 ```sh
 npm ci

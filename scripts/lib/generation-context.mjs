@@ -103,7 +103,7 @@ function canonicalBaseUrl(value) {
   return url.href;
 }
 function publicStore(baseUrl,request) {
-  const limit=10*1024*1024;
+  const limit=20*1024*1024;
   return {async get(key) {
     if(typeof key!=='string' || !key || key.split('/').some(part=>!part || part==='.' || part==='..') || /[\u0000-\u0020\u007f\\%?#:]/.test(key))throw new Error('Invalid public snapshot object key');
     const response=await request(`${baseUrl}${key}`,{headers:{Accept:'application/json'},redirect:'manual',credentials:'omit',signal:AbortSignal.timeout(30000)});

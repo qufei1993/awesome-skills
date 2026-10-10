@@ -6,7 +6,7 @@ import { validateCollection, indexItem } from './site-contract.mjs';
 
 const SHA=/^[a-f0-9]{40}$/i, HASH=/^[a-f0-9]{64}$/;
 const UUID='[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}';
-const LIMITS={maxFiles:10000,maxFileBytes:10*1024*1024,maxTotalBytes:100*1024*1024};
+const LIMITS={maxFiles:10000,maxFileBytes:20*1024*1024,maxTotalBytes:100*1024*1024};
 const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
 function safePath(name) {
   if (typeof name!=='string' || !name || /[\u0000-\u0020\u007f\\%?#:]/.test(name) || path.posix.isAbsolute(name) || name.split('/').some(p=>!p || p==='.' || p==='..')) throw new Error(`Unsafe snapshot path: ${name}`);

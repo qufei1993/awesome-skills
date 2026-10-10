@@ -190,7 +190,7 @@ test('fails if a missing resource becomes an HTML page or an HTTP 200 fallback',
 
 test('refuses redirects and overlarge network responses', async t => {
   const assetsDir = await publication(t);
-  for (const response of [new Response('', { status:302, headers:{ Location:'https://other.example.com/' } }), new Response('', { headers:{ 'Content-Length':String(11 * 1024 * 1024) } })]) {
+  for (const response of [new Response('', { status:302, headers:{ Location:'https://other.example.com/' } }), new Response('', { headers:{ 'Content-Length':String(20 * 1024 * 1024 + 1) } })]) {
     await assert.rejects(checkStaticData({ url:'https://data.example.com/data', assetsDir, request:async () => response }), /redirect|size/i);
   }
 });
@@ -223,8 +223,8 @@ test('checks the retained preceding version as well as the current version', asy
 test('limits streamed response bytes even when Content-Length is absent', async t => {
   const assetsDir = await publication(t);
   const stream = new ReadableStream({ start(controller) {
-    controller.enqueue(new Uint8Array(6 * 1024 * 1024));
-    controller.enqueue(new Uint8Array(6 * 1024 * 1024));
+    controller.enqueue(new Uint8Array(10 * 1024 * 1024));
+    controller.enqueue(new Uint8Array(10 * 1024 * 1024 + 1));
     controller.close();
   } });
   await assert.rejects(checkStaticData({ url:'https://data.example.com/data', assetsDir, request:async () => new Response(stream) }), /size/i);
