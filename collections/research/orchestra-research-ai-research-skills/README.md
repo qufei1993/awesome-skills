@@ -2,6 +2,8 @@
 
 Carry AI research from model experiments through evaluation and publication.
 
+![Orchestra AI Research Skills — original project cover](<https://raw.githubusercontent.com/orchestra-research/ai-research-skills/773a52944ba4747a18bd4ae9ade53fff041adcbc/docs/assets/promo.gif>)
+
 ## Overview
 
 Orchestra Research’s native categories cover model architectures, training, alignment, inference, infrastructure, interpretability, agents, RAG, and research writing.

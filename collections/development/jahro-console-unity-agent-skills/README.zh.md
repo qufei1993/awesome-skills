@@ -2,6 +2,8 @@
 
 使用 Jahro 构建结构化 Unity 调试流程。
 
+![Unity Agent 调试技能 官方项目封面](<https://vdepoiw1jnimcohf.public.blob.vercel-storage.com/Jahro_3%201-f2rMPbdeHAvaTZaFEGHbfxIQ8hqFM0.png>)
+
 ## 合集介绍
 
 Jahro 的八技能包覆盖配置、日志、运行命令、观察器、快照、生产配置、迁移和排障。

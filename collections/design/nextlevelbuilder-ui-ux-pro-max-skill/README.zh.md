@@ -2,6 +2,8 @@
 
 协助界面、品牌、横幅、设计系统、幻灯片与 UI 样式设计。
 
+![UI UX Pro Max 设计技能包 官方项目封面](<https://raw.githubusercontent.com/nextlevelbuilder/ui-ux-pro-max-skill/50d8a7de0900119855614541f15a1a616691eb33/screenshots/website.png>)
+
 ## 合集介绍
 
 按作者插件声明收录 .claude/skills 下完整七项，包括主设计技能与六个配套技能。

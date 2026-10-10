@@ -2,6 +2,8 @@
 
 通过 mirrord 在 Kubernetes 实际环境下开发本地代码。
 
+![mirrord Agent 技能 官方项目封面](<https://raw.githubusercontent.com/metalbear-co/skills/a033155710e93009d858947e18fc6ba39a38942f/assets/mirrord-agent-skills.png>)
+
 ## 合集介绍
 
 MetalBear 的十一技能包覆盖配置、Operator、CI、数据库分支、Kafka 与 Temporal 队列、预览环境、多服务会话、故障实验和请求头传播。

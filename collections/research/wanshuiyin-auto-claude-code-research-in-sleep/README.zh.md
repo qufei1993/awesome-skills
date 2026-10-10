@@ -2,6 +2,8 @@
 
 通过独立审查、实验与论文流程组织自主研究。
 
+![ARIS 研究技能合集 官方项目封面](<https://raw.githubusercontent.com/wanshuiyin/auto-claude-code-research-in-sleep/26b95cfa0d8747078e9e43b42e20952709e561b8/docs/aris-code-banner.png>)
+
 ## 合集介绍
 
 ARIS 主研究包涵盖选题、文献、实验规划和分析、写作、审查循环与数学形式化。

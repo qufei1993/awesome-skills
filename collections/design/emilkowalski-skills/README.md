@@ -2,6 +2,8 @@
 
 Build and review interfaces with focused guidance on motion and interaction details.
 
+![Emil Kowalski UI Skills — original project cover](<https://github.com/user-attachments/assets/84fca9a6-0b2b-4927-8f48-f3ce194a5c47>)
+
 ## Overview
 
 Emil Kowalski’s collection covers animation choices, interface prototypes, Apple design principles, mobile behavior, Swift, and Sonner, grounded in his design engineering practice.

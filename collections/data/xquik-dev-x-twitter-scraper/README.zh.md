@@ -2,6 +2,8 @@
 
 通过 Xquik API 工具搜索 X 帖子、资料、回复与受众。
 
+![Xquik X 数据技能 官方项目封面](<https://repository-images.githubusercontent.com/1168120544/a8d1d347-fcb1-4682-9d03-56c7e2a5d4e9>)
+
 ## 合集介绍
 
 可移植插件打包三个技能与托管 MCP 服务，支持公开数据研究、提取、监控与已连接账号流程。

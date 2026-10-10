@@ -2,6 +2,8 @@
 
 Audit, clean, enrich, score, automate, and maintain a HubSpot CRM.
 
+![HubSpot Admin Skills — original project cover](<https://raw.githubusercontent.com/tomgranot/hubspot-admin-skills/cb6a1e828482bdffafa159d4f4b184ba67041424/assets/hero.png>)
+
 ## Overview
 
 Tom Granot’s thirty-seven-Skill toolkit groups portal audits, cleanup plans, database hygiene, enrichment, segmentation, automations, and ongoing administration.

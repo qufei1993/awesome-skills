@@ -2,6 +2,8 @@
 
 结合节奏、构图、色彩与动画引擎规划和打磨动态作品。
 
+![动态设计技能 官方项目封面](<https://raw.githubusercontent.com/iart-ai/motion-design-skills/3c129f769d90a1328c209c386492333c9ac62312/showcase.gif>)
+
 ## 合集介绍
 
 iart.ai 将动画原则与美术指导结合 After Effects、Remotion、节拍剪辑、标志动画和动态背景，组成九个公开技能的完整包。

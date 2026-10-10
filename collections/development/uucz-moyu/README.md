@@ -2,6 +2,8 @@
 
 Keep coding-agent changes within the requested scope and control overengineering.
 
+![Moyu Engineering Guard Skills — original project cover](<https://raw.githubusercontent.com/uucz/moyu/f276e3cc8a7fba8a71a6aa2180ffb991c138bbc3/assets/hero.svg>)
+
 ## Overview
 
 The author’s canonical pack includes language editions and lightweight or strict variants of the scope guard. Host-specific rule copies are separate mirrors.

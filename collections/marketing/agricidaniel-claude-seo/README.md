@@ -2,6 +2,8 @@
 
 Audit technical SEO, content, structured data, and AI-search readiness.
 
+![Claude SEO Skills — original project cover](<https://raw.githubusercontent.com/agricidaniel/claude-seo/4b99de2f7de7e7d5247042e5fb5b4ea9368ef734/assets/cover.svg>)
+
 ## Overview
 
 Claude SEO combines its core audit Skills with the author’s optional live-data extensions for SEO services, analytics, crawling, and image generation.

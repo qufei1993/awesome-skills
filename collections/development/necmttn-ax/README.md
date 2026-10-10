@@ -2,6 +2,8 @@
 
 Review session evidence and improve agent workflows through a local experience graph.
 
+![ax Agent Experience Skills — original project cover](<https://raw.githubusercontent.com/necmttn/ax/fca259c0f7accfdac756ac323924bde8732fd9c0/docs/images/og.png>)
+
 ## Overview
 
 ax’s public Skills support setup, retrospectives, tuning, context reuse, cost analysis, and model dispatch, turning reviewed session patterns into project guidance.

@@ -2,6 +2,8 @@
 
 开展研究、验证引用、分析科学数据并准备学术成果。
 
+![AlterLab 学术技能 官方项目封面](<https://raw.githubusercontent.com/alterlab-ieu/alterlab-academic-skills/e4836c08a20da195a11f30f203a8cf23ec30aa95/.github/header-banner.svg>)
+
 ## 合集介绍
 
 作者学术包涵盖科学领域、学术数据库、写作、可视化、文档工具、教师工作、方法论与流程编排。

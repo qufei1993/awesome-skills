@@ -2,6 +2,8 @@
 
 Search X posts, profiles, replies, and audiences through Xquik’s API tools.
 
+![Xquik X Data Skills — original project cover](<https://repository-images.githubusercontent.com/1168120544/a8d1d347-fcb1-4682-9d03-56c7e2a5d4e9>)
+
 ## Overview
 
 The portable plugin bundles three Skills and a hosted MCP server for public-data research, extraction, monitoring, and connected-account workflows.

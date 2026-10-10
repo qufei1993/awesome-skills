@@ -2,6 +2,8 @@
 
 Revise formulaic prose while preserving facts, meaning, and personal voice.
 
+![Unslop Writing Skills — original project cover](<https://raw.githubusercontent.com/mohamedabdallah-14/unslop/29d43608c0095e54550f35ed49dacee818aea23b/assets/new/hero.png>)
+
 ## Overview
 
 The canonical six-Skill system combines rewrite modes, voice matching, and feedback. Its plugin and host-specific directories mirror one source.

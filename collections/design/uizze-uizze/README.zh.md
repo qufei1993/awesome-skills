@@ -2,6 +2,8 @@
 
 结合设计指导与参考研究构建符合产品特点的界面。
 
+![UIZZE 界面技能 官方项目封面](<https://repository-images.githubusercontent.com/1301842069/fbad8ce2-3054-45d1-9bc2-8c49843ede06>)
+
 ## 合集介绍
 
 UIZZE 的完整仓库发行包含 ui-design、anti-ui-slop 和 ui-radar，连接页面设计、完成度评审与可选的真实 Web、iOS 界面参考研究。

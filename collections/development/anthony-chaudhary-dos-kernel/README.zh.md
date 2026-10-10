@@ -2,6 +2,8 @@
 
 协调 Agent 工作，并依据仓库证据核实交付声明。
 
+![DOS Kernel 编排与验证技能 官方项目封面](<https://raw.githubusercontent.com/anthony-chaudhary/dos-kernel/2af379d5543bb9e3042c883bb97237499c2fa86d/docs/assets/social-card.png>)
+
 ## 合集介绍
 
 完整 Claude 插件技能包覆盖配置、派发、重规划、监督、目标关卡、声明见证、提升、统计和流程改进；DOS 内核提供验证、钩子及 MCP。

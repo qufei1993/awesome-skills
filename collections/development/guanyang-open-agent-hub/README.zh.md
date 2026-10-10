@@ -2,6 +2,8 @@
 
 整理作者代理能力中心管理的开发、生产力与媒体技能。
 
+![Open Agent Hub 技能包 官方项目封面](<https://raw.githubusercontent.com/guanyang/open-agent-hub/e7da9bfacf065cd89e35e463214b26615f96e191/assets/logo.png>)
+
 ## 合集介绍
 
 按作者动态扫描的 104 个一级技能整理，同名不同来源仍分别保留。

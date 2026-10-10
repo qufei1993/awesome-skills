@@ -2,6 +2,8 @@
 
 整理开发者营销、搜索可见性、写作、设计与产品工作流。
 
+![Infrasity 开发者 GTM 技能包 官方项目封面](<https://raw.githubusercontent.com/infrasity-labs/dev-gtm-claude-skills/02cfefb3a213041de8b80bc659ebc5f17b5e746a/assets/dev-gtm-claude-skills.png>)
+
 ## 合集介绍
 
 采用 README 明确列出的十个完整源包，保留其内部工作流及可选 SEO 扩展。

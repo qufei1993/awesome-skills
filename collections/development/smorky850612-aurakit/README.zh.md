@@ -2,6 +2,8 @@
 
 结合 Aura 工作模式、上下文压缩与防护检查编排开发任务。
 
+![AuraKit 开发技能 官方项目封面](<https://raw.githubusercontent.com/smorky850612/aurakit/27fff97f86f6d0c5d229b88cfadd21edac73ba39/assets/hero.svg>)
+
 ## 合集介绍
 
 AuraKit 的公开技能包包含 aura、aura-compact 和 aura-guard，连接项目检查、规划、实现、验证、记忆与安全检查，并配有独立安装器和钩子。

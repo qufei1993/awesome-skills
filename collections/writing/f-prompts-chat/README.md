@@ -2,6 +2,8 @@
 
 Find reusable prompts and Skills through the prompts.chat Claude Code plugin.
 
+![prompts.chat Plugin Skills — original project cover](<https://raw.githubusercontent.com/f/prompts.chat/901dbec469ec12d3bec0f7b2b916728bc31abc34/public/og.png>)
+
 ## Overview
 
 The public plugin adds prompt lookup and Skill lookup to the prompts.chat community library, connecting discovery to an agent’s current task.

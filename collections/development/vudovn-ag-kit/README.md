@@ -2,6 +2,8 @@
 
 Build applications with Antigravity’s project-level engineering toolkit.
 
+![AG Kit Skills — original project cover](<https://raw.githubusercontent.com/vudovn/ag-kit/549ba3dc2eb1d40fccb5b6d792eba4101c80cd69/web/public/images/og-image.png>)
+
 ## Overview
 
 AG Kit’s native workspace combines domain Skills for application building, architecture, testing, deployment, security, orchestration, and game development.

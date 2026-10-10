@@ -2,6 +2,8 @@
 
 改进界面质量、无障碍、元数据和动效。
 
+![Ibelick 界面技能合集 官方项目封面](<https://raw.githubusercontent.com/ibelick/ui-skills/587ea305b948ad34f0c2d5c2ea4211d428f66ed8/public/UI-OG.png>)
+
 ## 合集介绍
 
 Ibelick 的设计工程库提供界面基线、专项修复、设计文档与界面改进指导。

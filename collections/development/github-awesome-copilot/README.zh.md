@@ -2,6 +2,8 @@
 
 通过社区公开技能库扩展 Copilot 编程流程。
 
+![Awesome GitHub Copilot 技能合集 官方项目封面](<https://raw.githubusercontent.com/github/awesome-copilot/82701c24b99488536ca399ff4789a458b7a05db7/website/public/images/social-image.png>)
+
 ## 合集介绍
 
 GitHub 社区合集提供开发、云平台、测试、文档、安全和领域任务技能，本条目保留公开的 skills 目录。

@@ -2,6 +2,8 @@
 
 Set up Zapier MCP and carry out role-specific work across connected applications.
 
+![Zapier MCP Plugin Skills — original project cover](<https://raw.githubusercontent.com/zapier/zapier-mcp/5360f152b96735712e5f925ad728732cb86888df/assets/mcp-apps-diagram.png>)
+
 ## Overview
 
 The distribution bundles guided onboarding, a first-use demo, and role-tailored Skills on top of the Zapier MCP service connection.

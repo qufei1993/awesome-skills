@@ -2,6 +2,8 @@
 
 对齐目标与验收，再执行并验证 Agent 工作。
 
+![Odai 任务执行技能 官方项目封面](<https://raw.githubusercontent.com/orziz/odai/399b7e0985e3e329a6734bda792abeed1c1ef6f4/assets/odai-readme-badge.png>)
+
 ## 合集介绍
 
 规范包包含统一 odai 入口、依赖它的 odai-orchestration 路由，以及仓库其他公开技能，治理深度随任务调整。

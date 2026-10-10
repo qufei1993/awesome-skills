@@ -2,6 +2,8 @@
 
 通过共享 Software Graph 分析 JavaScript 和 TypeScript 仓库。
 
+![Ontoly Agent 技能 官方项目封面](<https://raw.githubusercontent.com/0xsarwagya/ontoly/5287aa04d3cc71d967e81134f7f262f1aa9cbb82/apps/site/public/assets/social-preview.svg>)
+
 ## 合集介绍
 
 Ontoly 十四技能包覆盖接入、架构、配置、依赖、无用代码、文档、影响、迁移、性能、重构、追踪、SDK 和安全。

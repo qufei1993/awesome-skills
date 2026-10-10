@@ -2,6 +2,8 @@
 
 Apply product frameworks through component Skills and guided workshops.
 
+![Dean Peters Product Manager Skills — original project cover](<https://raw.githubusercontent.com/deanpeters/product-manager-skills/1b5a524ebb95e9497fa3f25002d8b8ec528d4444/docs/announcements/deanpeters.sending-ladder-down-post.banner-image.png>)
+
 ## Overview
 
 Dean Peters’s library covers problem framing, discovery, strategy, stakeholder work, prioritization, delivery, business health, and product leadership.

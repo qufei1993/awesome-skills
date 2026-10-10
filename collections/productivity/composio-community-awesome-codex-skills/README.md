@@ -2,6 +2,8 @@
 
 Automate office, developer, and app-connected tasks with Composio’s Codex library.
 
+![Composio Codex Skills — original project cover](<https://raw.githubusercontent.com/composio-community/awesome-codex-skills/0930e1373789d2eda449039f7ac154b33031de89/codex_cover_image.png>)
+
 ## Overview
 
 The local collection combines Codex task packages with the author’s SaaS automation catalog. Connected workflows use Composio authentication and tool access.

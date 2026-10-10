@@ -2,6 +2,8 @@
 
 Use a local work model to preserve commitments, task frames, and outcome-based learning.
 
+![Accreted Intelligence Skills — original project cover](<https://raw.githubusercontent.com/maxbaluev/accreted-intelligence/03ed61f278b37f9a9e4c5b23932626989da4fd67/og.png>)
+
 ## Overview
 
 AccInt’s complete reference-host Skill package contains commitments, frames, and solve workflows. The underlying local MCP daemon and retrieval model preserve work context and learn from real outcomes.

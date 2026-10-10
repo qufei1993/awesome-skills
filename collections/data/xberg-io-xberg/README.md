@@ -2,6 +2,8 @@
 
 Extract and analyze documents with Xberg’s polyglot processing tools.
 
+![Xberg Document Intelligence Skills — original project cover](<https://repository-images.githubusercontent.com/925434317/5e1961be-a803-4b90-9269-68fb63f2c4b4>)
+
 ## Overview
 
 The official plugin Skills guide document extraction, configuration, OCR, server integration, and related Xberg workflows across supported formats.

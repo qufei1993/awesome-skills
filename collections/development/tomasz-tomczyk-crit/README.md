@@ -2,6 +2,8 @@
 
 Review plans, code changes, and running interfaces with inline browser feedback.
 
+![Crit Review Skills — original project cover](<https://raw.githubusercontent.com/tomasz-tomczyk/crit/9694e99b6291ee910a541ae3451c62bf622cbc5c/docs/images/demo-overview.png>)
+
 ## Overview
 
 Crit’s native Claude Code group covers the review CLI, interactive critique, and story workflows, supported by a local binary and agent feedback integration.

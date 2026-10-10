@@ -2,6 +2,8 @@
 
 Install auto-activating framework guidance together with Claude Code project infrastructure.
 
+![Claude Code Kit Skills — original project cover](<https://raw.githubusercontent.com/blencorp/claude-code-kit/d1b17ed60a7fa870ca4346dcbbac9a54602ca7af/claude-code-kit.png>)
+
 ## Overview
 
 The kit combines core development infrastructure with frontend and backend framework packs, including React, Next.js, UI libraries, Express, Node.js, and Prisma.

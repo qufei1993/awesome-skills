@@ -2,6 +2,8 @@
 
 通过共享知识库与测试类型决策矩阵执行完整测试流程。
 
+![QA Skills 测试工程技能 官方项目封面](<https://raw.githubusercontent.com/fishzjp/qa-skills/ac89a31391fe85c99a6303772aa197e552ed415e/assets/hero.png>)
+
 ## 合集介绍
 
 完整 QA 框架覆盖需求、策略、用例、评审、接口与端到端测试、探索、回归、缺陷分析、可靠性和测试记忆；core 目录是必须一同安装的共享依赖。

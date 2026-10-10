@@ -2,6 +2,8 @@
 
 Research and improve app-store acquisition, conversion, and growth.
 
+![Appeeky App Store Optimization Skills — original project cover](<https://raw.githubusercontent.com/appeeky/aso-skills/3919d7c27402d92c7ef698f2016174b874ea189e/cover.png>)
+
 ## Overview
 
 Appeeky’s library joins keyword and competitor research with metadata, screenshots, icons, localization, reviews, experiments, attribution, and paid acquisition.

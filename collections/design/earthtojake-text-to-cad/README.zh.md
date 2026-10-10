@@ -2,6 +2,8 @@
 
 让助手设计 CAD 模型、检查制造限制并准备打印。
 
+![Text-to-CAD 技能合集 官方项目封面](<https://raw.githubusercontent.com/earthtojake/text-to-cad/523ae21341a498b7dfed8a06d004e5e34bc10c16/apps/docs/public/social-preview.png>)
+
 ## 合集介绍
 
 公开技能库将建模与仿真格式、制造审查、切片和支持的打印机流程连接起来。

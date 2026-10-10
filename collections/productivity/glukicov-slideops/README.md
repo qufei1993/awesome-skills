@@ -2,6 +2,8 @@
 
 Generate repository-backed slide decks and detect when their claims drift from code.
 
+![SlideOps Skills — original project cover](<https://raw.githubusercontent.com/glukicov/slideops/8bcb4257132939e7de54e493fa9d83e06fb759d4/docs/social-preview.png>)
+
 ## Overview
 
 SlideOps packages deck creation with slide-to-PDF export. It connects slide claims to source citations, checks freshness, and prepares focused repair work for changed slides.

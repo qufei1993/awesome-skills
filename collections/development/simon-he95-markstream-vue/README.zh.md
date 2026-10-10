@@ -2,6 +2,8 @@
 
 将流式 Markdown 渲染接入不同前端框架的应用。
 
+![Markstream 集成技能合集 官方项目封面](<https://raw.githubusercontent.com/simon-he95/markstream-vue/d5d0c0028e916bff77696d6e4ea55f9b22e14a3f/docs/public/og-image.png>)
+
 ## 合集介绍
 
 Markstream 公开技能涵盖安装、迁移、自定义组件、Vue 与 Nuxt、React、Svelte、Angular 和 Vue 2 构建方式。

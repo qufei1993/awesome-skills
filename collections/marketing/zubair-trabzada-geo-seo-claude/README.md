@@ -2,6 +2,8 @@
 
 Audit a website’s visibility and readiness for AI search.
 
+![GEO SEO Claude Skills — original project cover](<https://raw.githubusercontent.com/zubair-trabzada/geo-seo-claude/989cae01e8ebbc42a9ec798eb9e7cb423f5ec89c/assets/banner.svg>)
+
 ## Overview
 
 The author’s GEO package joins a primary router with specialized audits for citability, crawlers, mentions, content, schema, technical signals, and reporting.

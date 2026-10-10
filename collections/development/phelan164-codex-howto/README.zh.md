@@ -2,6 +2,8 @@
 
 在 Codex 流程中连接明确范围的实现、测试、评审与证据。
 
+![Codex How To 工程技能 官方项目封面](<https://raw.githubusercontent.com/phelan164/codex-howto/74887e939e609571787732846a91c17456343356/assets/social-preview.svg>)
+
 ## 合集介绍
 
 指南的九个可安装技能覆盖工程闭环、前端、后端、DevOps、测试、安全、代码评审、编排和动态百科；教学示例不属于正式包。

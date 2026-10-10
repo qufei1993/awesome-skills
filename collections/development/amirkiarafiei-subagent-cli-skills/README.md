@@ -2,6 +2,8 @@
 
 Delegate work between coding agents through their headless command-line interfaces.
 
+![Subagent CLI Skills — original project cover](<https://repository-images.githubusercontent.com/1219212673/5964124f-18f0-4fb4-8fe9-c135cab91a35>)
+
 ## Overview
 
 The author’s twenty-four-Skill package teaches a main agent to invoke another vendor’s CLI as a subagent. Each workflow includes delegation and execution guidance for its specific tool.

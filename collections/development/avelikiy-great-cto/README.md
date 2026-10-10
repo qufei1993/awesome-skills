@@ -2,6 +2,8 @@
 
 Carry a product brief through architecture, build, review, and security gates.
 
+![Great CTO Skills — original project cover](<https://raw.githubusercontent.com/avelikiy/great_cto/619bddec1c95b5742c22b467f37888901bbbe61f/docs/screenshots/board.png>)
+
 ## Overview
 
 The author’s delivery system assigns narrow agent roles, checks implementation with another model family, and records the user’s product, design, and deployment decisions.

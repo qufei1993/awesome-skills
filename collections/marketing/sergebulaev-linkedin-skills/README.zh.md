@@ -2,6 +2,8 @@
 
 用一致的个人语气规划、撰写和审查 LinkedIn 内容。
 
+![LinkedIn 营销技能合集 官方项目封面](<https://raw.githubusercontent.com/sergebulaev/linkedin-skills/bfa41ff5d2b137f6023f88d9c9fda68d75b4ed5f/assets/linkedin-skills-hero.png>)
+
 ## 合集介绍
 
 Serge Bulaev 的技能库涵盖帖子、评论、回复、开头、文字修订、档案、内容规划、复用、倡导、讨论监控和互动分析。

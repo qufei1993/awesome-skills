@@ -2,6 +2,8 @@
 
 通过交互式知识图谱了解代码库与知识库。
 
+![Understand Anything 技能合集 官方项目封面](<https://raw.githubusercontent.com/egonex-ai/understand-anything/ffa2f0a84a85525623e9f94f7a6b560e39ae43ce/assets/hero.png>)
+
 ## 合集介绍
 
 Understand Anything 将文件、函数、依赖和业务领域映射为图谱，配套技能支持分析、解释、变更审查、入门导览和图谱对话。

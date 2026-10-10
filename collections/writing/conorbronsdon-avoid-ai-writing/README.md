@@ -2,6 +2,8 @@
 
 Audit and revise English writing while preserving voice, meaning, and protected material.
 
+![Avoid AI Writing Plugin Skills — original project cover](<https://raw.githubusercontent.com/conorbronsdon/avoid-ai-writing/5a5cf6a45331384d4ff68f1f6ce50da24da0da4c/docs/social-preview.png>)
+
 ## Overview
 
 Conor Bronsdon’s native ChatGPT and Codex package provides focused detection, rewriting, file editing, preservation checks, false-positive review, and routing Skills.

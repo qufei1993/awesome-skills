@@ -2,6 +2,8 @@
 
 整理销售、营销、设计、工程与代理工作流。
 
+![OneWave AI 单文件技能包 官方项目封面](<https://raw.githubusercontent.com/onewave-ai/claude-skills/fc5b7851a6c7ba367e05797df46ad3679df355dd/assets/social-card.png>)
+
 ## 合集介绍
 
 采用 OneWave AI 文档对应的完整 229 个根层单文件技能入口。

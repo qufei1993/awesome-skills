@@ -2,6 +2,8 @@
 
 开发邮件投递、Agent 收件箱与 React 邮件模板。
 
+![Resend 技能 官方项目封面](<https://github.com/user-attachments/assets/72f8ab6b-dafd-436c-bacb-d49c20d3f0be>)
+
 ## 合集介绍
 
 Resend 正式包把 API 和安全收件箱流程，与从作者伴随项目同步的 CLI、React Email 和邮件最佳实践结合。

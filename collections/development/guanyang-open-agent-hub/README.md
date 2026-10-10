@@ -2,6 +2,8 @@
 
 Development, productivity, and media skills managed by the author’s agent hub.
 
+![Open Agent Hub Skills — original project cover](<https://raw.githubusercontent.com/guanyang/open-agent-hub/e7da9bfacf065cd89e35e463214b26615f96e191/assets/logo.png>)
+
 ## Overview
 
 Follows the author’s dynamic scan of 104 first-level skills, preserving distinct sources that share a name.

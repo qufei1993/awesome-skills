@@ -2,6 +2,8 @@
 
 Run autonomous software delivery and verify that completion claims have test evidence.
 
+![Loki Mode and Seal Skills — original project cover](<https://repository-images.githubusercontent.com/1123323771/3d1db67e-e9fe-4951-be99-865cf3418e41>)
+
 ## Overview
 
 The author’s published packages combine Loki Mode’s specification-to-product workflow with Loki Seal’s local completion gate for newly failing or weakened tests.

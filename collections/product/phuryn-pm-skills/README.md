@@ -2,6 +2,8 @@
 
 Guide product discovery, strategy, execution, launch, and growth decisions.
 
+![PM Skills Marketplace — original project cover](<https://raw.githubusercontent.com/phuryn/pm-skills/8607e3b077817f89bf4a9b623246219734ac3be0/.docs/images/plugins.png>)
+
 ## Overview
 
 The marketplace organizes product frameworks and chained workflows across nine native PM plugins, including analytics and reviews of AI-built code.

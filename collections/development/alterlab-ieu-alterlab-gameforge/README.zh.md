@@ -2,6 +2,8 @@
 
 结合工作室角色、制作流程与引擎专家推进独立游戏项目。
 
+![AlterLab GameForge 游戏技能 官方项目封面](<https://raw.githubusercontent.com/alterlab-ieu/alterlab_gameforge/5f5148d61986b32299070e87fcd4a1ab3718eacf/.github/header-banner.svg>)
+
 ## 合集介绍
 
 GameForge 的完整包由十一种工作室角色、二十个流程及 Unity、Unreal、Godot 三个引擎专家组成，覆盖设计、原型、试玩、本地化、制作规划与上线。

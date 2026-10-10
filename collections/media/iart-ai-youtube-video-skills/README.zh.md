@@ -2,6 +2,8 @@
 
 制作频道片头、片尾和播客音频可视化视频。
 
+![YouTube 视频技能 官方项目封面](<https://raw.githubusercontent.com/iart-ai/youtube-video-skills/f3df381d65abe5078f5ed410bbc3ed72e7cb92bd/showcase.gif>)
+
 ## 合集介绍
 
 iart.ai 的完整双技能包组合品牌 YouTube 开场结尾序列与将播客音频转成视频的 audiogram。

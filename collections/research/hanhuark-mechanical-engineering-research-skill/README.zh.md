@@ -2,6 +2,8 @@
 
 结合专业分析、写作、数据与评审流程开展热流体研究。
 
+![机械工程研究技能 官方项目封面](<https://raw.githubusercontent.com/hanhuark/mechanical-engineering-research-skill/69eba5994ed0ffac775b19f18312011a73960d26/assets/branding/mechanical-engineering-research-skill-social-preview.png>)
+
 ## 合集介绍
 
 九技能包将机械工程指导与热流体分析、开题、文献写作、数据分析、幻灯片、示意图、导师评审和作者修订连接起来。

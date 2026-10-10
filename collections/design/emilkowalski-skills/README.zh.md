@@ -2,6 +2,8 @@
 
 围绕动效和交互细节制作与审查界面。
 
+![Emil Kowalski 界面技能合集 官方项目封面](<https://github.com/user-attachments/assets/84fca9a6-0b2b-4927-8f48-f3ce194a5c47>)
+
 ## 合集介绍
 
 Emil Kowalski 将自己的设计工程实践整理为动效、界面原型、Apple 设计原则、移动端行为、Swift 和 Sonner 技能。

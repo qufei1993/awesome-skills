@@ -2,6 +2,8 @@
 
 审查和修改英文写作，同时保留语气、意义与受保护内容。
 
+![Avoid AI Writing 插件技能 官方项目封面](<https://raw.githubusercontent.com/conorbronsdon/avoid-ai-writing/5a5cf6a45331384d4ff68f1f6ce50da24da0da4c/docs/social-preview.png>)
+
 ## 合集介绍
 
 Conor Bronsdon 的 ChatGPT 与 Codex 原生包提供检测、改写、文件编辑、保留核查、误报审查和路由技能。

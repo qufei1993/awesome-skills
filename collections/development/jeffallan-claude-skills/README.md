@@ -2,6 +2,8 @@
 
 Use specialized engineering guidance across languages, frameworks, and delivery stages.
 
+![Jeff Allan Full-Stack Skills — original project cover](<https://raw.githubusercontent.com/jeffallan/claude-skills/1be15d8064f88fc25216442406d40add8fd23b53/assets/social-preview.png>)
+
 ## Overview
 
 Jeff Allan’s collection combines full-stack implementation with architecture, databases, testing, debugging, security, cloud, and operations expertise.

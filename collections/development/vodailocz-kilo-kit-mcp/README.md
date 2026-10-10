@@ -2,6 +2,8 @@
 
 Skill routing, planning, verification, and knowledge workflows for coding agents.
 
+![Kilo-Kit Skill Registry — original project cover](<https://raw.githubusercontent.com/vodailocz/kilo-kit-mcp/0448e6c050b84e0c0be0030593bd51cabbce3c81/assets/social-preview.png>)
+
 ## Overview
 
 Preserves the complete 180-entry source registry, whose identities are author-relative paths rather than unique display names.

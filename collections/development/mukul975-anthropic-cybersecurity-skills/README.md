@@ -2,6 +2,8 @@
 
 Use framework-mapped workflows for authorized security assessment and defense.
 
+![Community Cybersecurity Skills — original project cover](<https://raw.githubusercontent.com/mukul975/anthropic-cybersecurity-skills/54a798831d2266a3ca61ce68a7acb80b81160d57/assets/banner.png>)
+
 ## Overview
 
 Mukul’s independent community library covers security operations, forensics, application and cloud testing, threat analysis, and compliance with mappings to six security frameworks.

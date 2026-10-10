@@ -2,6 +2,8 @@
 
 Research an audience, create campaigns, and learn from growth results.
 
+![Goose Brand Growth Skills — original project cover](<https://github.com/user-attachments/assets/4984e98c-d53e-4191-a64a-59533cbc0847>)
+
 ## Overview
 
 Goose’s native catalog combines capabilities, composite workflows, playbooks, and packs for advertising, brand, content, design, competitive intelligence, leads, outreach, sales, SEO, and social media.

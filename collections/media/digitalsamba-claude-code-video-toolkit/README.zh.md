@@ -2,6 +2,8 @@
 
 将视频想法转为生成素材、录制画面和最终 MP4。
 
+![Claude Code 视频工具箱技能 官方项目封面](<https://raw.githubusercontent.com/digitalsamba/claude-code-video-toolkit/2c99460a5d0cba253f983283fb8d0fb9c4edb4a7/assets/banner/toolkit-banner-poster.png>)
+
 ## 合集介绍
 
 Digital Samba 工作空间将语音、音乐、图像和视频生成，与 FFmpeg、MoviePy、Remotion、浏览器录制及云 GPU 流程结合。

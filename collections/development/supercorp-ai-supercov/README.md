@@ -2,6 +2,8 @@
 
 Measure coverage and code quality, then give an agent focused improvement targets.
 
+![Supercov Skills — original project cover](<https://raw.githubusercontent.com/supercorp-ai/supercov/b346ffdfa6e0329ea7bff44ae75b3d334f06dbf6/supercov.jpg>)
+
 ## Overview
 
 The published plugin turns existing test commands, uncovered paths, quality scores, and security findings into an iterative coding-agent workflow.

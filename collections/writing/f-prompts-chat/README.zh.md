@@ -2,6 +2,8 @@
 
 通过 prompts.chat 的 Claude Code 插件查找可复用提示词和技能。
 
+![prompts.chat 插件技能 官方项目封面](<https://raw.githubusercontent.com/f/prompts.chat/901dbec469ec12d3bec0f7b2b916728bc31abc34/public/og.png>)
+
 ## 合集介绍
 
 公开插件为 prompts.chat 社区库提供提示词查询与技能查询能力，帮助助手按当前任务寻找现成资源。

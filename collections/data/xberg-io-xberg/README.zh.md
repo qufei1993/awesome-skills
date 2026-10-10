@@ -2,6 +2,8 @@
 
 通过 Xberg 多语言处理工具提取和分析文档。
 
+![Xberg 文档智能技能合集 官方项目封面](<https://repository-images.githubusercontent.com/925434317/5e1961be-a803-4b90-9269-68fb63f2c4b4>)
+
 ## 合集介绍
 
 官方插件技能指导文档提取、配置、OCR、服务集成以及支持格式的相关处理流程。

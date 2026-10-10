@@ -2,6 +2,8 @@
 
 Research, brand memory, content, growth, and marketing orchestration workflows.
 
+![Marketing CLI Skills — original project cover](<https://raw.githubusercontent.com/moizibnyousaf/marketing-cli/3136737df8cefc04816af173098dac95ec2d5e36/banner.svg>)
+
 ## Overview
 
 Includes exactly the 76 entries in skills-manifest.json, retaining dependencies and supporting resources inside each declared directory.

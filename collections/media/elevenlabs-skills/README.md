@@ -2,6 +2,8 @@
 
 Build speech, audio, music, dubbing, and voice-agent features with ElevenLabs.
 
+![ElevenLabs Skills — original project cover](<https://raw.githubusercontent.com/elevenlabs/skills/1d08a4a250cff67cc8056ec31587c031ecb06d2f/logo.png>)
+
 ## Overview
 
 The official developer pack covers generation, transcription, real-time speech, conversational agents, voice transformation, isolation, and API-key setup.

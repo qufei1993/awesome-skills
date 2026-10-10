@@ -2,6 +2,8 @@
 
 审查技术 SEO、内容、结构化数据和 AI 搜索准备情况。
 
+![Claude SEO 技能合集 官方项目封面](<https://raw.githubusercontent.com/agricidaniel/claude-seo/4b99de2f7de7e7d5247042e5fb5b4ea9368ef734/assets/cover.svg>)
+
 ## 合集介绍
 
 Claude SEO 将核心审查技能与作者的可选扩展结合，扩展可接入 SEO 服务、分析、抓取和图像生成数据。

@@ -2,6 +2,8 @@
 
 Author, check, debug, migrate, and operate repeatable Nika workflows.
 
+![Nika Plugin Skills — original project cover](<https://raw.githubusercontent.com/supernovae-st/nika-plugins/ac18ecf4837b0fe98b4285a429953952ad743f0a/media/hero-dark.svg>)
+
 ## Overview
 
 The complete coding-agent plugin package includes authoring, debugging, migration, and operating Skills. Nika connects workflow files to pre-run checks, execution, and a read-only oracle service.

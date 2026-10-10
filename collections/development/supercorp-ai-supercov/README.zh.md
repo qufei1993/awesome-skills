@@ -2,6 +2,8 @@
 
 衡量覆盖率与代码质量，并为 Agent 提供明确改进目标。
 
+![Supercov 技能 官方项目封面](<https://raw.githubusercontent.com/supercorp-ai/supercov/b346ffdfa6e0329ea7bff44ae75b3d334f06dbf6/supercov.jpg>)
+
 ## 合集介绍
 
 正式插件把现有测试命令、未覆盖路径、质量分数与安全发现转成迭代编程 Agent 流程。

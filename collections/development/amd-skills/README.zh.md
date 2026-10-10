@@ -2,6 +2,8 @@
 
 为 AMD 硬件与软件开发并优化 AI 工作负载。
 
+![AMD 技能 官方项目封面](<https://raw.githubusercontent.com/amd/skills/6efb39c7ec59f19823372cb22ee3b8fac82dffd7/assets/banner.jpg>)
+
 ## 合集介绍
 
 正式目录涵盖本地 AI、Lemonade 路由、Quark 量化、EPYC 与 Instinct 服务，以及 Hyperloom、Magpie 和 TraceLens 分析。

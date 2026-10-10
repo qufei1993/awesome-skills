@@ -2,6 +2,8 @@
 
 维护项目规则、验证关卡与可重复的 Agent 工作流。
 
+![Forge Harness 技能 官方项目封面](<https://raw.githubusercontent.com/chrono-meta/forge-harness/86a80feb2eb75488812ee868c15709bcd053087b/docs/banner.png>)
+
 ## 合集介绍
 
 Forge Harness 通过四个作者插件发布四十六个技能，覆盖验证、编排、诊断、经验提取、关卡、发现、模拟和配置；中枢另提供项目轨道与共享 Agent。

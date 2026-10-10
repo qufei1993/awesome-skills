@@ -2,6 +2,8 @@
 
 通过本地编排服务规划并执行多 Agent 编程任务。
 
+![Open Dynamic Workflows 技能 官方项目封面](<https://raw.githubusercontent.com/suraj1235/open-dynamic-workflows/972bb98494ea23f907df88850024bd7022b099d4/assets/banner.svg>)
+
 ## 合集介绍
 
 作者的 Codex 适配包完整提供 odw 与 ultracode 两个技能；流程由脚本和本地服务执行，其他宿主适配器与控制面板单独提供。

@@ -2,6 +2,8 @@
 
 Review AI-generated code, tests, and documentation before delivery.
 
+![Guard Skills — original project cover](<https://repository-images.githubusercontent.com/1261422007/bdd53de4-3e1d-4015-a630-278c5eaa50f2>)
+
 ## Overview
 
 The focused suite supplies second-pass quality gates for general code, tests, documents, WordPress, and WooCommerce, supported by deeper review references.

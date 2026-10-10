@@ -2,6 +2,8 @@
 
 结合字幕、倒计时和下三分之一图形制作短视频。
 
+![TikTok 短视频技能 官方项目封面](<https://raw.githubusercontent.com/iart-ai/tiktok-video-skills/2a775336b5a638cbf8a61dbd785f9a1b649be016/showcase.gif>)
+
 ## 合集介绍
 
 iart.ai 的四技能包将短视频结构、动态字幕、倒计时和下三分之一信息图形组合起来，适用于 TikTok、Reels 和 Shorts。

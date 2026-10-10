@@ -2,6 +2,8 @@
 
 Build email delivery, agent inboxes, and React-based email templates.
 
+![Resend Skills — original project cover](<https://github.com/user-attachments/assets/72f8ab6b-dafd-436c-bacb-d49c20d3f0be>)
+
 ## Overview
 
 Resend’s published pack combines its API and secure inbox workflows with the CLI, React Email, and email best practices synchronized from the author’s companion projects.

@@ -2,6 +2,8 @@
 
 Engineering, product, marketing, operations, and professional domain workflows.
 
+![Borghei Domain Skills — original project cover](<https://raw.githubusercontent.com/borghei/claude-skills/4a698e8d07856fdca9ec3e69082a9d68c8dd45d0/assets/header.svg>)
+
 ## Overview
 
 Follows the author’s 21 domain plugin scopes and the fixed source snapshot of 386 skill files.

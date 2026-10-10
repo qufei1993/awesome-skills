@@ -2,6 +2,8 @@
 
 通过 n8n-mcp 指导构建、验证和运行 n8n 自动化。
 
+![n8n 工作流技能合集 官方项目封面](<https://raw.githubusercontent.com/czlonkowski/n8n-skills/19cd793f4789e3ef9c657ccf26e097f641a77df0/skills.png>)
+
 ## 合集介绍
 
 合集包含工作流模式、节点配置、表达式、JavaScript 与 Python 代码、数据处理、错误恢复、助手节点和自托管。

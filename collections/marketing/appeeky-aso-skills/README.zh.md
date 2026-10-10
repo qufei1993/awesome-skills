@@ -2,6 +2,8 @@
 
 研究并改善应用商店获客、转化和增长。
 
+![Appeeky 应用商店优化技能 官方项目封面](<https://raw.githubusercontent.com/appeeky/aso-skills/3919d7c27402d92c7ef698f2016174b874ea189e/cover.png>)
+
 ## 合集介绍
 
 Appeeky 技能库结合关键词与竞品研究，以及元数据、截图、图标、本地化、评价、实验、归因和付费获客。

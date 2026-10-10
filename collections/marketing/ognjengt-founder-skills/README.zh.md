@@ -2,6 +2,8 @@
 
 为创始人主导的业务制作产品、营销与运营文档。
 
+![创始人技能库 官方项目封面](<https://raw.githubusercontent.com/ognjengt/founder-skills/a45931cad934dc6243a68f905485467935a4ad9a/packaging.png>)
+
 ## 合集介绍
 
 Ognjen 的技能包为创始人与企业主组合产品需求、文案、营销、社交内容及运营流程。

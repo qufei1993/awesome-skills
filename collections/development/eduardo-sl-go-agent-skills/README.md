@@ -2,6 +2,8 @@
 
 Go architecture, safety, quality, testing, and development workflows.
 
+![Go Agent Skills — original project cover](<https://raw.githubusercontent.com/eduardo-sl/go-agent-skills/50133c33a386041f821389eaef19cdcfa3ac02d7/docs/assets/hero.png>)
+
 ## Overview
 
 Includes all 33 skills explicitly registered across the author’s classified source directories.

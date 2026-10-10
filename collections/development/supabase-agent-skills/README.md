@@ -2,6 +2,8 @@
 
 Build Supabase applications and improve PostgreSQL design and performance.
 
+![Supabase Agent Skills — original project cover](<https://raw.githubusercontent.com/supabase/agent-skills/c9be0e931b7930f7d02126d04774d904c381e7d7/assets/og.png>)
+
 ## Overview
 
 Supabase’s official library combines platform workflow guidance with database best practices for queries, schemas, connections, indexes, and security.

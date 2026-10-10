@@ -2,6 +2,8 @@
 
 Run focused research and enrichment jobs through a shared data API catalog.
 
+![Looot Skills — original project cover](<https://raw.githubusercontent.com/loootai/looot-skills/93262d0ab053e656f2e879c85e863b8d81d7b751/assets/hero.png>)
+
 ## Overview
 
 Looot’s complete package contains a base router and twenty data jobs for companies, people, email, jobs, local businesses, reviews, search, keywords, backlinks, advertisements, and social data.

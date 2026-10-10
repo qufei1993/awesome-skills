@@ -2,6 +2,8 @@
 
 澄清编程想法并产出 Agent 可执行计划。
 
+![Blueprint 规划技能 官方项目封面](<https://raw.githubusercontent.com/imbue-ai/blueprint/fb06284691c2c948aeb24c3282492f6628f93c3a/assets/readme-header.png>)
+
 ## 合集介绍
 
 Blueprint 将交互规划与生成配对，读取代码库并提出聚焦问题，再交付 Markdown 实现计划。

@@ -2,6 +2,8 @@
 
 Use the author’s installable examples for review, debugging, documentation, tests, and commits.
 
+![Awesome Agent Skills Example Pack — original project cover](<https://raw.githubusercontent.com/jackyst0/awesome-agent-skills/0b2cd3cec30217831055aaf3eadfbdb7c969d1a0/assets/banner.svg>)
+
 ## Overview
 
 This collection preserves JackyST0’s five local example Skills as one package. The repository also maintains an external directory, while its installer and manual-copy path distribute these concrete examples.

@@ -2,6 +2,8 @@
 
 整理作者已跟踪 Agent Skills 快照中的会计与税务工作流。
 
+![OpenAccountants 代理技能快照 官方项目封面](<https://raw.githubusercontent.com/openaccountants/openaccountants/5caca592a5342e7dc1970bff3de88909a24ee1be/assets/demo.svg>)
+
 ## 合集介绍
 
 收录固定提交 agent-skills 下完整 781 项，与当前 Guide 索引范围分别说明。

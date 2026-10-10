@@ -2,6 +2,8 @@
 
 采集回答、比较知识点、核验依据并组织事实核查。
 
+![全知晓四模块套件 官方项目封面](<https://raw.githubusercontent.com/asi2030/fact-check-x/0984307468e58113220215a2639392d6627eb8da/assets/fact-check-x-overview.png>)
+
 ## 合集介绍
 
 采用作者已发布的四模块 suite，单入口 complete 发行版作为另一产品变体区分。

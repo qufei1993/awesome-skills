@@ -2,6 +2,8 @@
 
 整理记忆、日志、责任跟踪与个人知识工作流。
 
+![AI Brain Starter 技能包 官方项目封面](<https://repository-images.githubusercontent.com/1205564021/c9868069-8153-4c23-916a-ca9242b38228>)
+
 ## 合集介绍
 
 保留作者列出并安装的根路由与完整 37 个 first-party 子技能。

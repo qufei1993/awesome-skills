@@ -2,6 +2,8 @@
 
 通过本地工作模型保存承诺、任务框架与基于结果的经验。
 
+![Accreted Intelligence 技能 官方项目封面](<https://raw.githubusercontent.com/maxbaluev/accreted-intelligence/03ed61f278b37f9a9e4c5b23932626989da4fd67/og.png>)
+
 ## 合集介绍
 
 AccInt 完整参考宿主技能包包含 commitments、frames 和 solve；底层本地 MCP 服务与检索模型保留工作背景并从真实结果学习。

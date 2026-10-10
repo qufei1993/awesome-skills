@@ -2,6 +2,8 @@
 
 让编程助手遵循项目架构，并以证据验证完成情况。
 
+![Aegis 工程方法技能 官方项目封面](<https://raw.githubusercontent.com/ganyuanran/aegis/7b7e9552982c0bae7f2f044f87f645522f14fec8/assets/aegis-hero.png>)
+
 ## 合集介绍
 
 Aegis 将项目背景、目标、规划、架构记录、实现、调试、审查、测试和长任务连续性组合为工程方法。

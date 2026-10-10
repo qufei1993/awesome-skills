@@ -2,6 +2,8 @@
 
 使用结构化框架与可复用产物完成专业和日常任务。
 
+![PM 专业工作技能合集 官方项目封面](<https://raw.githubusercontent.com/mohitagw15856/pm-claude-skills/1cbf1f0a58f78f4daf742a278484b89768a7e961/docs/readme-assets/banner.svg>)
+
 ## 合集介绍
 
 作者正式专业技能库涵盖产品、工程、研究、运营、职业、沟通和生活事务，配套输出模板与质量检查。

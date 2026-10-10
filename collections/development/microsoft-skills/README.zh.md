@@ -2,6 +2,8 @@
 
 为编码代理补充 Azure SDK、云工作流及 Microsoft AI 工具知识。
 
+![Microsoft SDK 与 Azure 插件技能包 官方项目封面](<https://raw.githubusercontent.com/microsoft/skills/3898ec894e90afdfdae982a925db28b6a7b334e3/docs/og-image.png>)
+
 ## 合集介绍
 
 按作者 marketplace 的完整 11 个插件整理 176 个直接技能入口。

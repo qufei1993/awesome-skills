@@ -2,6 +2,8 @@
 
 制作 Three.js 动画、GLSL 效果与粒子系统。
 
+![WebGL 动画技能 官方项目封面](<https://raw.githubusercontent.com/iart-ai/webgl-animation-skills/50697d659fbf70152f48f9f8aadf1efe78bbdde1/showcase.gif>)
+
 ## 合集介绍
 
 iart.ai 的三技能包面向浏览器 3D 动效和 GPU 视觉效果，将场景动画、着色器和粒子设计组成完整包。

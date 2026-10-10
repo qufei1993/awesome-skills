@@ -2,6 +2,8 @@
 
 Manage Obsidian vaults and create their Markdown, Bases, and Canvas files.
 
+![Obsidian Skills — original project cover](<https://repository-images.githubusercontent.com/1126947080/074349e0-1fc4-47ce-a412-9b9eef6a81ab>)
+
 ## Overview
 
 Kepano’s collection teaches open Obsidian formats alongside CLI operations, web-page extraction with Defuddle, and data-driven Markdown generation with Knap.

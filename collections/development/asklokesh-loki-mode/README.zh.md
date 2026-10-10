@@ -2,6 +2,8 @@
 
 开展自主软件交付，并用测试证据检查完成声明。
 
+![Loki Mode 与 Seal 技能 官方项目封面](<https://repository-images.githubusercontent.com/1123323771/3d1db67e-e9fe-4951-be99-865cf3418e41>)
+
 ## 合集介绍
 
 作者公开包结合 Loki Mode 从规格到产品的流程，以及 Loki Seal 对新失败或被削弱测试的本地完成检查。

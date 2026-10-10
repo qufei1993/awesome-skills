@@ -2,6 +2,8 @@
 
 Create communication coursework and deliverables across six academic departments.
 
+![AlterLab Communication Skills — original project cover](<https://raw.githubusercontent.com/alterlab-ieu/alterlab-fc-skills/9559c97a6b6fc90c0fbe5a20b7718716f7aee677/.github/header-banner.svg>)
+
 ## Overview
 
 AlterLab’s complete seventy-two-Skill package covers public relations and advertising, cinema, new media, generative production, visual communication, and research methods. The workflows research, create, and review project deliverables.

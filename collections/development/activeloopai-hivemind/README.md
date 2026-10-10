@@ -2,6 +2,8 @@
 
 Recall team knowledge and connect agent work to persistent goals and a knowledge graph.
 
+![Hivemind Shared Memory Skills — original project cover](<https://raw.githubusercontent.com/activeloopai/hivemind/e054fb161de7ae1e3466fb93496713f4d3c82da7/docs/public/hivemind_cursor_readme_banner_dark.png>)
+
 ## Overview
 
 Activeloop’s Hivemind package combines shared Deeplake memory with goal tracking and graph workflows, while its worker captures traces and codifies recurring patterns.

@@ -2,6 +2,8 @@
 
 Build, deploy, upgrade, and debug Expo applications with the Expo team’s workflows.
 
+![Expo Agent Skills — original project cover](<https://raw.githubusercontent.com/expo/skills/d4f484024fec15196bfd3c272e953e3f983972cf/assets/expo-skills.png>)
+
 ## Overview
 
 The public suite covers app interfaces, APIs, data, native capabilities, SDK migrations, development clients, and EAS build, updates, hosting, and observability.

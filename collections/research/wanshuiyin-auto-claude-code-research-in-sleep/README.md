@@ -2,6 +2,8 @@
 
 Organize autonomous research with independent review, experiments, and paper workflows.
 
+![ARIS Research Skills — original project cover](<https://raw.githubusercontent.com/wanshuiyin/auto-claude-code-research-in-sleep/26b95cfa0d8747078e9e43b42e20952709e561b8/docs/aris-code-banner.png>)
+
 ## Overview
 
 ARIS’s primary research pack covers idea discovery, literature, experiment planning and analysis, writing, review loops, and mathematical formalization.

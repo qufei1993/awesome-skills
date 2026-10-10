@@ -2,6 +2,8 @@
 
 以明确阶段和评估结果继续长期编程任务。
 
+![Comet 工作流技能合集 官方项目封面](<https://raw.githubusercontent.com/rpamis/comet/0fd42a02eec42a09c572ac359f79a639a2aeb32f/img/title-log.png>)
+
 ## 合集介绍
 
 Comet 公开包提供 Native 与 Classic 流程，以及需求、设计、实现、验证、归档、记忆和项目知识支持。

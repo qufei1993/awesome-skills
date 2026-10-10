@@ -2,6 +2,8 @@
 
 审查网站在 AI 搜索中的可见性与准备情况。
 
+![GEO SEO Claude 技能合集 官方项目封面](<https://raw.githubusercontent.com/zubair-trabzada/geo-seo-claude/989cae01e8ebbc42a9ec798eb9e7cb423f5ec89c/assets/banner.svg>)
+
 ## 合集介绍
 
 作者的 GEO 包将主路由与引用价值、爬虫、品牌提及、内容、结构化数据、技术信号和报告审查结合。

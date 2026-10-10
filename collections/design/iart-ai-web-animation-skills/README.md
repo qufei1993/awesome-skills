@@ -2,6 +2,8 @@
 
 Build responsive web motion with GSAP, SVG, Lottie, and accessible interaction patterns.
 
+![Web Animation Skills — original project cover](<https://raw.githubusercontent.com/iart-ai/web-animation-skills/b6dba3eb759726845a44163ff0bad70dd9e7fbb6/showcase.gif>)
+
 ## Overview
 
 The complete iart.ai package joins web animation engines, micro-interactions, page transitions, glass effects, ASCII motion, accessibility, and performance guidance.

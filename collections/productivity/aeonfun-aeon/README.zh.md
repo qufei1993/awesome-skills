@@ -2,6 +2,8 @@
 
 通过 Aeon Agent 框架安排仓库工作、研究与周期任务。
 
+![Aeon 自主 Agent 技能库 官方项目封面](<https://raw.githubusercontent.com/aeonfun/aeon/c0cb7c47a262c767ea1579c437139bbc026df056/docs/assets/hero-animated.svg>)
+
 ## 合集介绍
 
 Aeon 的业务技能库在受支持的编程宿主中驱动定时 GitHub Actions 运行，作者通过可配置的 Agent 实例连接功能交付、研究、维护、部署与沟通。

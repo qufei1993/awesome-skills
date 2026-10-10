@@ -2,6 +2,8 @@
 
 Create Three.js animation, GLSL effects, and particle systems.
 
+![WebGL Animation Skills — original project cover](<https://raw.githubusercontent.com/iart-ai/webgl-animation-skills/50697d659fbf70152f48f9f8aadf1efe78bbdde1/showcase.gif>)
+
 ## Overview
 
 This three-Skill iart.ai package focuses on browser-based 3D motion and GPU visual effects. It keeps scene animation, shader work, and particle design together.

@@ -2,6 +2,8 @@
 
 操作 Workspace 服务并组合成日常办公流程。
 
+![Google Workspace 命令行技能合集 官方项目封面](<https://raw.githubusercontent.com/googleworkspace/cli/a3768d0e82ad83cca2da97724e46bea4ff0e6dbd/docs/logo.jpg>)
+
 ## 合集介绍
 
 gws 技能库提供接口专项技能、任务辅助和配方，覆盖 Gmail、Drive、Docs、Calendar、Sheets 等服务。

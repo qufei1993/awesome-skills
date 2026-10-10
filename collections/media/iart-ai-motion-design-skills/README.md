@@ -2,6 +2,8 @@
 
 Plan and polish motion with timing, composition, color, and animation engines.
 
+![Motion Design Skills — original project cover](<https://raw.githubusercontent.com/iart-ai/motion-design-skills/3c129f769d90a1328c209c386492333c9ac62312/showcase.gif>)
+
 ## Overview
 
 This iart.ai package combines animation principles and art direction with After Effects, Remotion, beat editing, logo motion, and animated backgrounds. All nine public Skills remain together.

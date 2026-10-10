@@ -2,6 +2,8 @@
 
 覆盖 Azure 部署、管理、成本、图分析与知识工作流。
 
+![Azure 官方技能插件包 官方项目封面](<https://raw.githubusercontent.com/microsoft/azure-skills/cb1af2f0930ce2bd69fd4a627612eb76e171c17d/landing-page/public/og-image.svg>)
+
 ## 合集介绍
 
 收录固定提交中官方 marketplace 的五个插件及 38 个直接技能入口。

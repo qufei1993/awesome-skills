@@ -2,6 +2,8 @@
 
 使用 NVIDIA 软件构建 AI、仿真、机器人与加速计算流程。
 
+![NVIDIA 技能合集 官方项目封面](<https://repository-images.githubusercontent.com/1167034425/97dbb8a7-2480-4b2a-99ce-d94de1a34f38>)
+
 ## 合集介绍
 
 产品技能目录覆盖 CUDA-X、NeMo、NIM、物理 AI、BioNeMo、RAG、蓝图和平台工具，并提供官方查找插件。

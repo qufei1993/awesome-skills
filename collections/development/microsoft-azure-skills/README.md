@@ -2,6 +2,8 @@
 
 Azure deployment, administration, cost, graph analysis, and knowledge workflows.
 
+![Azure Skills Marketplace — original project cover](<https://raw.githubusercontent.com/microsoft/azure-skills/cb1af2f0930ce2bd69fd4a627612eb76e171c17d/landing-page/public/og-image.svg>)
+
 ## Overview
 
 Includes all five official marketplace plugins and their 38 direct skill entries at the fixed commit.

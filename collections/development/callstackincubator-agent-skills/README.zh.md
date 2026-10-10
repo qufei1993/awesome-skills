@@ -2,6 +2,8 @@
 
 依据 Callstack 生产经验开发、测试和迁移 React Native 应用。
 
+![Callstack React Native 技能合集 官方项目封面](<https://raw.githubusercontent.com/callstackincubator/agent-skills/59e9d17446a248b21d86f078fcd0bd2d36db1ca4/docs/assets/codex-react-native-plugins.png>)
+
 ## 合集介绍
 
 公开包结合 Callstack 独立技能，以及作者正式测试插件中配套的设备自动化、探索测试和测试编写技能。

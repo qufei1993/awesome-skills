@@ -2,6 +2,8 @@
 
 Diagnose and improve agent prompts, routing, retrieval, and orchestration.
 
+![Harness Evolver Skills — original project cover](<https://raw.githubusercontent.com/raphaelchristi/harness-evolver/87fa7612358acccb01d34abf72426a7e47329642/assets/banner.jpg>)
+
 ## Overview
 
 Includes the six public harness namespace skills from the author’s plugin; repository development helpers are separate.

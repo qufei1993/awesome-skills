@@ -2,6 +2,8 @@
 
 Develop software and manage a curated team Skill library.
 
+![AI Agent House and Library Skills — original project cover](<https://repository-images.githubusercontent.com/1118483478/5e0234ef-59d8-4a90-9744-0a57ae2eda21>)
+
 ## Overview
 
 The author’s complete local house-copy group combines backend, database, documentation, research, and verification guidance with library discovery, curation, sharing, auditing, updates, and migration.

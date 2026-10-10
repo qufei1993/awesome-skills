@@ -2,6 +2,8 @@
 
 编写文本检查规则，并将逐行评分结果转化为具体修改。
 
+![Slop Grader 文本评审技能 官方项目封面](<https://raw.githubusercontent.com/lukstei/slop-grader/f2807bc4cf174786eda30afd1749e9886201d5c7/assets/terminal.png>)
+
 ## 合集介绍
 
 Slop Grader 随 CLI 和 Markdown 规则包发布评分评审、规则编写两个技能，完整发行支持逐行检查与整篇文档评分。

@@ -2,6 +2,8 @@
 
 研究并交叉核对证据，再应用于营销工作流。
 
+![SandBase 技能 官方项目封面](<https://repository-images.githubusercontent.com/1315919904/0736c5b9-f152-4e43-9211-efae83fc846a>)
+
 ## 合集介绍
 
 SandBase 以 research 与 marketing 作为规范技能组，目录索引定义安装路径，可移植插件镜像主要入口 multi-source-search。

@@ -2,6 +2,8 @@
 
 Inspect Skill context costs, duplicates, security, and MCP usage.
 
+![Skills Janitor — original project cover](<https://raw.githubusercontent.com/khendzel/skills-janitor/4b42f391fd537b791d1c09c7825be0bc641fd41c/hero.png>)
+
 ## Overview
 
 The six-command pack helps Claude Code and Codex users triage installed capabilities, including interactive keep/delete decisions and duplicate detection.

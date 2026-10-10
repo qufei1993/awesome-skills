@@ -2,6 +2,8 @@
 
 Use Jahro to build structured Unity debugging workflows.
 
+![Unity Agent Skills — original project cover](<https://vdepoiw1jnimcohf.public.blob.vercel-storage.com/Jahro_3%201-f2rMPbdeHAvaTZaFEGHbfxIQ8hqFM0.png>)
+
 ## Overview
 
 Jahro’s eight-Skill package covers setup, logging, runtime commands, watchers, snapshots, production configuration, migration, and troubleshooting.

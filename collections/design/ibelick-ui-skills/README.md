@@ -2,6 +2,8 @@
 
 Improve interface quality, accessibility, metadata, and motion.
 
+![Ibelick UI Skills — original project cover](<https://raw.githubusercontent.com/ibelick/ui-skills/587ea305b948ad34f0c2d5c2ea4211d428f66ed8/public/UI-OG.png>)
+
 ## Overview
 
 Ibelick’s design-engineering library supplies a UI baseline, focused repair workflows, design documentation, and interface improvement guidance.

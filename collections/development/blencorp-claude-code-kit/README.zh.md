@@ -2,6 +2,8 @@
 
 把自动激活的框架指引与 Claude Code 项目基础配置一起安装。
 
+![Claude Code Kit 技能 官方项目封面](<https://raw.githubusercontent.com/blencorp/claude-code-kit/d1b17ed60a7fa870ca4346dcbbac9a54602ca7af/claude-code-kit.png>)
+
 ## 合集介绍
 
 工具包结合核心开发配置与前后端框架包，包括 React、Next.js、界面库、Express、Node.js 和 Prisma。

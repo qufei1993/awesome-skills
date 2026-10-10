@@ -2,6 +2,8 @@
 
 Build and query AI applications backed by Weaviate.
 
+![Weaviate Agent Skills — original project cover](<https://raw.githubusercontent.com/weaviate/agent-skills/af939ece26a10511c7af2b188b038cb81d31e5a0/assets/banner.jpg>)
+
 ## Overview
 
 The official pack supplies onboarding, search, and agent-development guidance with scripts and resources for Weaviate workflows.

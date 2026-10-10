@@ -2,6 +2,8 @@
 
 通过无界面的命令行模式在编程 Agent 之间委派任务。
 
+![Subagent CLI 技能 官方项目封面](<https://repository-images.githubusercontent.com/1219212673/5964124f-18f0-4fb4-8fe9-c135cab91a35>)
+
 ## 合集介绍
 
 作者的二十四技能包教主 Agent 调用其他厂商 CLI 作为子 Agent，每个流程提供相应工具的委派与执行指导。

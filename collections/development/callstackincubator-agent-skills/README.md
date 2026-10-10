@@ -2,6 +2,8 @@
 
 Build, test, and migrate React Native applications using Callstack’s production experience.
 
+![Callstack React Native Skills — original project cover](<https://raw.githubusercontent.com/callstackincubator/agent-skills/59e9d17446a248b21d86f078fcd0bd2d36db1ca4/docs/assets/codex-react-native-plugins.png>)
+
 ## Overview
 
 The public package joins standalone Callstack Skills with the device automation, exploratory QA, and testing Skills bundled in its official testing plugin.

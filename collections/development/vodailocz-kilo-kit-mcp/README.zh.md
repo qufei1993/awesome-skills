@@ -2,6 +2,8 @@
 
 整理编码代理的技能路由、规划、验证与知识工作流。
 
+![Kilo-Kit 技能 registry 官方项目封面](<https://raw.githubusercontent.com/vodailocz/kilo-kit-mcp/0448e6c050b84e0c0be0030593bd51cabbce3c81/assets/social-preview.png>)
+
 ## 合集介绍
 
 保留完整 180 项源 registry，身份依据作者相对路径而非唯一展示名称。

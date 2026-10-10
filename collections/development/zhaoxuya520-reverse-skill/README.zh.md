@@ -2,6 +2,8 @@
 
 将授权安全研究和 CTF 任务路由至专项分析流程。
 
+![Reverse Skill 安全路由合集 官方项目封面](<https://raw.githubusercontent.com/zhaoxuya520/reverse-skill/cab634bd855fc287f6e420c1f36fd1a6b9245960/reverse-skill.png>)
+
 ## 合集介绍
 
 作者的路由包整合逆向分析、渗透测试、案件证据和 CTF 编排技能，配套工具发现与可复用分析路径。

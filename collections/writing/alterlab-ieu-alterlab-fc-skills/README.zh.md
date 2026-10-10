@@ -2,6 +2,8 @@
 
 面向六个专业方向完成传播学课程任务与作品。
 
+![AlterLab 传播学技能 官方项目封面](<https://raw.githubusercontent.com/alterlab-ieu/alterlab-fc-skills/9559c97a6b6fc90c0fbe5a20b7718716f7aee677/.github/header-banner.svg>)
+
 ## 合集介绍
 
 AlterLab 的完整七十二技能包覆盖公关广告、电影、新媒体、生成式制作、视觉传播和研究方法，各流程连接调研、创作与作品评审。

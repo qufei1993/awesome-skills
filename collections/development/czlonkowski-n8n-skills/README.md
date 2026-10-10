@@ -2,6 +2,8 @@
 
 Build, validate, and operate n8n automations with n8n-mcp guidance.
 
+![n8n Workflow Skills — original project cover](<https://raw.githubusercontent.com/czlonkowski/n8n-skills/19cd793f4789e3ef9c657ccf26e097f641a77df0/skills.png>)
+
 ## Overview
 
 The collection joins workflow patterns and node configuration with expressions, JavaScript and Python code, data handling, error recovery, agent nodes, and self-hosting.

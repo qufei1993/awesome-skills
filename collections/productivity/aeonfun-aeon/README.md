@@ -2,6 +2,8 @@
 
 Schedule repository work, research, and recurring tasks through Aeon’s agent framework.
 
+![Aeon Autonomous Agent Skills — original project cover](<https://raw.githubusercontent.com/aeonfun/aeon/c0cb7c47a262c767ea1579c437139bbc026df056/docs/assets/hero-animated.svg>)
+
 ## Overview
 
 Aeon’s operational Skill library powers scheduled GitHub Actions runs across supported coding harnesses. The author connects feature delivery, research, maintenance, deployment, and communication through configurable agent instances.

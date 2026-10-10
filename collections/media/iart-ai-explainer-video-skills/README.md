@@ -2,6 +2,8 @@
 
 Turn messages and data into narrated explainers, recaps, and animated diagrams.
 
+![Explainer Video Skills — original project cover](<https://raw.githubusercontent.com/iart-ai/explainer-video-skills/3e2d411b725d9a72939cf8e5eb81579e751373e7/showcase.gif>)
+
 ## Overview
 
 This iart.ai package combines explainer production, personalized recaps, diagram reveals, whiteboard animation, and isometric scenes. Its five Skills connect scripts and storyboards with visual timing and narration.

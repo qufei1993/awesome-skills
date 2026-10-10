@@ -2,6 +2,8 @@
 
 Proofread technical writing and structure meeting, research, and engineering notes.
 
+![English Productivity Pack — original project cover](<https://raw.githubusercontent.com/alapha888/agent-skills-en/e8eab993c0a9d3ff21a8c607dcc8378d13dcdfa9/overseas/devhunt-screenshots/01-cover.png>)
+
 ## Overview
 
 This complete five-Skill instruction-only pack covers technical proofreading, commit messages, meeting minutes, code review, and deep research. Each workflow uses a compact checklist and example.

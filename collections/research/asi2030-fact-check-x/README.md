@@ -2,6 +2,8 @@
 
 Capture answers, compare claims, verify evidence, and coordinate fact checks.
 
+![Fact-Check-X Module Suite — original project cover](<https://raw.githubusercontent.com/asi2030/fact-check-x/0984307468e58113220215a2639392d6627eb8da/assets/fact-check-x-overview.png>)
+
 ## Overview
 
 Follows the author’s released four-module suite; the one-entry complete distribution is a separate product variant.

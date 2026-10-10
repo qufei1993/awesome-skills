@@ -2,6 +2,8 @@
 
 从 Claude Code 请求 Codex 与 Gemini 的独立意见。
 
+![Sparkling Dispatch 技能 官方项目封面](<https://raw.githubusercontent.com/sparklingneuronics/sparkling-skills/313630de4f6fc6a4df4dd53814b8d8c5dc944426/assets/hero.svg>)
+
 ## 合集介绍
 
 完整 dispatch 插件包含 codex 和 agy 两个技能，用于独立评审、并行检查、辅助任务和视觉工作，再由主 Agent 对照和验证结果。

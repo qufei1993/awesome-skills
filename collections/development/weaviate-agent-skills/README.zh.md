@@ -2,6 +2,8 @@
 
 开发并查询使用 Weaviate 的 AI 应用。
 
+![Weaviate Agent 技能 官方项目封面](<https://raw.githubusercontent.com/weaviate/agent-skills/af939ece26a10511c7af2b188b038cb81d31e5a0/assets/banner.jpg>)
+
 ## 合集介绍
 
 官方包提供接入、搜索与 Agent 开发指引，并附带 Weaviate 流程所需脚本和资源。

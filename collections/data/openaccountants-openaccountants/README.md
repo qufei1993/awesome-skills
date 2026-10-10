@@ -2,6 +2,8 @@
 
 Accounting and tax workflows from the author’s tracked Agent Skills snapshot.
 
+![OpenAccountants Agent Skill Snapshot — original project cover](<https://raw.githubusercontent.com/openaccountants/openaccountants/5caca592a5342e7dc1970bff3de88909a24ee1be/assets/demo.svg>)
+
 ## Overview
 
 Contains all 781 entries under agent-skills at the fixed commit; this is distinct from the current Guide index.

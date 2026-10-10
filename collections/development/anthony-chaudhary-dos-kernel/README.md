@@ -2,6 +2,8 @@
 
 Coordinate agent work and verify delivery claims against repository evidence.
 
+![DOS Kernel Skills — original project cover](<https://raw.githubusercontent.com/anthony-chaudhary/dos-kernel/2af379d5543bb9e3042c883bb97237499c2fa86d/docs/assets/social-card.png>)
+
 ## Overview
 
 The complete Claude plugin Skill pack covers setup, dispatch, replanning, supervision, goal gates, claim witnesses, promotion, statistics, and workflow improvement. DOS provides the underlying verification kernel, hooks, and MCP.

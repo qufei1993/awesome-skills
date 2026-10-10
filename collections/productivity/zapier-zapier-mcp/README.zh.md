@@ -2,6 +2,8 @@
 
 配置 Zapier MCP，并在已连接应用中执行面向不同角色的工作。
 
+![Zapier MCP 插件技能 官方项目封面](<https://raw.githubusercontent.com/zapier/zapier-mcp/5360f152b96735712e5f925ad728732cb86888df/assets/mcp-apps-diagram.png>)
+
 ## 合集介绍
 
 分发包在 Zapier MCP 服务连接之上提供引导接入、首次演示与角色专用技能。

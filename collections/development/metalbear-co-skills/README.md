@@ -2,6 +2,8 @@
 
 Develop local code against Kubernetes state with mirrord workflows.
 
+![mirrord Agent Skills — original project cover](<https://raw.githubusercontent.com/metalbear-co/skills/a033155710e93009d858947e18fc6ba39a38942f/assets/mirrord-agent-skills.png>)
+
 ## Overview
 
 MetalBear’s eleven Skills cover setup, configuration, operators, CI, database branches, Kafka and Temporal queues, preview environments, multi-service sessions, chaos, and header propagation.

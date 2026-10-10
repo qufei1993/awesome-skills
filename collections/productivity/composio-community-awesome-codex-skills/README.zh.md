@@ -2,6 +2,8 @@
 
 通过 Composio 的 Codex 技能库处理办公、开发和应用任务。
 
+![Composio Codex 技能合集 官方项目封面](<https://raw.githubusercontent.com/composio-community/awesome-codex-skills/0930e1373789d2eda449039f7ac154b33031de89/codex_cover_image.png>)
+
 ## 合集介绍
 
 本地合集包含 Codex 任务包与作者的 SaaS 自动化目录，连接应用的流程使用 Composio 授权和工具访问。

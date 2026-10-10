@@ -2,6 +2,8 @@
 
 Research markets and create the assets needed to launch a small business.
 
+![One-Person Company Skills — original project cover](<https://raw.githubusercontent.com/resciencelab/opc-skills/d22efdccbe39cbc7a3f4ce6a96b7906416b73006/website/opc-banner.png>)
+
 ## Overview
 
 ReScienceLab’s suite supports social and product research, domain selection, brand images, launch preparation, and SEO and GEO work for solo founders.

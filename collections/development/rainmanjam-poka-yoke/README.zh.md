@@ -2,6 +2,8 @@
 
 将软件隐患与事故经验转化为预防错误的机制。
 
+![Poka-Yoke 防错技能 官方项目封面](<https://raw.githubusercontent.com/rainmanjam/poka-yoke/726a575e3d48d07d908abfcbb192cae09671fff2/docs/assets/banner/github-social.png>)
+
 ## 合集介绍
 
 完整十一技能插件将防错方法用于审查、API 设计、运维、授权、UX、数据、LLM 系统和护栏，并配有本地隐患检测器与共享资料。

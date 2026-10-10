@@ -2,6 +2,8 @@
 
 Plan, draft, and review LinkedIn content in a consistent personal voice.
 
+![LinkedIn Marketing Skills — original project cover](<https://raw.githubusercontent.com/sergebulaev/linkedin-skills/bfa41ff5d2b137f6023f88d9c9fda68d75b4ed5f/assets/linkedin-skills-hero.png>)
+
 ## Overview
 
 Serge Bulaev’s library covers posts, comments, replies, hooks, humanizing, profiles, content planning, repurposing, advocacy, thread monitoring, and engagement analytics.

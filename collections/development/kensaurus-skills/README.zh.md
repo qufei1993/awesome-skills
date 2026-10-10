@@ -2,6 +2,8 @@
 
 执行面向 React、Next.js、Supabase 和 Agent 工具的工程流程。
 
+![Kenji 技能 官方项目封面](<https://raw.githubusercontent.com/kensaurus/skills/37712833f6b1e573325b1ea4f12b747adadd845c/docs/screenshots/hero-dark.png>)
+
 ## 合集介绍
 
 Kenji 完整目录包含 161 个通用技能和十二个不同的 Cursor 专用技能，覆盖审查、开发、测试、交付、文档与 IDE 工具，并另配命令、Agent 和 MCP 模板。

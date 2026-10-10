@@ -2,6 +2,8 @@
 
 协调 SEO、转化、业务运营、创意与软件交付。
 
+![Suede Creator 技能 官方项目封面](<https://raw.githubusercontent.com/jasoncolapietro/suede-creator-skills/a9bf55ec00fdb9577767db04dc4c9e26bbdc7a61/docs/assets/readme/hero.svg>)
+
 ## 合集介绍
 
 Suede 技能包以结果编排和对抗审查贯穿业务增长与创作者工作，涵盖代码交付、设计、移动应用、权益追索与发布权利。

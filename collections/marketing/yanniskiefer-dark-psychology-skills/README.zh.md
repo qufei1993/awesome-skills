@@ -2,6 +2,8 @@
 
 准备销售对话、谈判回应，并识别操纵性手法。
 
+![谈判与说服技能 官方项目封面](<https://raw.githubusercontent.com/yanniskiefer/dark-psychology-skills/b49849880502bbb7366fe6be7023a031af8dd966/assets/banner.jpg>)
+
 ## 合集介绍
 
 作者的十三技能包组合交易路由、需求发现、信任、定价、异议、外联、客户模式、风险承诺、状态管理和防御意识。

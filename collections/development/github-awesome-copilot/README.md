@@ -2,6 +2,8 @@
 
 Extend coding workflows with the community’s public Copilot Skill library.
 
+![Awesome GitHub Copilot Skills — original project cover](<https://raw.githubusercontent.com/github/awesome-copilot/82701c24b99488536ca399ff4789a458b7a05db7/website/public/images/social-image.png>)
+
 ## Overview
 
 GitHub’s community collection includes self-contained Skills for development, cloud platforms, testing, documentation, security, and domain tasks. This entry follows its public skills directory.

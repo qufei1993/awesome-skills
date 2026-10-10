@@ -2,6 +2,8 @@
 
 在修改代码库前检查架构、项目约束与技能兼容性。
 
+![Birdview 架构技能 官方项目封面](<https://raw.githubusercontent.com/qiuner/birdview/cdea5340f9710d71c9375e1ca99910c6f59c9704/docs/media/changes.gif>)
+
 ## 合集介绍
 
 Birdview 生成独立 HTML，呈现架构与改动范围；专用审查和兼容性入口与主技能配套，以源文件证据说明改动建议及 Agent 指令重叠。

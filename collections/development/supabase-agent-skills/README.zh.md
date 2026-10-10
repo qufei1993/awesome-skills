@@ -2,6 +2,8 @@
 
 开发 Supabase 应用并改善 PostgreSQL 设计和性能。
 
+![Supabase 技能合集 官方项目封面](<https://raw.githubusercontent.com/supabase/agent-skills/c9be0e931b7930f7d02126d04774d904c381e7d7/assets/og.png>)
+
 ## 合集介绍
 
 Supabase 官方库包含平台流程指导，以及查询、模式、连接、索引和安全方面的数据库实践。

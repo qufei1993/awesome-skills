@@ -2,6 +2,8 @@
 
 指导产品发现、策略、执行、发布和增长决策。
 
+![PM 产品管理技能市场 官方项目封面](<https://raw.githubusercontent.com/phuryn/pm-skills/8607e3b077817f89bf4a9b623246219734ac3be0/.docs/images/plugins.png>)
+
 ## 合集介绍
 
 市场将产品框架与串联流程组织为九个原生插件，也包含数据分析和 AI 生成代码的交付审查。

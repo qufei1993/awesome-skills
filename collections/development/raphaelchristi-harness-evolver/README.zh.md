@@ -2,6 +2,8 @@
 
 诊断并改进代理提示词、路由、检索与编排。
 
+![Harness Evolver 技能包 官方项目封面](<https://raw.githubusercontent.com/raphaelchristi/harness-evolver/87fa7612358acccb01d34abf72426a7e47329642/assets/banner.jpg>)
+
 ## 合集介绍
 
 收录作者插件的六个公开 harness 命名空间技能，仓库开发辅助技能单独区分。

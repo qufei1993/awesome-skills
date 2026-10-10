@@ -2,6 +2,8 @@
 
 Research, verify citations, analyze scientific data, and prepare academic outputs.
 
+![AlterLab Academic Skills — original project cover](<https://raw.githubusercontent.com/alterlab-ieu/alterlab-academic-skills/e4836c08a20da195a11f30f203a8cf23ec30aa95/.github/header-banner.svg>)
+
 ## Overview
 
 The author’s academic pack spans scientific domains, scholarly databases, writing, visualization, document tools, faculty work, methodology, and workflow orchestration.

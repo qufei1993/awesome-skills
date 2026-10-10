@@ -2,6 +2,8 @@
 
 实现改动前暴露盲点、上下文缺口与证据遗漏。
 
+![发现未知技能库 官方项目封面](<https://raw.githubusercontent.com/neeeophytee/finding-unknowns-skills/ca5696a0f08d2de6b2997fff1d6cc05c3ed587cc/assets/social-preview.png>)
+
 ## 合集介绍
 
 技能包将任务澄清与上下文工程方法转成十四个 Agent 技能，包含证据扩展及证明修复有效的流程。

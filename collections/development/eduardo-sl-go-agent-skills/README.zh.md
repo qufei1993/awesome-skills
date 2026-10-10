@@ -2,6 +2,8 @@
 
 整理 Go 架构、安全、质量、测试与开发流程。
 
+![Go Agent 技能包 官方项目封面](<https://raw.githubusercontent.com/eduardo-sl/go-agent-skills/50133c33a386041f821389eaef19cdcfa3ac02d7/docs/assets/hero.png>)
+
 ## 合集介绍
 
 收录作者分类源目录中明确登记的完整 33 项技能。

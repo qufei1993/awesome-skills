@@ -2,6 +2,8 @@
 
 使用 Expo 团队流程开发、部署、升级和调试应用。
 
+![Expo 技能合集 官方项目封面](<https://raw.githubusercontent.com/expo/skills/d4f484024fec15196bfd3c272e953e3f983972cf/assets/expo-skills.png>)
+
 ## 合集介绍
 
 公开套件覆盖界面、接口、数据、原生能力、SDK 迁移、开发客户端及 EAS 构建、更新、托管和可观测性。

@@ -2,6 +2,8 @@
 
 Diagnose software decay using structured reviews grounded in classic engineering books.
 
+![Brooks-Lint Engineering Review Skills — original project cover](<https://raw.githubusercontent.com/hyhmrright/brooks-lint/b6ef8a19df6e07bba919fbf6aecbec122096d7df/assets/hero.png>)
+
 ## Overview
 
 The six public modes cover pull-request review, architecture, technical debt, test quality, health reporting, and repository-wide remediation, sharing risk definitions and cited guidance.

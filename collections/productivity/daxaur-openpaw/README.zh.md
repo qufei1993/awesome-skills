@@ -2,6 +2,8 @@
 
 整理 Claude Code 个人助理配置与工作习惯。
 
+![OpenPaw 技能包 官方项目封面](<https://raw.githubusercontent.com/daxaur/openpaw/a2562d1c5cb236c1e81bb550cb1045ee5302b2c0/docs/dashboard.png>)
+
 ## 合集介绍
 
 收录作者完整 42 项技能源文件与对应目录。

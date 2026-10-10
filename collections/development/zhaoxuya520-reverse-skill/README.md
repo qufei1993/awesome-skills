@@ -2,6 +2,8 @@
 
 Route authorized security research and CTF tasks to specialized analysis workflows.
 
+![Reverse Skill Router Pack — original project cover](<https://raw.githubusercontent.com/zhaoxuya520/reverse-skill/cab634bd855fc287f6e420c1f36fd1a6b9245960/reverse-skill.png>)
+
 ## Overview
 
 The author’s router combines reverse engineering, penetration testing, case evidence, and a CTF orchestration pack, with tool discovery and repeatable analysis paths.

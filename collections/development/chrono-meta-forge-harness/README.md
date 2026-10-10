@@ -2,6 +2,8 @@
 
 Maintain project rules, verification gates, and repeatable agent workflows.
 
+![Forge Harness Skills — original project cover](<https://raw.githubusercontent.com/chrono-meta/forge-harness/86a80feb2eb75488812ee868c15709bcd053087b/docs/banner.png>)
+
 ## Overview
 
 Forge Harness distributes forty-six Skills across four author plugins for verification, orchestration, diagnosis, harvesting, gates, discovery, simulation, and setup. The hub adds project tracks and shared agents.

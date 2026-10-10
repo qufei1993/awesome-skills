@@ -2,6 +2,8 @@
 
 编写、检查、调试、迁移和运行可重复的 Nika 流程。
 
+![Nika 插件技能 官方项目封面](<https://raw.githubusercontent.com/supernovae-st/nika-plugins/ac18ecf4837b0fe98b4285a429953952ad743f0a/media/hero-dark.svg>)
+
 ## 合集介绍
 
 完整编程 Agent 插件包包含编写、调试、迁移和运行四个技能，将流程文件连接到运行前检查、执行和只读参考服务。

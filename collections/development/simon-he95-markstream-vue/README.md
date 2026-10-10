@@ -2,6 +2,8 @@
 
 Integrate streaming Markdown rendering into applications across frontend frameworks.
 
+![Markstream Integration Skills — original project cover](<https://raw.githubusercontent.com/simon-he95/markstream-vue/d5d0c0028e916bff77696d6e4ea55f9b22e14a3f/docs/public/og-image.png>)
+
 ## Overview
 
 Markstream’s public Skills cover installation, migration, custom components, Vue and Nuxt, React, Svelte, Angular, and Vue 2 build variants.

@@ -2,6 +2,8 @@
 
 Connect scoped implementation, testing, review, and evidence in Codex workflows.
 
+![Codex How To Engineering Skills — original project cover](<https://raw.githubusercontent.com/phelan164/codex-howto/74887e939e609571787732846a91c17456343356/assets/social-preview.svg>)
+
 ## Overview
 
 The guide’s nine installable Skills cover the engineering loop, frontend, backend, DevOps, testing, security, code review, orchestration, and a living wiki. Educational examples remain outside this package.

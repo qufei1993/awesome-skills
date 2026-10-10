@@ -2,6 +2,8 @@
 
 帮助编程助手持续排错、验证结果并主动推进任务。
 
+![PUA 助手工作流程技能 官方项目封面](<https://raw.githubusercontent.com/tanweai/pua/e6e6cd237ad17750d179674bff52f8184abea8fd/assets/hero.jpeg>)
+
 ## 合集介绍
 
 公开 PUA 插件将调试和工作管理方法与不同强度模式、语言版本结合，README 同时记录了兼容性限制。

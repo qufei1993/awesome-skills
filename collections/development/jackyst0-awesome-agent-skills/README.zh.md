@@ -2,6 +2,8 @@
 
 用作者可安装的示例开展审查、调试、文档、测试与提交工作。
 
+![Awesome Agent Skills 示例包 官方项目封面](<https://raw.githubusercontent.com/jackyst0/awesome-agent-skills/0b2cd3cec30217831055aaf3eadfbdb7c969d1a0/assets/banner.svg>)
+
 ## 合集介绍
 
 本合集保留 JackyST0 的五个本地示例技能作为一个包；仓库还维护外部资源目录，其安装器与手动复制方式分发这些具体示例。

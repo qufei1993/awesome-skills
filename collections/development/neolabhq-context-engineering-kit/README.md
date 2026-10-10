@@ -2,6 +2,8 @@
 
 Improve agent reasoning and software delivery through structured development workflows.
 
+![Context Engineering Kit Skills — original project cover](<https://raw.githubusercontent.com/neolabhq/context-engineering-kit/23e2428e809d77717f8acc9659c374a3a1fcb93e/docs/assets/Context-Engineering-Kit6.png>)
+
 ## Overview
 
 NeoLabHQ’s native plugins combine reflection, review, Git, TDD, specifications, subagent work, continuous improvement, documentation, MCP, and first-principles reasoning.

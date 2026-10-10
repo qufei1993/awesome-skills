@@ -2,6 +2,8 @@
 
 Run a testing pipeline with a shared knowledge base and test-type decision matrix.
 
+![QA Skills — original project cover](<https://raw.githubusercontent.com/fishzjp/qa-skills/ac89a31391fe85c99a6303772aa197e552ed415e/assets/hero.png>)
+
 ## Overview
 
 The complete QA framework covers requirements, strategy, cases, review, API and end-to-end testing, exploration, regression, bug analysis, reliability, and testing memory. Its core directory is a required shared dependency.

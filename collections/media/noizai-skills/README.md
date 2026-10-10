@@ -2,6 +2,8 @@
 
 Generate expressive speech, music, dubbing, and conversational audio.
 
+![Noiz Voice \& Media Skills — original project cover](<https://github.com/user-attachments/assets/79efa5ae-e056-426c-ae67-362dd0f44963>)
+
 ## Overview
 
 Noiz’s pack covers text-to-speech, character delivery, news podcasts, video translation, sound effects, songs, and music-video assembly.

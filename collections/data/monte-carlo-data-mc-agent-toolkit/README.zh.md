@@ -2,6 +2,8 @@
 
 整理 Monte Carlo 工具包的数据与代理可观测性工作流。
 
+![Monte Carlo 代理工具包技能 官方项目封面](<https://repository-images.githubusercontent.com/1166903665/bdf3288b-7561-4af4-8340-b6fd779c2706>)
+
 ## 合集介绍
 
 收录 skills 下完整 20 个公开技能，仓库单独的 authoring 辅助技能不并入此范围。

@@ -2,6 +2,8 @@
 
 Design CAD models, inspect fabrication constraints, and prepare prints with an agent.
 
+![Text-to-CAD Skills — original project cover](<https://raw.githubusercontent.com/earthtojake/text-to-cad/523ae21341a498b7dfed8a06d004e5e34bc10c16/apps/docs/public/social-preview.png>)
+
 ## Overview
 
 Text-to-CAD’s public library connects modeling and simulation formats with manufacturing review, slicing, and supported printer workflows.

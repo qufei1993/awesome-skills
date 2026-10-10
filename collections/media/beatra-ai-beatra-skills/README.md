@@ -2,6 +2,8 @@
 
 Plan, direct, and render images, video, music, and voice through Beatra.
 
+![Beatra Creative Skills — original project cover](<https://repository-images.githubusercontent.com/1339071939/bc2b2f5a-23fa-4c06-bd9f-b03e2c9b10d4>)
+
 ## Overview
 
 Beatra’s complete published catalog provides creative-production workflows for product visuals, portraits, avatars, storyboards, dubbing, audio, video, and task-specific deliverables. All source packages remain included.

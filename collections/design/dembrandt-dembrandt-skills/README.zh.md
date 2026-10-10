@@ -2,6 +2,8 @@
 
 将企业级 UX 判断用于设计系统、界面与无障碍评审。
 
+![Dembrandt 界面设计技能 官方项目封面](<https://raw.githubusercontent.com/dembrandt/dembrandt-skills/20de5f225ea7cffe2a721ac18c1077a92769a013/dembrandt-skills.png>)
+
 ## 合集介绍
 
 完整技能包覆盖视觉识别、设计变量、布局、组件、交互、可用性、无障碍和界面技术基础；dembrandt 编排技能负责串联完整设计评审流程。

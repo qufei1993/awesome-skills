@@ -2,6 +2,8 @@
 
 用 reimagine-it 引擎根据真实内容重设计现有 HTML。
 
+![reimagine-it 设计技能 官方项目封面](<https://raw.githubusercontent.com/kayforkind/reimagine-it/e8c93788bd76d5a3276fb8cc0b0f59379c40c076/docs/og.png>)
+
 ## 合集介绍
 
 Reimagine-it 是一个设计编排技能，包含审查、提取、生成、信息图、锁定和变体六个内部流程。它依据源内容生成设计。

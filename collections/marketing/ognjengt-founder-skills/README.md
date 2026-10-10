@@ -2,6 +2,8 @@
 
 Create product, marketing, and operating documents for a founder-led business.
 
+![Founder Skills — original project cover](<https://raw.githubusercontent.com/ognjengt/founder-skills/a45931cad934dc6243a68f905485467935a4ad9a/packaging.png>)
+
 ## Overview
 
 Ognjen’s pack combines product requirements, copywriting, marketing, social content, and operating procedures for founders and business owners.

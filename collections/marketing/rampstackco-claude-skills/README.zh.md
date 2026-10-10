@@ -2,6 +2,8 @@
 
 通过连贯流程库建设、发布、运营并发展品牌与网站。
 
+![Rampstack 品牌建设技能合集 官方项目封面](<https://raw.githubusercontent.com/rampstackco/claude-skills/482c9bf74697fc1e311bd4dca5ce301f046c4b76/docs/rampstack-complete-banner.jpg>)
+
 ## 合集介绍
 
 Rampstack 完整目录覆盖品牌策略、创意方向、设计、内容、SEO、开发、运维、实验、产品发布和研究，适用于多种网站技术栈。

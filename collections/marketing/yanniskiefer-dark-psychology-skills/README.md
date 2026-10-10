@@ -2,6 +2,8 @@
 
 Prepare sales conversations, negotiation responses, and defenses against manipulative tactics.
 
+![Negotiation and Persuasion Skills — original project cover](<https://raw.githubusercontent.com/yanniskiefer/dark-psychology-skills/b49849880502bbb7366fe6be7023a031af8dd966/assets/banner.jpg>)
+
 ## Overview
 
 The author’s thirteen-Skill package combines deal routing, discovery, trust, pricing, objections, outreach, buyer patterns, risk reversal, composure, and defensive awareness.

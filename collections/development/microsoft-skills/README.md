@@ -2,6 +2,8 @@
 
 Ground coding agents in Azure SDKs, cloud workflows, and Microsoft AI tooling.
 
+![Microsoft SDK and Azure Plugin Skills — original project cover](<https://raw.githubusercontent.com/microsoft/skills/3898ec894e90afdfdae982a925db28b6a7b334e3/docs/og-image.png>)
+
 ## Overview
 
 Follows all 11 plugins registered in the author’s marketplace and their 176 direct skill entries.

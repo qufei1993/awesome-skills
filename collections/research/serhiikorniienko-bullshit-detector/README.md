@@ -2,6 +2,8 @@
 
 Extract claims, check their evidence, and publish a sourced assessment.
 
+![Bullshit Detector Skills — original project cover](<https://raw.githubusercontent.com/serhiikorniienko/bullshit-detector/d5f6156a8a5c72977bf2d4edae834dd22f7fa736/assets/banner-light.png>)
+
 ## Overview
 
 The pack separates ingestion from analysis and publishing for videos, articles, posts, and PDFs, with explicit verdicts and source-backed reports.

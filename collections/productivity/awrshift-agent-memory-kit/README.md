@@ -2,6 +2,8 @@
 
 Keep approved, dated project memory in plain files across agent sessions.
 
+![Memory Kit — original project cover](<https://raw.githubusercontent.com/awrshift/agent-memory-kit/547161ad49c68d712269055d3e734a31f25b4f89/.github/assets/og-banner-this-one-asks.png>)
+
 ## Overview
 
 Memory Kit combines setup, session handoffs, documentation, memory audits, code synchronization, orchestration, and QA. The author’s complete plugin Skills work with hooks and templates that support client-specific memory.

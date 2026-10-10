@@ -2,6 +2,8 @@
 
 Build workflows with NVIDIA software for AI, simulation, robotics, and accelerated computing.
 
+![NVIDIA Agent Skills — original project cover](<https://repository-images.githubusercontent.com/1167034425/97dbb8a7-2480-4b2a-99ce-d94de1a34f38>)
+
 ## Overview
 
 The verified product catalog covers CUDA-X, NeMo, NIM, physical AI, BioNeMo, RAG, blueprints, and platform tools, alongside the official finder plugin.

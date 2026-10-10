@@ -2,6 +2,8 @@
 
 为决策与复杂问题选择并应用明确推理流程。
 
+![结构化思考技能合集 官方项目封面](<https://raw.githubusercontent.com/tjboudreaux/cc-thinking-skills/7b8fece345dfaa11773be7152ccd194589cb5437/assets/readme-banner.png>)
+
 ## 合集介绍
 
 目录通过第一性原理、科学检验、OODA 和事前复盘等模型，覆盖诊断、系统、不确定性、风险、策略、创新和执行。

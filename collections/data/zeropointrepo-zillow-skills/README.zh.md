@@ -2,6 +2,8 @@
 
 通过 Zillapi 查询估价、房源、可比房产和历史数据。
 
+![Zillow 房产数据技能 官方项目封面](<https://raw.githubusercontent.com/zeropointrepo/zillow-skills/fb2af78daff329bdf1861764358f7cfe97c799c8/assets/zillapi-agent-skill.jpg>)
+
 ## 合集介绍
 
 作者的三技能包提供完整房产工具以及搜索、Zestimate 专项流程；Zillapi 是提供 Zillow 来源数据的独立服务。

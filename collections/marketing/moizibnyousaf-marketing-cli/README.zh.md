@@ -2,6 +2,8 @@
 
 整理研究、品牌记忆、内容、增长与营销编排工作流。
 
+![Marketing CLI 技能包 官方项目封面](<https://raw.githubusercontent.com/moizibnyousaf/marketing-cli/3136737df8cefc04816af173098dac95ec2d5e36/banner.svg>)
+
 ## 合集介绍
 
 完整收录 skills-manifest.json 的 76 项，保留各声明目录内的依赖与配套资源。

@@ -2,6 +2,8 @@
 
 通过专项技能和引导工作坊应用产品框架。
 
+![Dean Peters 产品经理技能合集 官方项目封面](<https://raw.githubusercontent.com/deanpeters/product-manager-skills/1b5a524ebb95e9497fa3f25002d8b8ec528d4444/docs/announcements/deanpeters.sending-ladder-down-post.banner-image.png>)
+
 ## 合集介绍
 
 Dean Peters 的技能库涵盖问题定义、发现、策略、利益相关方、优先级、交付、商业健康和产品领导力。

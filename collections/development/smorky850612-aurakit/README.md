@@ -2,6 +2,8 @@
 
 Coordinate coding workflows with Aura modes, compact context, and guard checks.
 
+![AuraKit Skills — original project cover](<https://raw.githubusercontent.com/smorky850612/aurakit/27fff97f86f6d0c5d229b88cfadd21edac73ba39/assets/hero.svg>)
+
 ## Overview
 
 AuraKit’s public Skill package contains aura, aura-compact, and aura-guard. It combines project inspection, planning, implementation, validation, memory, and security checks with a separate installer and hooks.

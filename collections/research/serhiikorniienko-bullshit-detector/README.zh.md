@@ -2,6 +2,8 @@
 
 提取主张、核对证据并发布带来源评估。
 
+![事实核查技能库 官方项目封面](<https://raw.githubusercontent.com/serhiikorniienko/bullshit-detector/d5f6156a8a5c72977bf2d4edae834dd22f7fa736/assets/banner-light.png>)
+
 ## 合集介绍
 
 技能包将视频、文章、帖子与 PDF 的摄取同分析及发布分开，生成明确判断和有来源报告。

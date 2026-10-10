@@ -2,6 +2,8 @@
 
 从产品照片、创意简报与生成素材制作营销活动。
 
+![SuperCMO 营销技能 官方项目封面](<https://raw.githubusercontent.com/supercmohq/supercmo-skills/a6dd060ed46132e1944b1dd38981cb9ffcc42fc8/assets/logo.png>)
+
 ## 合集介绍
 
 SuperCMO 将品牌与竞品研究、活动策划、文案、分镜、产品图、演员、音频和视频制作串成创意生产流程。本合集保留作者完整 skills 目录。

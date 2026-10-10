@@ -2,6 +2,8 @@
 
 通过浏览器批注审阅计划、文档、代码变更和视觉产物。
 
+![Plannotator 审阅技能合集 官方项目封面](<https://raw.githubusercontent.com/backnotprop/plannotator/545c7afc38bd173abb80070fe5ca5bb65b22c35d/.github/assets/banner.webp>)
+
 ## 合集介绍
 
 Plannotator 的正式核心与可选扩展技能覆盖审查、批注、近期会话、目标设置、组合规划和视觉解释。

@@ -2,6 +2,8 @@
 
 提供浏览器自动化及调研、获客、电商、社交数据工作流。
 
+![Browser Act 浏览器技能包 官方项目封面](<https://raw.githubusercontent.com/browser-act/skills/11c057b03f92101642cadc9f840564574120d184/assets/readme/browseract-cloud-lower-cost-demo.png>)
+
 ## 合集介绍
 
 收录 browser-act、技能工坊和 Solutions Catalog 的完整 101 项来源入口。

@@ -2,6 +2,8 @@
 
 Complete professional and everyday tasks using structured frameworks and reusable outputs.
 
+![PM Professional Skills — original project cover](<https://raw.githubusercontent.com/mohitagw15856/pm-claude-skills/1cbf1f0a58f78f4daf742a278484b89768a7e961/docs/readme-assets/banner.svg>)
+
 ## Overview
 
 The author’s canonical professional library spans product work, engineering, research, operations, career, communication, and life administration, with output templates and quality checks.

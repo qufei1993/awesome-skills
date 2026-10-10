@@ -2,6 +2,8 @@
 
 检查技能上下文成本、重复项、安全与 MCP 使用情况。
 
+![Skills Janitor 官方项目封面](<https://raw.githubusercontent.com/khendzel/skills-janitor/4b42f391fd537b791d1c09c7825be0bc641fd41c/hero.png>)
+
 ## 合集介绍
 
 六命令包帮助 Claude Code 与 Codex 用户整理已安装能力，包含交互式保留或删除决策及重复检测。

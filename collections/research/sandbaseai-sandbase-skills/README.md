@@ -2,6 +2,8 @@
 
 Research and cross-check evidence, then apply it to marketing workflows.
 
+![SandBase Skills — original project cover](<https://repository-images.githubusercontent.com/1315919904/0736c5b9-f152-4e43-9211-efae83fc846a>)
+
 ## Overview
 
 SandBase publishes research and marketing as its canonical Skill groups. The catalog defines installation paths, while the portable plugin mirrors the flagship multi-source-search entry.

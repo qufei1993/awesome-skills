@@ -2,6 +2,8 @@
 
 通过结构化开发流程改善助手推理和软件交付。
 
+![Context Engineering Kit 技能合集 官方项目封面](<https://raw.githubusercontent.com/neolabhq/context-engineering-kit/23e2428e809d77717f8acc9659c374a3a1fcb93e/docs/assets/Context-Engineering-Kit6.png>)
+
 ## 合集介绍
 
 NeoLabHQ 原生插件结合反思、审查、Git、测试驱动开发、规格、子助手协作、持续改进、文档、MCP 和第一性原理推理。

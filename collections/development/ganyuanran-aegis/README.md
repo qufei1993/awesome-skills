@@ -2,6 +2,8 @@
 
 Align coding-agent work with project architecture and verify completion with evidence.
 
+![Aegis Engineering Method Skills — original project cover](<https://raw.githubusercontent.com/ganyuanran/aegis/7b7e9552982c0bae7f2f044f87f645522f14fec8/assets/aegis-hero.png>)
+
 ## Overview
 
 Aegis combines project context, goal framing, planning, architecture records, implementation, debugging, review, testing, and long-task continuity into a governed engineering method.

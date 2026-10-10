@@ -2,6 +2,8 @@
 
 Recall past work and organize coding workflows around persistent agent memory.
 
+![Claude-Mem Plugin Skills — original project cover](<https://raw.githubusercontent.com/thedotmack/claude-mem/fa8ab09f06aa05f958c5225cf3756ce52a3ebb96/docs/public/cm-preview.gif>)
+
 ## Overview
 
 Claude-Mem’s Claude Code plugin pairs memory search with planning, handoffs, codebase exploration, reporting, and other memory-aware workflows.

@@ -2,6 +2,8 @@
 
 围绕持久记忆检索历史工作并组织编程任务。
 
+![Claude-Mem 插件技能 官方项目封面](<https://raw.githubusercontent.com/thedotmack/claude-mem/fa8ab09f06aa05f958c5225cf3756ce52a3ebb96/docs/public/cm-preview.gif>)
+
 ## 合集介绍
 
 Claude-Mem 的 Claude Code 插件将记忆检索与规划、交接、代码库探索和工作报告等流程结合。

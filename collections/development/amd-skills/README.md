@@ -2,6 +2,8 @@
 
 Develop and optimize AI workloads for AMD hardware and software.
 
+![AMD Skills — original project cover](<https://raw.githubusercontent.com/amd/skills/6efb39c7ec59f19823372cb22ee3b8fac82dffd7/assets/banner.jpg>)
+
 ## Overview
 
 The published catalog covers local AI, Lemonade routing, Quark quantization, EPYC and Instinct serving, and profiling with Hyperloom, Magpie, and TraceLens.

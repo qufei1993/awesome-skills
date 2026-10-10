@@ -2,6 +2,8 @@
 
 Produce marketing campaigns from product photos, briefs, and generated media.
 
+![SuperCMO Skills — original project cover](<https://raw.githubusercontent.com/supercmohq/supercmo-skills/a6dd060ed46132e1944b1dd38981cb9ffcc42fc8/assets/logo.png>)
+
 ## Overview
 
 SuperCMO combines brand and competitor research, campaign planning, copy, storyboards, product imagery, actors, audio, and video production. The complete skills directory supports a connected creative production pipeline.

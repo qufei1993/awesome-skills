@@ -2,6 +2,8 @@
 
 管理动态设计简报、报价、修订、交付与品牌规范。
 
+![自由职业动态设计技能 官方项目封面](<https://raw.githubusercontent.com/iart-ai/freelance-motion-skills/d85c2b484693d0387333c778d9c95230fa1856ce/showcase.gif>)
+
 ## 合集介绍
 
 iart.ai 的五技能包处理自由职业动态设计的业务环节，包括澄清客户需求、报价依据、修改范围、交付规格和动态设计规范。

@@ -2,6 +2,8 @@
 
 Explore codebases and knowledge bases through interactive knowledge graphs.
 
+![Understand Anything Skills — original project cover](<https://raw.githubusercontent.com/egonex-ai/understand-anything/ffa2f0a84a85525623e9f94f7a6b560e39ae43ce/assets/hero.png>)
+
 ## Overview
 
 Understand Anything maps files, functions, dependencies, and business domains into a graph, with Skills for analysis, explanation, changes, onboarding, and graph conversations.

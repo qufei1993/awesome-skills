@@ -2,6 +2,8 @@
 
 Memory, journaling, accountability, and personal knowledge workflows.
 
+![AI Brain Starter Skills — original project cover](<https://repository-images.githubusercontent.com/1205564021/c9868069-8153-4c23-916a-ca9242b38228>)
+
 ## Overview
 
 Preserves the root router and all 37 first-party child skills listed and installed by the author.

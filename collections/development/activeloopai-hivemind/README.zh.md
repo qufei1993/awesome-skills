@@ -2,6 +2,8 @@
 
 检索团队知识，并将助手工作连接到持久目标和知识图谱。
 
+![Hivemind 共享记忆技能 官方项目封面](<https://raw.githubusercontent.com/activeloopai/hivemind/e054fb161de7ae1e3466fb93496713f4d3c82da7/docs/public/hivemind_cursor_readme_banner_dark.png>)
+
 ## 合集介绍
 
 Activeloop 的 Hivemind 将 Deeplake 共享记忆与目标跟踪、图谱流程结合，工作服务负责记录轨迹并整理重复模式。

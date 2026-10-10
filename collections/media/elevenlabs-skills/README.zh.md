@@ -2,6 +2,8 @@
 
 用 ElevenLabs 开发语音、音频、音乐、配音与语音 Agent 功能。
 
+![ElevenLabs 技能 官方项目封面](<https://raw.githubusercontent.com/elevenlabs/skills/1d08a4a250cff67cc8056ec31587c031ecb06d2f/logo.png>)
+
 ## 合集介绍
 
 官方开发者技能包覆盖生成、转录、实时语音、对话 Agent、声音转换、分离与 API 密钥配置。

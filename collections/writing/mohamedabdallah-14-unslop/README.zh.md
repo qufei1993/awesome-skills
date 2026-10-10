@@ -2,6 +2,8 @@
 
 修改程式化表达，并保留事实、含义与个人表达。
 
+![Unslop 写作技能 官方项目封面](<https://raw.githubusercontent.com/mohamedabdallah-14/unslop/29d43608c0095e54550f35ed49dacee818aea23b/assets/new/hero.png>)
+
 ## 合集介绍
 
 规范六技能体系结合改写模式、表达匹配与反馈，插件及宿主专用目录镜像同一来源。

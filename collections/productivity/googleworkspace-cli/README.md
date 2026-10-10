@@ -2,6 +2,8 @@
 
 Operate Workspace services and combine them into everyday office workflows.
 
+![Google Workspace CLI Skills — original project cover](<https://raw.githubusercontent.com/googleworkspace/cli/a3768d0e82ad83cca2da97724e46bea4ff0e6dbd/docs/logo.jpg>)
+
 ## Overview
 
 The gws library includes API-specific Skills, task helpers, and recipes for Gmail, Drive, Docs, Calendar, Sheets, and other Workspace services.

@@ -2,6 +2,8 @@
 
 结合 GSAP、SVG、Lottie 与无障碍交互模式制作网页动画。
 
+![Web 动画技能 官方项目封面](<https://raw.githubusercontent.com/iart-ai/web-animation-skills/b6dba3eb759726845a44163ff0bad70dd9e7fbb6/showcase.gif>)
+
 ## 合集介绍
 
 iart.ai 的完整包将网页动画引擎、微交互、页面转场、玻璃效果、ASCII 动画、无障碍与性能指导组合起来。

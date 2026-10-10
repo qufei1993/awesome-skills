@@ -2,6 +2,8 @@
 
 Keep specifications, architecture decisions, and branch reviews alongside code in Git.
 
+![Archcore Skills — original project cover](<https://raw.githubusercontent.com/archcore-ai/archcore/13095564c3b4ae33ed8117f2fe0c0bacc5842274/docs/promo.gif>)
+
 ## Overview
 
 Archcore uses project documents in .archcore to connect initialization, planning, documentation, and review. Its four Skills let coding agents compare implementation against recorded requirements and decisions.

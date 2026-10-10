@@ -2,6 +2,8 @@
 
 让编程助手协同完成规划、测试、审查、记忆管理和领域任务。
 
+![ECC 技能合集 官方项目封面](<https://raw.githubusercontent.com/affaan-m/ecc/ef648e01899ba3e8dc6371642deaaf64b4477775/assets/hero.png>)
+
 ## 合集介绍
 
 ECC 将工程流程与语言实践、研究、安全、内容和运营知识放在同一工具库中，本合集保留作者正式的 skills 技能目录。

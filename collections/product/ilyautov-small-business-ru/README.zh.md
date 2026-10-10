@@ -2,6 +2,8 @@
 
 结合本地财务、税务、客户与招聘流程辅助俄罗斯小企业经营。
 
+![俄罗斯小企业经营技能 官方项目封面](<https://raw.githubusercontent.com/ilyautov/small-business-ru/43ad4add8a4d242332d1e6753339771bbeb26401/assets/social-preview.png>)
+
 ## 合集介绍
 
 作者的三十四技能包面向俄罗斯经营环境，覆盖简化税制、民事合同、雇佣、现金流、销售与交易对手核查。

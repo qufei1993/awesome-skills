@@ -2,6 +2,8 @@
 
 Use MiniMax’s command-line interface for multimodal generation and analysis.
 
+![MiniMax CLI Skills — original project cover](<https://file.cdn.minimax.io/public/MMX-capabilities.png>)
+
 ## Overview
 
 The MiniMax CLI Skill coordinates text, images, video, speech, vision, and search. Its internal H3 video workflow handles image and motion references.

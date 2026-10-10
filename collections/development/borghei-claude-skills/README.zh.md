@@ -2,6 +2,8 @@
 
 整理工程、产品、营销、运营及专业领域工作流。
 
+![Borghei 领域技能包 官方项目封面](<https://raw.githubusercontent.com/borghei/claude-skills/4a698e8d07856fdca9ec3e69082a9d68c8dd45d0/assets/header.svg>)
+
 ## 合集介绍
 
 采用作者 21 个领域插件的范围及固定提交中 386 份技能源文件。

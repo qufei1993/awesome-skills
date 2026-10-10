@@ -2,6 +2,8 @@
 
 Plan multi-agent coding work and execute it through a local orchestration daemon.
 
+![Open Dynamic Workflows Skills — original project cover](<https://raw.githubusercontent.com/suraj1235/open-dynamic-workflows/972bb98494ea23f907df88850024bd7022b099d4/assets/banner.svg>)
+
 ## Overview
 
 The author’s Codex adapter packages the complete odw and ultracode pair. These workflows delegate execution to scripts and a local daemon, with host adapters and dashboards supplied separately.

@@ -2,6 +2,8 @@
 
 交付前审查助手生成的代码、测试与文档。
 
+![质量检查技能合集 官方项目封面](<https://repository-images.githubusercontent.com/1261422007/bdd53de4-3e1d-4015-a630-278c5eaa50f2>)
+
 ## 合集介绍
 
 专项套件为通用代码、测试、文档、WordPress 和 WooCommerce 提供二次质量检查，并配套深入审查参考。

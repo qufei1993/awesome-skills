@@ -2,6 +2,8 @@
 
 管理 Obsidian 仓库并编写 Markdown、Bases 和 Canvas 文件。
 
+![Obsidian 技能合集 官方项目封面](<https://repository-images.githubusercontent.com/1126947080/074349e0-1fc4-47ce-a412-9b9eef6a81ab>)
+
 ## 合集介绍
 
 Kepano 的合集涵盖 Obsidian 开放格式、命令行操作、Defuddle 网页提取与 Knap 数据驱动的 Markdown 生成。

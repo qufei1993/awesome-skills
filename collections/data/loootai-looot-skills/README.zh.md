@@ -2,6 +2,8 @@
 
 通过共享数据 API 目录执行研究与信息补全任务。
 
+![Looot 数据技能 官方项目封面](<https://raw.githubusercontent.com/loootai/looot-skills/93262d0ab053e656f2e879c85e863b8d81d7b751/assets/hero.png>)
+
 ## 合集介绍
 
 Looot 完整包包含基础路由和二十个数据任务，覆盖公司、人物、邮件、招聘、本地商家、评价、搜索、关键词、外链、广告和社交数据。

@@ -2,6 +2,8 @@
 
 Encourage persistent debugging, verification, and initiative in coding-agent work.
 
+![PUA Agent Workflow Skills — original project cover](<https://raw.githubusercontent.com/tanweai/pua/e6e6cd237ad17750d179674bff52f8184abea8fd/assets/hero.jpeg>)
+
 ## Overview
 
 The public PUA plugin bundles debugging and work-management methods with several intensity modes and language variants. Its README also records compatibility limits.

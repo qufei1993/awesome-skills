@@ -2,6 +2,8 @@
 
 研究市场并制作小型业务发布所需素材。
 
+![一人公司技能合集 官方项目封面](<https://raw.githubusercontent.com/resciencelab/opc-skills/d22efdccbe39cbc7a3f4ce6a96b7906416b73006/website/opc-banner.png>)
+
 ## 合集介绍
 
 ReScienceLab 套件为独立创业者提供社交与产品研究、域名选择、品牌图像、发布准备以及 SEO 和 GEO 流程。

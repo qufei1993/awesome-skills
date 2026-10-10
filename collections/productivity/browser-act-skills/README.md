@@ -2,6 +2,8 @@
 
 Browser automation and ready-made workflows for research, leads, commerce, and social data.
 
+![Browser Act Skills — original project cover](<https://raw.githubusercontent.com/browser-act/skills/11c057b03f92101642cadc9f840564574120d184/assets/readme/browseract-cloud-lower-cost-demo.png>)
+
 ## Overview
 
 Includes browser-act, the skill forge, and the complete 101-entry Solutions Catalog.

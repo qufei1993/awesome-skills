@@ -2,6 +2,8 @@
 
 通过 MiniMax 命令行接口完成多模态生成与分析。
 
+![MiniMax 命令行技能 官方项目封面](<https://file.cdn.minimax.io/public/MMX-capabilities.png>)
+
 ## 合集介绍
 
 MiniMax 命令行技能统一处理文本、图片、视频、语音、视觉和搜索任务。内部的 H3 视频流程支持图片和动作参考。

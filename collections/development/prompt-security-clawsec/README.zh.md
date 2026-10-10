@@ -2,6 +2,8 @@
 
 检查助手运行时安全、验证签名通告并发现配置漂移。
 
+![ClawSec 安全技能合集 官方项目封面](<https://raw.githubusercontent.com/prompt-security/clawsec/c8faf9de88bde1d75d6e08680980f3a546a2cbb9/assets/readme/hero.webp>)
+
 ## 合集介绍
 
 Prompt Security 公开包覆盖 OpenClaw、NanoClaw、Hermes 和 Picoclaw，提供通告、审查、完整性、安装检查、事件报告和发布流程。

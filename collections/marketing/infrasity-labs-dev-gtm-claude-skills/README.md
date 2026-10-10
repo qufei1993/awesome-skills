@@ -2,6 +2,8 @@
 
 Developer marketing, search visibility, writing, design, and product workflows.
 
+![Infrasity Developer GTM Skills — original project cover](<https://raw.githubusercontent.com/infrasity-labs/dev-gtm-claude-skills/02cfefb3a213041de8b80bc659ebc5f17b5e746a/assets/dev-gtm-claude-skills.png>)
+
 ## Overview
 
 Follows all ten source bundles explicitly listed in the README, preserving their internal workflows and optional SEO extensions.

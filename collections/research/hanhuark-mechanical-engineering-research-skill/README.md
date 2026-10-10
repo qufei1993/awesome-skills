@@ -2,6 +2,8 @@
 
 Develop thermal-fluid research with domain analysis, writing, data, and review workflows.
 
+![Mechanical Engineering Research Skills — original project cover](<https://raw.githubusercontent.com/hanhuark/mechanical-engineering-research-skill/69eba5994ed0ffac775b19f18312011a73960d26/assets/branding/mechanical-engineering-research-skill-social-preview.png>)
+
 ## Overview
 
 This nine-Skill suite combines mechanical-engineering guidance with thermal-fluid analysis, proposals, literature writing, data analysis, slides, schematics, mentoring, and reviewer-author revision.

@@ -2,6 +2,8 @@
 
 Turn software hazards and incident lessons into mechanisms that prevent mistakes.
 
+![Poka-Yoke Skills — original project cover](<https://raw.githubusercontent.com/rainmanjam/poka-yoke/726a575e3d48d07d908abfcbb192cae09671fff2/docs/assets/banner/github-social.png>)
+
 ## Overview
 
 The complete eleven-Skill plugin applies mistake-proofing to audits, API design, operations, authorization, UX, data, LLM systems, and guardrails. It also supplies a local hazard detector and shared references.

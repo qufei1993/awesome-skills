@@ -2,6 +2,8 @@
 
 通过 Perso 流程为视频配音、处理字幕并制作短片。
 
+![Perso 视频配音技能 官方项目封面](<https://raw.githubusercontent.com/perso-ai/perso-dubbing-plugin/c12b2f5840af5bf946360832d7e0c4a34c80c9fe/docs/media/og-en.png>)
+
 ## 合集介绍
 
 Perso 完整包包含 dubbing、srt 和 clip 三个技能，覆盖翻译配音与口型同步、语音转写、样式字幕、字幕翻译、短片剪辑和声音分离。

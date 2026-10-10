@@ -2,6 +2,8 @@
 
 Build, launch, operate, and grow a brand and website with a coherent workflow library.
 
+![Rampstack Brand Build Skills — original project cover](<https://raw.githubusercontent.com/rampstackco/claude-skills/482c9bf74697fc1e311bd4dca5ce301f046c4b76/docs/rampstack-complete-banner.jpg>)
+
 ## Overview
 
 Rampstack’s complete catalog covers brand strategy, creative direction, design, content, SEO, development, operations, experimentation, product launches, and research across website stacks.

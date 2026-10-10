@@ -2,6 +2,8 @@
 
 Build channel intros, outros, and podcast audiograms.
 
+![YouTube Video Skills — original project cover](<https://raw.githubusercontent.com/iart-ai/youtube-video-skills/f3df381d65abe5078f5ed410bbc3ed72e7cb92bd/showcase.gif>)
+
 ## Overview
 
 The complete two-Skill iart.ai package combines branded YouTube opening and closing sequences with audiograms that turn podcast audio into video.

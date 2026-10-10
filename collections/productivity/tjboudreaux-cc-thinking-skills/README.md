@@ -2,6 +2,8 @@
 
 Choose and apply explicit reasoning procedures for decisions and difficult problems.
 
+![Structured Thinking Skills — original project cover](<https://raw.githubusercontent.com/tjboudreaux/cc-thinking-skills/7b8fece345dfaa11773be7152ccd194589cb5437/assets/readme-banner.png>)
+
 ## Overview
 
 The catalog covers diagnosis, systems, uncertainty, risk, strategy, innovation, and execution through models such as first principles, scientific testing, OODA, and pre-mortems.

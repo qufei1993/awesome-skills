@@ -2,6 +2,8 @@
 
 Turn structured data into animated charts, infographics, and presentation videos.
 
+![Data Animation Skills — original project cover](<https://raw.githubusercontent.com/iart-ai/data-animation-skills/8ce2709c3992490251e8a991535b1945f01c6865/showcase.gif>)
+
 ## Overview
 
 This three-Skill iart.ai package combines chart animation, animated infographics, and presentation video. It emphasizes keeping displayed values consistent with the source data throughout motion.

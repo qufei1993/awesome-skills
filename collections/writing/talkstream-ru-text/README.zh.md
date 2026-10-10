@@ -2,6 +2,8 @@
 
 校对俄语排版、官样表达与机器写作痕迹。
 
+![ru-text 俄语编辑技能 官方项目封面](<https://raw.githubusercontent.com/talkstream/ru-text/879a775a243203aa53a5bd593ac8bcdba2303bff/assets/og/og-dark-1200x628.jpg>)
+
 ## 合集介绍
 
 作者的三技能包结合编辑、检查与评分，并保留作者表达风格；修改同时引用原文和使用的规则。

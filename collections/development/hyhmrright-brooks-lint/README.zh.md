@@ -2,6 +2,8 @@
 
 依据经典工程书籍开展结构化审查并诊断软件退化。
 
+![Brooks-Lint 工程审查技能 官方项目封面](<https://raw.githubusercontent.com/hyhmrright/brooks-lint/b6ef8a19df6e07bba919fbf6aecbec122096d7df/assets/hero.png>)
+
 ## 合集介绍
 
 六种公开模式覆盖合并请求、架构、技术债、测试质量、健康报告和全仓修复，共用风险定义与带出处的指导。

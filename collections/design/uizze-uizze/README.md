@@ -2,6 +2,8 @@
 
 Build product-specific interfaces with design guidance and focused reference research.
 
+![UIZZE Skills — original project cover](<https://repository-images.githubusercontent.com/1301842069/fbad8ce2-3054-45d1-9bc2-8c49843ede06>)
+
 ## Overview
 
 UIZZE’s complete repository distribution contains ui-design, anti-ui-slop, and ui-radar. It connects screen design, finishing reviews, and optional research using real web and iOS references.

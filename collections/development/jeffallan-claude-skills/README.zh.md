@@ -2,6 +2,8 @@
 
 在语言、框架和交付阶段中使用专项工程指导。
 
+![Jeff Allan 全栈技能合集 官方项目封面](<https://raw.githubusercontent.com/jeffallan/claude-skills/1be15d8064f88fc25216442406d40add8fd23b53/assets/social-preview.png>)
+
 ## 合集介绍
 
 Jeff Allan 的合集将全栈实现与架构、数据库、测试、调试、安全、云平台和运维知识结合。

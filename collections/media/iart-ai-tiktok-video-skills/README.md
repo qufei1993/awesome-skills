@@ -2,6 +2,8 @@
 
 Create short-form videos with captions, countdowns, and lower thirds.
 
+![TikTok Video Skills — original project cover](<https://raw.githubusercontent.com/iart-ai/tiktok-video-skills/2a775336b5a638cbf8a61dbd785f9a1b649be016/showcase.gif>)
+
 ## Overview
 
 This four-Skill iart.ai package combines short-video structure with animated captions, countdown videos, and lower-third graphics for TikTok, Reels, and Shorts.

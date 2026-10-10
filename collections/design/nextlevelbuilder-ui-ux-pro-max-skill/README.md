@@ -2,6 +2,8 @@
 
 Design interfaces, brands, banners, design systems, slides, and UI styling.
 
+![UI UX Pro Max Skills — original project cover](<https://raw.githubusercontent.com/nextlevelbuilder/ui-ux-pro-max-skill/50d8a7de0900119855614541f15a1a616691eb33/screenshots/website.png>)
+
 ## Overview
 
 The author’s plugin declares all seven skills under .claude/skills, including the main design intelligence skill and six companions.

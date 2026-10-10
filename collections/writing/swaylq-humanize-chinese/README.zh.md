@@ -2,6 +2,8 @@
 
 结合本地文本检查工具撰写、修改和校对中文。
 
+![中文写作与改稿技能 官方项目封面](<https://raw.githubusercontent.com/swaylq/humanize-chinese/6510ca720b91919a12fa2e828b5ec959deb11db4/docs/assets/og.png>)
+
 ## 合集介绍
 
 这个中文写作技能把写作、改写和校对整合为一个工作流。内部流程与本地工具帮助检查措辞模式和隐藏字符。

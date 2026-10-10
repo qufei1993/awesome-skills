@@ -2,6 +2,8 @@
 
 Clarify a coding idea and produce a plan an agent can execute.
 
+![Blueprint Planning Skills — original project cover](<https://raw.githubusercontent.com/imbue-ai/blueprint/fb06284691c2c948aeb24c3282492f6628f93c3a/assets/readme-header.png>)
+
 ## Overview
 
 Blueprint pairs interactive planning with generation, reading the codebase and asking focused questions before handing over a Markdown implementation plan.

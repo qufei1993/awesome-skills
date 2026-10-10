@@ -2,6 +2,8 @@
 
 把规格、架构决策和分支评审与代码一起保存在 Git 中。
 
+![Archcore 项目上下文技能 官方项目封面](<https://raw.githubusercontent.com/archcore-ai/archcore/13095564c3b4ae33ed8117f2fe0c0bacc5842274/docs/promo.gif>)
+
 ## 合集介绍
 
 Archcore 用 .archcore 项目文档连接初始化、规划、文档编写和评审。四个技能帮助编程 Agent 将实现与已记录的需求、规则及决策对照。

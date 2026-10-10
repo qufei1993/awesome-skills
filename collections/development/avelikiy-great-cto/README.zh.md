@@ -2,6 +2,8 @@
 
 让产品简报通过架构、实现、审查与安全门槛。
 
+![Great CTO 技能 官方项目封面](<https://raw.githubusercontent.com/avelikiy/great_cto/619bddec1c95b5742c22b467f37888901bbbe61f/docs/screenshots/board.png>)
+
 ## 合集介绍
 
 作者交付体系分配细分 Agent 角色，用另一模型系列检查实现，并记录用户对产品、设计与部署的决定。

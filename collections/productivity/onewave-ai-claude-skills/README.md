@@ -2,6 +2,8 @@
 
 Reusable sales, marketing, design, engineering, and agent workflows.
 
+![OneWave AI Single-file Skills — original project cover](<https://raw.githubusercontent.com/onewave-ai/claude-skills/fc5b7851a6c7ba367e05797df46ad3679df355dd/assets/social-card.png>)
+
 ## Overview
 
 Follows all 229 root-level single-file skill entries documented by OneWave AI.

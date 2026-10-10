@@ -2,6 +2,8 @@
 
 从模型实验推进到评估与研究成果发表。
 
+![Orchestra AI 研究技能合集 官方项目封面](<https://raw.githubusercontent.com/orchestra-research/ai-research-skills/773a52944ba4747a18bd4ae9ade53fff041adcbc/docs/assets/promo.gif>)
+
 ## 合集介绍
 
 Orchestra Research 按原生类别组织模型架构、训练、对齐、推理、基础设施、可解释性、助手、RAG 和研究写作技能。
