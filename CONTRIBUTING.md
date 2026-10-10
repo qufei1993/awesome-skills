@@ -61,7 +61,7 @@ For a project's first use, ask the agent to configure the project. Then choose r
 https://github.com/mattpocock/skills
 ```
 
-Each link can point to one `SKILL.md` file (`blob/<ref>/…/SKILL.md`), a directory (`tree/<ref>/<path>`), or a whole GitHub repository. Plain URLs and Markdown links both work. CI, the repository's automated workflow, reads one Skill from a file link and all nested Skills from a directory or repository link.
+Each link can point to one `SKILL.md` file (`blob/<ref>/…/SKILL.md`), a directory (`tree/<ref>/<path>`), or a whole GitHub repository. Plain URLs and Markdown links both work. CI, the repository's automated workflow, reads one Skill from a file link. For a directory or repository link, it finds Skill directories and reads their entry files. A directory containing `SKILL.md` is one Skill; its nested files remain supporting resources. Use a file link to list a nested Skill separately.
 
 README supplies the collection's title, summary, overview, scenarios, and usage. CI generates website data from the README and linked upstream Skills. It copies each Skill's upstream description and resolves its version and installation directory.
 

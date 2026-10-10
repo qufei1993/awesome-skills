@@ -4,7 +4,7 @@ Use MiniMax’s command-line interface for multimodal generation and analysis.
 
 ## Overview
 
-The CLI package provides the general mmx workflow and a specialized MiniMax-H3 video workflow, covering text, images, video, speech, vision, and search.
+The MiniMax CLI Skill coordinates text, images, video, speech, vision, and search. Its internal H3 video workflow handles image and motion references.
 
 ## Scenarios
 
@@ -17,8 +17,8 @@ Install mmx-cli and the upstream Skill package, then configure MiniMax access. T
 
 ## Skills
 
-- [skill](https://github.com/MiniMax-AI/cli/tree/06e47c70b76f419196678367dae62acca4c94076/skill)
+- https://github.com/minimax-ai/cli/tree/06e47c70b76f419196678367dae62acca4c94076/skill
 
 ## Source
 
-https://github.com/MiniMax-AI/cli
+<https://github.com/MiniMax-AI/cli>

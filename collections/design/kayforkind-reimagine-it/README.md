@@ -4,7 +4,7 @@ Redesign existing HTML from its real content using the reimagine-it engine.
 
 ## Overview
 
-The agent package includes the main orchestration Skill and its audit, extract, generate, infographic, lock, and variation modules. Source content drives the resulting design.
+The Reimagine-it Skill coordinates six internal workflows: audit, extract, generate, infographic, lock, and variations. Source content guides the resulting design.
 
 ## Scenarios
 
@@ -17,8 +17,8 @@ Install the CLI engine and Agent Skill, then provide an HTML source. Use seeds t
 
 ## Skills
 
-- [skills/reimagine-it](https://github.com/Kayforkind/reimagine-it/tree/e8c93788bd76d5a3276fb8cc0b0f59379c40c076/skills/reimagine-it)
+- https://github.com/kayforkind/reimagine-it/tree/e8c93788bd76d5a3276fb8cc0b0f59379c40c076/skills/reimagine-it
 
 ## Source
 
-https://github.com/Kayforkind/reimagine-it
+<https://github.com/Kayforkind/reimagine-it>

@@ -18,8 +18,10 @@ Birdview 生成独立 HTML，呈现架构与改动范围；专用审查和兼容
 
 ## 技能
 
-- [完整技能库](https://github.com/Qiuner/birdview/tree/cdea5340f9710d71c9375e1ca99910c6f59c9704)
+- https://github.com/qiuner/birdview/blob/cdea5340f9710d71c9375e1ca99910c6f59c9704/SKILL.md
+- https://github.com/qiuner/birdview/blob/cdea5340f9710d71c9375e1ca99910c6f59c9704/review-skill/SKILL.md
+- https://github.com/qiuner/birdview/blob/cdea5340f9710d71c9375e1ca99910c6f59c9704/compatibility-audit/SKILL.md
 
 ## 来源
 
-https://github.com/Qiuner/birdview/tree/cdea5340f9710d71c9375e1ca99910c6f59c9704
+<https://github.com/Qiuner/birdview/tree/cdea5340f9710d71c9375e1ca99910c6f59c9704>

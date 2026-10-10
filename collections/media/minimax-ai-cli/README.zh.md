@@ -4,7 +4,7 @@
 
 ## 合集介绍
 
-命令行包提供通用 mmx 流程和专项 MiniMax-H3 视频流程，覆盖文本、图像、视频、语音、视觉和搜索。
+MiniMax 命令行技能统一处理文本、图片、视频、语音、视觉和搜索任务。内部的 H3 视频流程支持图片和动作参考。
 
 ## 适用场景
 
@@ -17,8 +17,8 @@
 
 ## 技能
 
-- [skill](https://github.com/MiniMax-AI/cli/tree/06e47c70b76f419196678367dae62acca4c94076/skill)
+- https://github.com/minimax-ai/cli/tree/06e47c70b76f419196678367dae62acca4c94076/skill
 
 ## 来源
 
-https://github.com/MiniMax-AI/cli
+<https://github.com/MiniMax-AI/cli>

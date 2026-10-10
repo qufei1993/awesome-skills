@@ -145,6 +145,11 @@ test('one Skill can belong to multiple collections with independent identities',
   assert.equal(result.records.length,2);
   assert.notEqual(result.records[0].id,result.records[1].id);
   assert.equal(result.records[0].skills[0].id,result.records[1].skills[0].id);
+  const sourceKeys=result.records.flatMap(document=>document.sourceKeys);
+  assert.equal(new Set(sourceKeys).size,sourceKeys.length);
+  for (const document of result.records) assert.ok(document.sourceKeys.includes(`generator:skill-entry-v1:${document.slug}`));
+  const again=await buildCatalog({rootDir,preview:true,resolveSources:true,request:()=>{throw new Error('Unchanged collections must reuse their fixed sources');}});
+  assert.deepEqual(again.records,result.records);
 });
 
 test('shared historical source keys cannot identify two generated collections',async t=>{
@@ -417,10 +422,21 @@ test('verification evidence must correspond to the current Skill and fixed versi
   await assert.rejects(loadCatalog({rootDir,resolveSources:true,request,previousRecords:previousMap(document)}),/current tested Skill versions/);
 });
 
-test('different upstream directories cannot share an installation name',async t=>{
+test('different upstream directories retain author names with stable distinct installation aliases',async t=>{
   const rootDir=await root(t);
-  await writeSubmission(rootDir);
-  await assert.rejects(buildCatalog({rootDir,preview:true,resolveSources:true,request:fixtureUpstream({files:{'skills/first/SKILL.md':skillText('same-name'),'skills/second/SKILL.md':skillText('same-name')}})}),/installation name.*conflicts/);
+  const {data}=await writeSubmission(rootDir);
+  const files={'skills/first/SKILL.md':skillText('same-name'),'skills/second/SKILL.md':skillText('same-name')};
+  const first=await buildCatalog({rootDir,preview:true,resolveSources:true,request:fixtureUpstream({files})});
+  const skills=first.records[0].skills;
+  assert.deepEqual(skills.map(skill=>skill.name),['same-name','same-name']);
+  const installationNames=skills.map(skill=>skill.installationItems[0].name);
+  assert.equal(new Set(installationNames.map(name=>name.toLowerCase())).size,2);
+  for (const name of installationNames) assert.match(name,/^same-name-[a-f0-9]{12}$/);
+  assert.equal(first.records[0].verification.installation,'not-tested');
+  for (const skill of skills) assert.match(skill.resourceNotes,/desktop collection installation requires name mapping/);
+  await writeSubmission(rootDir,{...data,title:'Updated planning'});
+  const again=await buildCatalog({rootDir,preview:true,resolveSources:true,request:fixtureUpstream({files:Object.fromEntries(Object.entries(files).reverse())})});
+  assert.deepEqual(again.records[0].skills.map(skill=>({id:skill.id,name:skill.name,installationName:skill.installationItems[0].name})),skills.map(skill=>({id:skill.id,name:skill.name,installationName:skill.installationItems[0].name})));
 });
 
 test('new CLI writes an English README by default and preserves existing collections',async t=>{

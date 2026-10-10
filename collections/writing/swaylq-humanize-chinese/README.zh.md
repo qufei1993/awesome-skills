@@ -4,7 +4,7 @@
 
 ## 合集介绍
 
-作者的完整包包含中文写作主流程，以及 deai-rewrite、declaude-cn、proofread-cn、write-cn，配套 Python 工具检查措辞模式与隐藏字符。
+这个中文写作技能把写作、改写和校对整合为一个工作流。内部流程与本地工具帮助检查措辞模式和隐藏字符。
 
 ## 适用场景
 
@@ -18,8 +18,8 @@
 
 ## 技能
 
-- [完整技能合集](https://github.com/swaylq/humanize-chinese/tree/6510ca720b91919a12fa2e828b5ec959deb11db4)
+- https://github.com/swaylq/humanize-chinese/tree/6510ca720b91919a12fa2e828b5ec959deb11db4
 
 ## 来源
 
-https://github.com/swaylq/humanize-chinese/tree/6510ca720b91919a12fa2e828b5ec959deb11db4
+<https://github.com/swaylq/humanize-chinese/tree/6510ca720b91919a12fa2e828b5ec959deb11db4>

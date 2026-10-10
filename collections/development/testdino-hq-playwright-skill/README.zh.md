@@ -4,7 +4,7 @@
 
 ## 合集介绍
 
-技能包将规范索引与核心测试、CI/CD、浏览器 CLI、Page Object Model 和迁移技能结合，涵盖受支持框架的架构决策与测试实现。
+作者发布五个 Playwright 技能包，分别覆盖核心测试、持续集成、浏览器命令行、页面对象模型和测试迁移。它们帮助制定测试架构并实施测试。
 
 ## 适用场景
 
@@ -17,8 +17,12 @@
 
 ## 技能
 
-- [完整技能库](https://github.com/testdino-hq/playwright-skill/tree/400e4256cd22669ad69c18d31d3e5541e4e1c2a3)
+- https://github.com/testdino-hq/playwright-skill/blob/400e4256cd22669ad69c18d31d3e5541e4e1c2a3/core/SKILL.md
+- https://github.com/testdino-hq/playwright-skill/blob/400e4256cd22669ad69c18d31d3e5541e4e1c2a3/ci/SKILL.md
+- https://github.com/testdino-hq/playwright-skill/blob/400e4256cd22669ad69c18d31d3e5541e4e1c2a3/pom/SKILL.md
+- https://github.com/testdino-hq/playwright-skill/blob/400e4256cd22669ad69c18d31d3e5541e4e1c2a3/migration/SKILL.md
+- https://github.com/testdino-hq/playwright-skill/blob/400e4256cd22669ad69c18d31d3e5541e4e1c2a3/playwright-cli/SKILL.md
 
 ## 来源
 
-https://github.com/testdino-hq/playwright-skill/tree/400e4256cd22669ad69c18d31d3e5541e4e1c2a3
+<https://github.com/testdino-hq/playwright-skill/tree/400e4256cd22669ad69c18d31d3e5541e4e1c2a3>

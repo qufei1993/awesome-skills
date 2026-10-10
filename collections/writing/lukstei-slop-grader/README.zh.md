@@ -18,8 +18,9 @@ Slop Grader 随 CLI 和 Markdown 规则包发布评分评审、规则编写两�
 
 ## 技能
 
-- [完整技能合集](https://github.com/lukstei/slop-grader/tree/f2807bc4cf174786eda30afd1749e9886201d5c7)
+- https://github.com/lukstei/slop-grader/blob/f2807bc4cf174786eda30afd1749e9886201d5c7/SKILL.md
+- https://github.com/lukstei/slop-grader/blob/f2807bc4cf174786eda30afd1749e9886201d5c7/skills/create-slop-grader-rules/SKILL.md
 
 ## 来源
 
-https://github.com/lukstei/slop-grader/tree/f2807bc4cf174786eda30afd1749e9886201d5c7
+<https://github.com/lukstei/slop-grader/tree/f2807bc4cf174786eda30afd1749e9886201d5c7>

@@ -1,17 +1,17 @@
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { isAlias, isMap, parseDocument, visit } from 'yaml';
 import { createGitHubRequest } from './git-source.mjs';
+import { readSkillMetadata } from './skill-metadata.mjs';
 
 const SHA = /^[a-f0-9]{40}$/i;
 const DIGEST = /^[a-f0-9]{64}$/i;
 const MAX_RESPONSE_BYTES = 12 * 1024 * 1024;
 const MAX_BLOB_BYTES = 1024 * 1024;
 const MAX_SKILLS = 2000;
+const GENERATOR_KEY = 'generator:skill-entry-v1';
 const REQUEST_TIMEOUT_MS = 150_000;
 const hash = (algorithm, bytes) => createHash(algorithm).update(bytes).digest('hex');
-const plain = value => value && typeof value === 'object' && !Array.isArray(value);
 const encode = value => encodeURIComponent(value).replace(/[!'()*]/g, character => `%${character.charCodeAt(0).toString(16).toUpperCase()}`);
 const githubPath = value => value.split('/').map(encode).join('/');
 const order = (left, right) => left < right ? -1 : left > right ? 1 : 0;
@@ -55,6 +55,56 @@ function skillId(repo, entryPoint) {
   const directory = path.posix.dirname(entryPoint);
   const name = (directory === '.' ? 'skill' : path.posix.basename(directory)).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'skill';
   return `${name}-${hash('sha256', `${repo.toLowerCase()}\0${entryPoint}`).slice(0, 12)}`;
+}
+
+function skillEntries(tree, source) {
+  const candidates = [...tree.values()].filter(entry => /(?:^|\/)SKILL\.md$/.test(entry.path) && (source.kind === 'blob' ? entry.path === source.scope : !source.scope || entry.path.startsWith(`${source.scope}/`)));
+  if (source.kind === 'blob') return candidates;
+  const paths = new Set(candidates.map(entry => entry.path));
+  return candidates.filter(entry => {
+    let directory = path.posix.dirname(entry.path);
+    while (directory !== '.') {
+      directory = path.posix.dirname(directory);
+      if (paths.has(directory === '.' ? 'SKILL.md' : `${directory}/SKILL.md`)) return false;
+    }
+    return true;
+  }).sort((a, b) => order(a.path, b.path));
+}
+
+const installationNameKey = name => name.normalize('NFC').toLowerCase();
+function safeInstallationName(name) {
+  return name === name.trim() && Buffer.byteLength(name) <= 240 && !/[<>:"/\\|?*%#\u0000-\u001f\u007f]/.test(name) && !/[. ]$/.test(name) && !/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(name);
+}
+
+function assignInstallationNames(skills) {
+  const counts = new Map(), used = new Set();
+  for (const skill of skills) {
+    const key = installationNameKey(skill.name);
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+  const aliases = [];
+  for (const skill of skills) {
+    const key = installationNameKey(skill.name);
+    if (safeInstallationName(skill.name) && counts.get(key) === 1) {
+      skill.installationItems[0].name = skill.name;
+      used.add(key);
+    } else aliases.push(skill);
+  }
+  aliases.sort((left, right) => order(left.id, right.id));
+  for (const skill of aliases) {
+    const source = `${skill.entry.repo.toLowerCase()}\0${skill.entry.entryPoint}`;
+    const suffix = hash('sha256', source);
+    const prefix = skill.name.normalize('NFKD').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 64).replace(/-$/, '') || 'skill';
+    let name;
+    for (let length = 12; length <= suffix.length; length += 4) {
+      const candidate = `${prefix}-${suffix.slice(0, length)}`;
+      if (!used.has(installationNameKey(candidate))) { name = candidate; break; }
+    }
+    if (!name) fail(`cannot assign a unique installation name for ${skill.entry.repo}/${skill.entry.entryPoint}`);
+    skill.installationItems[0].name = name;
+    skill.resourceNotes += ' The installation directory differs from the author name. Skills Hub desktop collection installation requires name mapping for this Skill; use the upstream setup instructions until supported.';
+    used.add(installationNameKey(name));
+  }
 }
 
 
@@ -145,23 +195,6 @@ async function readBlob(source, entry, api) {
   try { return new TextDecoder('utf-8', { fatal: true }).decode(bytes); } catch { fail(`blob ${entry.path} is not UTF-8 text`); }
 }
 
-function skillFrontmatter(source, entryPoint) {
-  const normalized = source.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
-  const match = /^---[ \t]*\n([\s\S]*?)\n---[ \t]*(?:\n|$)/.exec(normalized);
-  if (!match) fail(`${entryPoint} must start with YAML frontmatter`);
-  const parsed = parseDocument(match[1], { uniqueKeys: true, merge: false, strict: true });
-  if (parsed.errors.length || parsed.warnings.length) fail(`${entryPoint} has invalid YAML frontmatter`);
-  visit(parsed, { Node(_key, node) {
-    if (isAlias(node) || node.anchor) fail(`${entryPoint} frontmatter cannot contain YAML aliases or anchors`);
-    if (isMap(node)) for (const pair of node.items) if (typeof pair.key?.value !== 'string' || pair.key.value === '<<') fail(`${entryPoint} frontmatter must use simple string mapping keys`);
-  } });
-  const value = parsed.toJS({ maxAliasCount: 0 });
-  if (!plain(value)) fail(`${entryPoint} frontmatter must be an object`);
-  if (typeof value.name !== 'string' || !value.name.trim() || value.name !== value.name.trim() || /[\u0000-\u001f\u007f\\/]/.test(value.name) || ['.', '..'].includes(value.name)) fail(`${entryPoint} frontmatter name must be a safe installation name`);
-  if (typeof value.description !== 'string' || !value.description.trim() || value.description.includes('\0')) fail(`${entryPoint} frontmatter description must be non-empty text`);
-  return { name: value.name, description: value.description };
-}
-
 async function licenseFor(source, directory, tree, api) {
   let current = directory === '.' ? '' : directory;
   while (true) {
@@ -223,7 +256,7 @@ export async function resolveSubmission(record, { rootDir, inputDigest, dates, p
   contribution.links.forEach(parseLink);
   const { cover, coverFile } = coverFor(contribution, slug, category);
   const currentInput = previousDocument?.sourceKeys?.filter(key => key.startsWith('readme:')).at(-1);
-  if (currentInput === `readme:${inputDigest}`) {
+  if (currentInput === `readme:${inputDigest}` && previousDocument.sourceKeys.includes(`${GENERATOR_KEY}:${slug}`)) {
     const document=structuredClone(previousDocument);
     if (cover.kind === 'source-image') document.cover.sourceUrl=cover.sourceUrl;
     retainCollectionSource(document, contribution);
@@ -232,11 +265,11 @@ export async function resolveSubmission(record, { rootDir, inputDigest, dates, p
   for (const field of ['createdAt', 'updatedAt']) if (typeof dates?.[field] !== 'string' || !dates[field].endsWith('Z') || !Number.isFinite(Date.parse(dates[field]))) fail(`submission ${field} must be a valid UTC timestamp`);
   if (Date.parse(dates.updatedAt) < Date.parse(dates.createdAt)) fail('submission updatedAt must not precede createdAt');
   const api = apiClient(request ?? createGitHubRequest({ rootDir }), { rootDir, inputDigest });
-  const sources = [], skills = [], byEntry = new Map(), installationNames = new Map();
+  const sources = [], skills = [], byEntry = new Map();
   for (const link of contribution.links) {
     const source = await resolveLink(link, api);
     const tree = await readTree(source, api);
-    const candidates = [...tree.values()].filter(entry => /(?:^|\/)SKILL\.md$/.test(entry.path) && (source.kind === 'blob' ? entry.path === source.scope : !source.scope || entry.path.startsWith(`${source.scope}/`))).sort((a, b) => order(a.path, b.path));
+    const candidates = skillEntries(tree, source);
     if (!candidates.length) fail(`source ${source.repo} has no SKILL.md files in the requested scope`);
     const supportedIds = [];
     for (const entry of candidates) {
@@ -244,9 +277,7 @@ export async function resolveSubmission(record, { rootDir, inputDigest, dates, p
       const existing = byEntry.get(key);
       if (existing) { supportedIds.push(existing.id); continue; }
       if (skills.length >= MAX_SKILLS) fail(`collection exceeds the ${MAX_SKILLS} Skill limit`);
-      const metadata = skillFrontmatter(await readBlob(source, entry, api), entry.path);
-      if (installationNames.has(metadata.name) && installationNames.get(metadata.name) !== key) fail(`installation name ${metadata.name} conflicts between different sources or directories`);
-      installationNames.set(metadata.name, key);
+      const metadata = readSkillMetadata(await readBlob(source, entry, api), entry.path);
       const directory = path.posix.dirname(entry.path);
       const id = skillId(source.repo, entry.path);
       const skill = {
@@ -254,17 +285,18 @@ export async function resolveSubmission(record, { rootDir, inputDigest, dates, p
         entry: { repo: source.repo, commit: source.commit, entryPoint: entry.path },
         installationMode: 'skill',
         installationItems: [{ name: metadata.name, repo: source.repo, commit: source.commit, directory, entryPoint: 'SKILL.md', license: await licenseFor(source, directory, tree, api) }],
-        resourceCheck: 'needs-review', resourceNotes: 'The fixed SKILL.md blob was verified. Supporting files, references outside its directory, dependencies, and installation requirements need review.',
+        resourceCheck: 'needs-review', resourceNotes: 'The fixed SKILL.md blob was verified. Supporting files, references outside its directory, dependencies, and installation requirements need review.' + (metadata.normalizedFields.length ? ` Metadata scalar syntax normalized during read: ${metadata.normalizedFields.join(', ')}; upstream content unchanged.` : ''),
       };
       skills.push(skill); byEntry.set(key, skill); supportedIds.push(id);
     }
     sources.push({ source, supportedIds });
   }
+  assignInstallationNames(skills);
   const document = {
     schemaVersion: 1, id: collectionId(slug), slug,
     revision: previousDocument?.revision || 1,
     createdAt: previousDocument?.createdAt || dates.createdAt, updatedAt: dates.updatedAt,
-    sourceKeys: [...new Set([...(previousDocument?.sourceKeys || []).filter(key => key !== `readme:${inputDigest}`), `collection:${slug}`]), `readme:${inputDigest}`],
+    sourceKeys: [...new Set([...(previousDocument?.sourceKeys || []).filter(key => key !== `readme:${inputDigest}`), `collection:${slug}`, `${GENERATOR_KEY}:${slug}`]), `readme:${inputDigest}`],
     status: 'active', sourceKind: 'editorial-selection', category, tags: [],
     ...Object.fromEntries(['title', 'description', 'overview', 'scenarios', 'usage'].map(field => [field, contribution[field]])),
     review: { status: 'pending', notes: [] },

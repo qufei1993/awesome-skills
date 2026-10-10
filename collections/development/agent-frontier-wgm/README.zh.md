@@ -18,8 +18,11 @@
 
 ## 技能
 
-- [完整技能合集](https://github.com/agent-frontier/wgm/tree/b13e7b5dc77ce30224c2d72db4786eafeb0f0ed6)
+- https://github.com/agent-frontier/wgm/blob/b13e7b5dc77ce30224c2d72db4786eafeb0f0ed6/SKILL.md
+- https://github.com/agent-frontier/wgm/blob/b13e7b5dc77ce30224c2d72db4786eafeb0f0ed6/companions/teach-me/SKILL.md
+- https://github.com/agent-frontier/wgm/blob/b13e7b5dc77ce30224c2d72db4786eafeb0f0ed6/companions/quiz-me/SKILL.md
+- https://github.com/agent-frontier/wgm/blob/b13e7b5dc77ce30224c2d72db4786eafeb0f0ed6/companions/rugged/SKILL.md
 
 ## 来源
 
-https://github.com/agent-frontier/wgm/tree/b13e7b5dc77ce30224c2d72db4786eafeb0f0ed6
+<https://github.com/agent-frontier/wgm/tree/b13e7b5dc77ce30224c2d72db4786eafeb0f0ed6>

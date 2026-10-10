@@ -4,7 +4,7 @@ Run SEO, publishing, social repurposing, and a phased ninety-day growth sprint.
 
 ## Overview
 
-The root Distribb Skill connects keyword research, audits, topic clusters, backlinks, optimization, and publishing. Its official 90-day-seo-sprint companion organizes those endpoints into stages.
+The Distribb Skill connects keyword research, audits, topic clusters, backlinks, optimization, and publishing. Its internal 90-day SEO sprint organizes those tasks into stages.
 
 ## Scenarios
 
@@ -17,8 +17,8 @@ Configure DISTRIBB_API_KEY and connect the website and Search Console. The basic
 
 ## Skills
 
-- [Complete Skill Library](https://github.com/Bomx/distribb-skill/tree/ceb3846641f0b2cbf17674bfac55054604c7fddd)
+- https://github.com/bomx/distribb-skill/tree/ceb3846641f0b2cbf17674bfac55054604c7fddd
 
 ## Source
 
-https://github.com/Bomx/distribb-skill/tree/ceb3846641f0b2cbf17674bfac55054604c7fddd
+<https://github.com/Bomx/distribb-skill/tree/ceb3846641f0b2cbf17674bfac55054604c7fddd>

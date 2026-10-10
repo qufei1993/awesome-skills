@@ -20,6 +20,7 @@
 - [Ahmed Asmar DevOps 技能](collections/development/ahmedasmar-devops-claude-skills/README.zh.md) — 操作基础设施、Kubernetes、CI/CD、GitOps、成本与可观测性。（待审核）
 - [Claude Bootstrap 与 Maggy 技能](collections/development/alinaqi-maggy/README.zh.md) — 为 Claude Code 加入测试约束工程、持久上下文与模型路由工作流。（待审核）
 - [Claude Code Skills & Agents Factory](collections/development/alirezarezvani-claude-code-skill-factory/README.zh.md) — 制作可复用的 Claude Skills、Agent、提示词、Hook 与编程命令。（待审核）
+- [Alireza Codex 技能索引](collections/development/alirezarezvani-claude-skills/README.zh.md) — 整理作者 Codex 索引中的工程、营销、产品、运营与研究技能。（待审核）
 - [AlterLab GameForge 游戏技能](collections/development/alterlab-ieu-alterlab-gameforge/README.zh.md) — 结合工作室角色、制作流程与引擎专家推进独立游戏项目。（待审核）
 - [AMD 技能](collections/development/amd-skills/README.zh.md) — 为 AMD 硬件与软件开发并优化 AI 工作负载。（待审核）
 - [任务委派技能合集](collections/development/amelnagdy-delegate-skills/README.zh.md) — 将实现委派给编程助手命令行工具，同时保留审查和提交职责。（待审核）
@@ -43,6 +44,7 @@
 - [Bkircher 的 CLI 技能](collections/development/bkircher-skills/README.zh.md) — 通过专用命令行工具指导编程 Agent 完成工程任务。（待审核）
 - [agent-lsp 工作流技能](collections/development/blackwell-systems-agent-lsp/README.zh.md) — 通过语言服务器能力开展 Agent 代码导航、编辑、诊断与审查。（待审核）
 - [Claude Code Kit 技能](collections/development/blencorp-claude-code-kit/README.zh.md) — 把自动激活的框架指引与 Claude Code 项目基础配置一起安装。（待审核）
+- [Borghei 领域技能包](collections/development/borghei-claude-skills/README.zh.md) — 整理工程、产品、营销、运营及专业领域工作流。（待审核）
 - [Browserbase 技能合集](collections/development/browserbase-skills/README.zh.md) — 自动操作浏览器、记录证据并构建浏览器集成。（待审核）
 - [Spartan AI Toolkit 技能](collections/development/c0x12c-ai-toolkit/README.zh.md) — 用工程知识、可配置规则与质量门槛引导 Agent 交付。（待审核）
 - [Callstack React Native 技能合集](collections/development/callstackincubator-agent-skills/README.zh.md) — 依据 Callstack 生产经验开发、测试和迁移 React Native 应用。（待审核）
@@ -54,8 +56,10 @@
 - [Cypress AI Toolkit 技能](collections/development/cypress-io-ai-toolkit/README.zh.md) — 通过官方工具指导编写、讲解、研究和调查 Cypress 测试。（待审核）
 - [n8n 工作流技能合集](collections/development/czlonkowski-n8n-skills/README.zh.md) — 通过 n8n-mcp 指导构建、验证和运行 n8n 自动化。（待审核）
 - [Databricks AI Tools 技能](collections/development/databricks-databricks-agent-skills/README.zh.md) — 开发 Databricks 应用、作业、流水线、模型服务与部署包。（待审核）
+- [Datadog 代理技能源包](collections/development/datadog-labs-agent-skills/README.zh.md) — 整理 Datadog 接入、监控、调查与代理可观测性工作流。（待审核）
 - [Claude Code 基础设施技能合集](collections/development/diet103-claude-code-infrastructure-showcase/README.zh.md) — 通过自动技能激活应用真实项目中的工程约定。（待审核）
 - [Dimillian 开发技能合集](collections/development/dimillian-skills/README.zh.md) — 改进 Apple 平台应用与重复性工程工作。（待审核）
+- [Go Agent 技能包](collections/development/eduardo-sl-go-agent-skills/README.zh.md) — 整理 Go 架构、安全、质量、测试与开发流程。（待审核）
 - [Understand Anything 技能合集](collections/development/egonex-ai-understand-anything/README.zh.md) — 通过交互式知识图谱了解代码库与知识库。（待审核）
 - [Elastic Agent 技能](collections/development/elastic-agent-skills/README.zh.md) — 操作 Elasticsearch、Kibana、Observability、Security 与 Elastic Cloud。（待审核）
 - [EmblemAI Agent 技能](collections/development/emblemcompany-agent-skills/README.zh.md) — 使用 EmblemAI 工具构建钱包原生应用与加密资产流程。（待审核）
@@ -66,11 +70,14 @@
 - [Flutter 技能合集](collections/development/flutter-agent-plugins/README.zh.md) — 使用 Flutter 团队流程开发、测试和调试 Flutter 与 Dart 应用。（待审核）
 - [Dev Agent 开发技能](collections/development/fvadicamo-dev-agent-skills/README.zh.md) — 在 Claude Code 中规范 Git、GitHub、隐私检查与技能编写。（待审核）
 - [Aegis 工程方法技能](collections/development/ganyuanran-aegis/README.zh.md) — 让编程助手遵循项目架构，并以证据验证完成情况。（待审核）
+- [Gstack 源码技能包](collections/development/garrytan-gstack/README.zh.md) — 把规划、设计、评审、测试和交付串成工程工作流。（待审核）
+- [Sentry for AI 源码技能包](collections/development/getsentry-sentry-for-ai/README.zh.md) — 整理 Sentry 接入、问题调试、埋点、告警与发布工作流。（待审核）
 - [Sentry 工程技能合集](collections/development/getsentry-skills/README.zh.md) — 应用 Sentry 的工程、审查、文档与沟通约定。（待审核）
 - [Awesome GitHub Copilot 技能合集](collections/development/github-awesome-copilot/README.zh.md) — 通过社区公开技能库扩展 Copilot 编程流程。（待审核）
 - [Kapso Agent 技能](collections/development/gokapso-agent-skills/README.zh.md) — 用 Kapso 开发与运行 WhatsApp 集成和自动化。（待审核）
 - [Gemini API 技能合集](collections/development/google-gemini-gemini-skills/README.zh.md) — 开发 Gemini 应用、实时交互和视频流程。（待审核）
 - [Google 产品技能合集](collections/development/google-skills/README.zh.md) — 使用 Google 公开技能开发和管理产品与云服务。（待审核）
+- [Open Agent Hub 技能包](collections/development/guanyang-open-agent-hub/README.zh.md) — 整理作者代理能力中心管理的开发、生产力与媒体技能。（待审核）
 - [HashiCorp Agent Skills](collections/development/hashicorp-agent-skills/README.zh.md) — 用 HashiCorp 的产品技能包开发 Terraform 基础设施与 Packer 镜像。（待审核）
 - [Emdash 产品开发技能](collections/development/heymegabyte-agent-skills/README.zh.md) — 通过工程、设计、内容与部署流程协同构建产品。（待审核）
 - [Skill Optimizer](collections/development/hqhq1025-skill-optimizer/README.zh.md) — 从真实工作挖掘、个性化并通用化 Agent 技能。（待审核）
@@ -86,6 +93,7 @@
 - [Vibe 工作流技能合集](collections/development/khazp-vibe-coding-prompt-template/README.zh.md) — 从研究与产品需求推进到技术设计和验证后的实现。（待审核）
 - [Skills Janitor](collections/development/khendzel-skills-janitor/README.zh.md) — 检查技能上下文成本、重复项、安全与 MCP 使用情况。（待审核）
 - [KyberSwap 技能](collections/development/kybernetwork-kyberswap-skills/README.zh.md) — 跨 EVM 链查询、构建、模拟和管理 KyberSwap DeFi 操作。（待审核）
+- [TestMu 自动化测试技能](collections/development/lambdatest-agent-skills/README.zh.md) — 整理 TestMu AI 与 LambdaTest 生态的自动化测试流程。（待审核）
 - [LaunchDarkly Agent 技能](collections/development/launchdarkly-ai-tooling/README.zh.md) — 管理功能开关、AgentControl、指标和发布流程。（待审核）
 - [Mailtrap 邮件技能](collections/development/mailtrap-mailtrap-skills/README.zh.md) — 通过 Mailtrap 流程配置、发送、测试与管理邮件。（待审核）
 - [Notion CLI 与 Apps 技能](collections/development/makenotion-skills/README.zh.md) — 使用 Notion CLI，开发 Notion Apps、工作流与数据库同步。（待审核）
@@ -93,6 +101,8 @@
 - [Matteo Collina 开发技能合集](collections/development/mcollina-skills/README.zh.md) — 开发 Node.js 与 Fastify 应用并维护工程流程。（待审核）
 - [mirrord Agent 技能](collections/development/metalbear-co-skills/README.zh.md) — 通过 mirrord 在 Kubernetes 实际环境下开发本地代码。（待审核）
 - [Claude Skills Marketplace](collections/development/mhattingpete-claude-skills-marketplace/README.zh.md) — 组合工程工作流、可视化文档、代码操作与项目效率能力。（待审核）
+- [Azure 官方技能插件包](collections/development/microsoft-azure-skills/README.zh.md) — 覆盖 Azure 部署、管理、成本、图分析与知识工作流。（待审核）
+- [Microsoft SDK 与 Azure 插件技能包](collections/development/microsoft-skills/README.zh.md) — 为编码代理补充 Azure SDK、云工作流及 Microsoft AI 工具知识。（待审核）
 - [MiniMax 技能合集](collections/development/minimax-ai-skills/README.zh.md) — 使用 MiniMax 公开技能开发应用并制作文档与媒体。（待审核）
 - [AI Agent 本地与技能库管理合集](collections/development/moizibnyousaf-ai-agent-skills/README.zh.md) — 开发软件并管理经过整理的团队技能库。（待审核）
 - [MojoAuth Agent 技能](collections/development/mojoauth-skills/README.zh.md) — 跨应用框架实现托管无密码登录与机器认证。（待审核）
@@ -110,12 +120,14 @@
 - [Superpowers Lab](collections/development/obra-superpowers-lab/README.zh.md) — 试用用于重复代码分析、MCP、终端与 Windows 虚拟机的实验性编程 Agent 工具。（待审核）
 - [OpenAI Codex 精选技能存档](collections/development/openai-skills/README.zh.md) — 浏览 OpenAI 早期用于开发、设计和连接应用的 Codex 技能。（待审核）
 - [Codex How To 工程技能](collections/development/phelan164-codex-howto/README.zh.md) — 在 Codex 流程中连接明确范围的实现、测试、评审与证据。（待审核）
+- [Agent Almanac 登记技能包](collections/development/pjt222-agent-almanac/README.zh.md) — 整理可执行的开发、研究、数据、运维与专业工作流。（待审核）
 - [Posit Agent 技能](collections/development/posit-dev-skills/README.zh.md) — 用 Posit 工作流开发 R 包、数据应用与开源项目。（待审核）
 - [Prisma 开发技能](collections/development/prisma-skills/README.zh.md) — 处理 Prisma 数据库配置、客户端查询、迁移、适配器与 Compute 部署。（待审核）
 - [ClawSec 安全技能合集](collections/development/prompt-security-clawsec/README.zh.md) — 检查助手运行时安全、验证签名通告并发现配置漂移。（待审核）
 - [Qdrant 向量搜索技能](collections/development/qdrant-skills/README.zh.md) — 为 Qdrant 向量搜索制定架构与性能决策。（待审核）
 - [Birdview 架构技能](collections/development/qiuner-birdview/README.zh.md) — 在修改代码库前检查架构、项目约束与技能兼容性。（待审核）
 - [Poka-Yoke 防错技能](collections/development/rainmanjam-poka-yoke/README.zh.md) — 将软件隐患与事故经验转化为预防错误的机制。（待审核）
+- [Harness Evolver 技能包](collections/development/raphaelchristi-harness-evolver/README.zh.md) — 诊断并改进代理提示词、路由、检索与编排。（待审核）
 - [Redis Agent 技能](collections/development/redis-agent-skills/README.zh.md) — 用 Redis 官方指引开发并优化 Redis 应用。（待审核）
 - [Replicate 技能](collections/development/replicate-skills/README.zh.md) — 为 Replicate 应用查找、比较、运行、开发与发布模型。（待审核）
 - [Resend 技能](collections/development/resend-resend-skills/README.zh.md) — 开发邮件投递、Agent 收件箱与 React 邮件模板。（待审核）
@@ -126,6 +138,7 @@
 - [Itqan 工程技能](collections/development/saleh-alhaddad-itqan-engineering/README.zh.md) — 通过分阶段决策与完成证据执行可续接的工程流程。（待审核）
 - [Sanity Agent Toolkit 技能](collections/development/sanity-io-agent-toolkit/README.zh.md) — 从 Studio 与表结构推进到前端集成，开发 Sanity 内容系统。（待审核）
 - [Scarlet Agent 技能](collections/development/scarletkc-agents/README.zh.md) — 在日常开发中复用跨 Agent 标准与任务流程。（待审核）
+- [Cloclo 项目技能快照](collections/development/seifbenayed-cloclo/README.zh.md) — 整理 Cloclo 已跟踪项目技能中的开发、文档与浏览器流程。（待审核）
 - [Sendmux 邮件技能](collections/development/sendmux-skills/README.zh.md) — 将 Agent 邮件流程连接到 Sendmux 邮箱、附件、CLI 和 MCP。（待审核）
 - [Claude Code 开发工作流](collections/development/shinpr-claude-code-workflows/README.zh.md) — 规划、设计、实现并独立审查后端、前端与全栈改动。（待审核）
 - [Markstream 集成技能合集](collections/development/simon-he95-markstream-vue/README.zh.md) — 将流式 Markdown 渲染接入不同前端框架的应用。（待审核）
@@ -155,6 +168,8 @@
 - [Venice API 技能](collections/development/veniceai-skills/README.zh.md) — 集成 Venice 文本、媒体、模型路由、认证与账号 API。（待审核）
 - [Agent Browser 浏览器流程技能](collections/development/vercel-labs-agent-browser/README.zh.md) — 使用 agent-browser 内置流程执行浏览器任务。（待审核）
 - [Vercel 技能合集](collections/development/vercel-labs-agent-skills/README.zh.md) — 使用 Vercel 技能改进 React 应用并管理 Vercel 项目。（待审核）
+- [Kilo-Kit 技能 registry](collections/development/vodailocz-kilo-kit-mcp/README.zh.md) — 整理编码代理的技能路由、规划、验证与知识工作流。（待审核）
+- [VoltAgent 技能包](collections/development/voltagent-skills/README.zh.md) — 建立 VoltAgent 项目并查阅框架模式与版本对应文档。（待审核）
 - [AG Kit 技能合集](collections/development/vudovn-ag-kit/README.zh.md) — 使用 Antigravity 项目级工程工具包开发应用。（待审核）
 - [Weights & Biases 技能](collections/development/wandb-skills/README.zh.md) — 辅助编程 Agent 分析 W&B 实验、开展训练研究并接入应用追踪。（待审核）
 - [Weaviate Agent 技能](collections/development/weaviate-agent-skills/README.zh.md) — 开发并查询使用 Weaviate 的 AI 应用。（待审核）
@@ -181,6 +196,7 @@
 - [平台设计技能](collections/design/ehmo-platform-design-skills/README.zh.md) — 依据 Apple HIG、Material Design 与 WCAG 指引设计和评估界面。（待审核）
 - [Emil Kowalski 界面技能合集](collections/design/emilkowalski-skills/README.zh.md) — 围绕动效和交互细节制作与审查界面。（待审核）
 - [Figma MCP 技能合集](collections/design/figma-mcp-server-guide/README.zh.md) — 制作和检查 Figma 设计，并衔接实现与项目规划。（待审核）
+- [Stitch 插件技能包](collections/design/google-labs-code-stitch-skills/README.zh.md) — 通过 Stitch 工作流与工具完成界面设计和实现。（待审核）
 - [GSAP 技能合集](collections/design/greensock-gsap-skills/README.zh.md) — 在不同网页框架中制作正确高效的 GSAP 动效。（待审核）
 - [智能图像提示词技能](collections/design/huangserva-skill-prompt-generator/README.zh.md) — 生成图像提示词，并从现有提示词中学习可复用视觉元素。（待审核）
 - [Web 动画技能](collections/design/iart-ai-web-animation-skills/README.zh.md) — 结合 GSAP、SVG、Lottie 与无障碍交互模式制作网页动画。（待审核）
@@ -188,6 +204,7 @@
 - [Ibelick 界面技能合集](collections/design/ibelick-ui-skills/README.zh.md) — 改进界面质量、无障碍、元数据和动效。（待审核）
 - [reimagine-it 设计技能](collections/design/kayforkind-reimagine-it/README.zh.md) — 用 reimagine-it 引擎根据真实内容重设计现有 HTML。（待审核）
 - [Modellix 插件技能](collections/design/modellix-modellix-plugin/README.zh.md) — 通过 Modellix 准备提示并生成图片、视频或音频。（待审核）
+- [UI UX Pro Max 设计技能包](collections/design/nextlevelbuilder-ui-ux-pro-max-skill/README.zh.md) — 协助界面、品牌、横幅、设计系统、幻灯片与 UI 样式设计。（待审核）
 - [Taste Skill · 前端设计](collections/design/taste/README.zh.md) — 从排版、风格到动效，让 AI 生成的界面更有设计感。（待审核）
 - [UIZZE 界面技能](collections/design/uizze-uizze/README.zh.md) — 结合设计指导与参考研究构建符合产品特点的界面。（待审核）
 - [UX/UI Principles 技能](collections/design/uxuiprinciples-agent-skills/README.zh.md) — 通过专项 UX 评审检查界面、用户流程和 AI 交互。（待审核）
@@ -233,10 +250,12 @@
 - [Goose 品牌增长技能](collections/marketing/gooseworks-ai-goose-skills/README.zh.md) — 研究受众、制作营销活动，并根据增长结果改进工作。（待审核）
 - [广告视频技能](collections/marketing/iart-ai-ad-video-skills/README.zh.md) — 制作广告变体、产品发布影片和客户评价视频。（待审核）
 - [Digital Marketing Pro](collections/marketing/indranilbanerjee-digital-marketing-pro/README.zh.md) — 以共享策略文档规划并执行多品牌营销项目。（待审核）
+- [Infrasity 开发者 GTM 技能包](collections/marketing/infrasity-labs-dev-gtm-claude-skills/README.zh.md) — 整理开发者营销、搜索可见性、写作、设计与产品工作流。（待审核）
 - [SuperSEO 技能](collections/marketing/inhouseseo-superseo-skills/README.zh.md) — 研究并制作 SEO 审查、内容简报、文章与外链计划。（待审核）
 - [Suede Creator 技能](collections/marketing/jasoncolapietro-suede-creator-skills/README.zh.md) — 协调 SEO、转化、业务运营、创意与软件交付。（待审核）
 - [开发者营销技能](collections/marketing/jonathimer-devmarketing-skills/README.zh.md) — 通过文档、社区、发现渠道与开发者体验推广技术产品。（待审核）
 - [Linked API LinkedIn 技能](collections/marketing/linked-api-linkedin-skills/README.zh.md) — 用 Linked API 工具操作 LinkedIn 工作流与增长例行任务。（待审核）
+- [Marketing CLI 技能包](collections/marketing/moizibnyousaf-marketing-cli/README.zh.md) — 整理研究、品牌记忆、内容、增长与营销编排工作流。（待审核）
 - [NotFair 营销技能合集](collections/marketing/nowork-studio-notfair-plugin/README.zh.md) — 审查搜索可见性、调查广告支出并改进连接式营销工作。（待审核）
 - [创始人技能库](collections/marketing/ognjengt-founder-skills/README.zh.md) — 为创始人主导的业务制作产品、营销与运营文档。（待审核）
 - [Rampstack 品牌建设技能合集](collections/marketing/rampstackco-claude-skills/README.zh.md) — 通过连贯流程库建设、发布、运营并发展品牌与网站。（待审核）
@@ -251,6 +270,7 @@
 ### 研究与学习
 
 - [AlterLab 学术技能](collections/research/alterlab-ieu-alterlab-academic-skills/README.zh.md) — 开展研究、验证引用、分析科学数据并准备学术成果。（待审核）
+- [全知晓四模块套件](collections/research/asi2030-fact-check-x/README.zh.md) — 采集回答、比较知识点、核验依据并组织事实核查。（待审核）
 - [Brave Search API 技能](collections/research/brave-brave-search-skills/README.zh.md) — 用 Brave 网络、媒体、新闻与本地搜索数据支撑 Agent 回答。（待审核）
 - [DAIR Academy 插件技能](collections/research/dair-ai-dair-academy-plugins/README.zh.md) — 用 DAIR Academy 插件制作学习材料、研究 Wiki 与 AI 学习工作流。（待审核）
 - [Firecrawl CLI 技能](collections/research/firecrawl-cli/README.zh.md) — 通过 Firecrawl CLI 搜索、抓取、爬取并检查网络与研究资料。（待审核）
@@ -279,6 +299,8 @@
 - [Honeydew AI 数据技能](collections/data/honeydew-ai-honeydew-ai-coding-agents-plugins/README.zh.md) — 通过 Honeydew MCP 构建语义数据模型并查询数据。（待审核）
 - [长桥金融数据技能](collections/data/longbridge-skills/README.zh.md) — 通过长桥工具查询行情、持仓与公司信息。（待审核）
 - [Looot 数据技能](collections/data/loootai-looot-skills/README.zh.md) — 通过共享数据 API 目录执行研究与信息补全任务。（待审核）
+- [Monte Carlo 代理工具包技能](collections/data/monte-carlo-data-mc-agent-toolkit/README.zh.md) — 整理 Monte Carlo 工具包的数据与代理可观测性工作流。（待审核）
+- [OpenAccountants 代理技能快照](collections/data/openaccountants-openaccountants/README.zh.md) — 整理作者已跟踪 Agent Skills 快照中的会计与税务工作流。（待审核）
 - [A 股分析与模拟交易技能](collections/data/shouldnotappearcalm-a-share-skill/README.zh.md) — 分析中国股票、筛选技术信号并开展模拟交易。（待审核）
 - [TraderSpy 技能](collections/data/target1m-traderspy-mcp/README.zh.md) — 通过 TraderSpy MCP 读取加密市场信号、头寸、筛选和技术数据。（待审核）
 - [Xberg 文档智能技能合集](collections/data/xberg-io-xberg/README.zh.md) — 通过 Xberg 多语言处理工具提取和分析文档。（待审核）
@@ -293,20 +315,27 @@
 - [Anthropic 技能合集](collections/productivity/anthropics-skills/README.zh.md) — 使用 Anthropic 公开技能制作文档、视觉作品和技术产物。（待审核）
 - [Memory Kit 记忆技能](collections/productivity/awrshift-agent-memory-kit/README.zh.md) — 跨 Agent 会话保存经过确认且带日期的项目记忆。（待审核）
 - [Obsidian 学习仓库辅导技能](collections/productivity/bevibing-tutor-skills/README.zh.md) — 将文档或代码转为 Obsidian 学习仓库并检验理解。（待审核）
+- [Browser Act 浏览器技能包](collections/productivity/browser-act-skills/README.zh.md) — 提供浏览器自动化及调研、获客、电商、社交数据工作流。（待审核）
 - [Busabase 技能](collections/productivity/busabase-skills/README.zh.md) — 操作基于审批的知识工作区，并构建原生工作区应用。（待审核）
 - [Composio Codex 技能合集](collections/productivity/composio-community-awesome-codex-skills/README.zh.md) — 通过 Composio 的 Codex 技能库处理办公、开发和应用任务。（待审核）
 - [Composio Claude 技能合集](collections/productivity/composiohq-awesome-claude-skills/README.zh.md) — 使用 Composio 技能库完成文档、开发和应用自动化任务。（待审核）
+- [OpenPaw 技能包](collections/productivity/daxaur-openpaw/README.zh.md) — 整理 Claude Code 个人助理配置与工作习惯。（待审核）
 - [Daymade 工作流程技能合集](collections/productivity/daymade-claude-code-skills/README.zh.md) — 通过 Daymade 技能市场处理开发、文档、研究、媒体和桌面任务。（待审核）
 - [SlideOps 演示技能](collections/productivity/glukicov-slideops/README.zh.md) — 生成有代码依据的演示文稿，并检查内容何时与仓库发生偏差。（待审核）
 - [Google Workspace 命令行技能合集](collections/productivity/googleworkspace-cli/README.zh.md) — 操作 Workspace 服务并组合成日常办公流程。（待审核）
+- [Hermes 中文实用技能包](collections/productivity/jiawood2006-hermes-skills/README.zh.md) — 整理中文视频转写、文档 OCR、写作与电商媒体流程。（待审核）
+- [纳瓦尔宝典技能包](collections/productivity/kangarooking-cangjie-skill/README.zh.md) — 通过已发布的纳瓦尔路由和六项晋级技能处理决策与工作问题。（待审核）
 - [Obsidian 技能合集](collections/productivity/kepano-obsidian-skills/README.zh.md) — 管理 Obsidian 仓库并编写 Markdown、Bases 和 Canvas 文件。（待审核）
 - [PPTX Deck Creation Kit](collections/productivity/kimtth-agent-pptify-kit/README.zh.md) — 通过明确幻灯片规格和原生对象制作可编辑 PowerPoint。（待审核）
 - [飞书命令行技能合集](collections/productivity/larksuite-cli/README.zh.md) — 通过官方命令行流程操作 Lark 与飞书业务服务。（待审核）
 - [Notion 工作区插件技能](collections/productivity/makenotion-claude-code-notion-plugin/README.zh.md) — 在 Notion 中沉淀知识、准备会议、记录研究与落实规格。（待审核）
+- [Notion MCP 工作流技能](collections/productivity/makenotion-notion-cookbook/README.zh.md) — 在 Notion 中捕获知识、规划项目、开展研究并管理工作台账。（待审核）
 - [Accreted Intelligence 技能](collections/productivity/maxbaluev-accreted-intelligence/README.zh.md) — 通过本地工作模型保存承诺、任务框架与基于结果的经验。（待审核）
 - [Tapestry 技能](collections/productivity/michalparkola-tapestry-skills/README.zh.md) — 把文章与视频转成学习计划和具体行动。（待审核）
 - [PM 专业工作技能合集](collections/productivity/mohitagw15856-pm-claude-skills/README.zh.md) — 使用结构化框架与可复用产物完成专业和日常任务。（待审核）
+- [AI Brain Starter 技能包](collections/productivity/mycelium-hq-ai-brain-starter/README.zh.md) — 整理记忆、日志、责任跟踪与个人知识工作流。（待审核）
 - [Emulo 工作画像技能](collections/productivity/ohad6k-emulo/README.zh.md) — 把选定编程 Agent 会话证据转为可复用的个人工作画像。（待审核）
+- [OneWave AI 单文件技能包](collections/productivity/onewave-ai-claude-skills/README.zh.md) — 整理销售、营销、设计、工程与代理工作流。（待审核）
 - [Odai 任务执行技能](collections/productivity/orziz-odai/README.zh.md) — 对齐目标与验收，再执行并验证 Agent 工作。（待审核）
 - [简历与职业技能合集](collections/productivity/paramchoudhary-resumeskills/README.zh.md) — 准备真实准确的简历、申请、面试与职业决策。（待审核）
 - [Sanjay AI Agent 技能](collections/productivity/sanjay3290-ai-skills/README.zh.md) — 连接数据库、工作区服务、研究、媒体工具与委派编程任务。（待审核）
@@ -315,6 +344,7 @@
 - [结构化思考技能合集](collections/productivity/tjboudreaux-cc-thinking-skills/README.zh.md) — 为决策与复杂问题选择并应用明确推理流程。（待审核）
 - [HubSpot 管理技能](collections/productivity/tomgranot-hubspot-admin-skills/README.zh.md) — 审查、清理、丰富、评分、自动化并维护 HubSpot CRM。（待审核）
 - [WPS 笔记技能](collections/productivity/wpsnote-wpsnote-skills/README.zh.md) — 通过 WPS 笔记捕获、整理、创作与学习。（待审核）
+- [Best Skills 通用技能包](collections/productivity/xstongxue-best-skills/README.zh.md) — 整理写作、开发、办公文件及日常工作流程。（待审核）
 - [Zapier MCP 插件技能](collections/productivity/zapier-zapier-mcp/README.zh.md) — 配置 Zapier MCP，并在已连接应用中执行面向不同角色的工作。（待审核）
 - [Zinc 购物技能](collections/productivity/zincio-skills/README.zh.md) — 通过 Zinc API 搜索零售商品并管理订单。（待审核）
 
@@ -325,15 +355,19 @@
 - [Black Forest Labs FLUX 技能](collections/media/black-forest-labs-skills/README.zh.md) — 编写 FLUX 图片与视频提示，并集成 BFL 生成 API。（待审核）
 - [Claude Code 视频工具箱技能](collections/media/digitalsamba-claude-code-video-toolkit/README.zh.md) — 将视频想法转为生成素材、录制画面和最终 MP4。（待审核）
 - [ElevenLabs 技能](collections/media/elevenlabs-skills/README.zh.md) — 用 ElevenLabs 开发语音、音频、音乐、配音与语音 Agent 功能。（待审核）
+- [fal AI 技能包](collections/media/fal-ai-community-skills/README.zh.md) — 通过 fal 工具完成图像、视频、音频与媒体工作流。（待审核）
 - [数据动画技能](collections/media/iart-ai-data-animation-skills/README.zh.md) — 将结构化数据转成动态图表、信息图和演示视频。（待审核）
+- [电商视频技能包](collections/media/iart-ai-ecommerce-video-skills/README.zh.md) — 根据提供的素材制作产品演示、促销短片与照片幻灯片。（待审核）
 - [讲解视频技能](collections/media/iart-ai-explainer-video-skills/README.zh.md) — 把信息与数据制作成带旁白的讲解、回顾和动态示意图。（待审核）
 - [JavaScript 动画技能](collections/media/iart-ai-javascript-animation-skills/README.zh.md) — 用代码绘制 Canvas 影片并合成配乐。（待审核）
 - [动态设计技能](collections/media/iart-ai-motion-design-skills/README.zh.md) — 结合节奏、构图、色彩与动画引擎规划和打磨动态作品。（待审核）
 - [TikTok 短视频技能](collections/media/iart-ai-tiktok-video-skills/README.zh.md) — 结合字幕、倒计时和下三分之一图形制作短视频。（待审核）
 - [YouTube 视频技能](collections/media/iart-ai-youtube-video-skills/README.zh.md) — 制作频道片头、片尾和播客音频可视化视频。（待审核）
 - [MarsWave 技能](collections/media/marswaveai-skills/README.zh.md) — 用 MarsWave 制作语音、播客、视频、演示、音乐与创作者素材。（待审核）
+- [Timeline Studio 编辑技能](collections/media/martindelophy-ai-video-editor/README.zh.md) — 编辑可移植时间线项目，或操作浏览器中的实时编辑器。（待审核）
 - [MiniMax 命令行技能](collections/media/minimax-ai-cli/README.zh.md) — 通过 MiniMax 命令行接口完成多模态生成与分析。（待审核）
 - [Noiz 语音与媒体技能](collections/media/noizai-skills/README.zh.md) — 生成有表现力的语音、音乐、配音与对话音频。（待审核）
+- [Orkas VideoStudio 技能包](collections/media/orkas-ai-orkas-videostudio/README.zh.md) — 按照作者视频工作流规划、组装、渲染并验证视频。（待审核）
 - [Perso 视频配音技能](collections/media/perso-ai-perso-dubbing-plugin/README.zh.md) — 通过 Perso 流程为视频配音、处理字幕并制作短片。（待审核）
 - [产品宣传视频](collections/media/product-video/README.zh.md) — 先明确需求，再制作画面，用 Skills 配合完成产品宣传视频。（待审核）
 - [Remotion 技能合集](collections/media/remotion-dev-skills/README.zh.md) — 在 Remotion 中制作、预览和导出程序化视频。（待审核）

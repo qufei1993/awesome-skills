@@ -4,7 +4,7 @@
 
 ## 合集介绍
 
-Agent 包包含主编排技能及 audit、extract、generate、infographic、lock、variations 模块，由源内容驱动最终设计。
+Reimagine-it 是一个设计编排技能，包含审查、提取、生成、信息图、锁定和变体六个内部流程。它依据源内容生成设计。
 
 ## 适用场景
 
@@ -17,8 +17,8 @@ Agent 包包含主编排技能及 audit、extract、generate、infographic、loc
 
 ## 技能
 
-- [skills/reimagine-it](https://github.com/Kayforkind/reimagine-it/tree/e8c93788bd76d5a3276fb8cc0b0f59379c40c076/skills/reimagine-it)
+- https://github.com/kayforkind/reimagine-it/tree/e8c93788bd76d5a3276fb8cc0b0f59379c40c076/skills/reimagine-it
 
 ## 来源
 
-https://github.com/Kayforkind/reimagine-it
+<https://github.com/Kayforkind/reimagine-it>

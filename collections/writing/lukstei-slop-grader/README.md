@@ -18,8 +18,9 @@ Prepare Node.js and a supported provider API key for the CLI. Give the agent the
 
 ## Skills
 
-- [Complete collection](https://github.com/lukstei/slop-grader/tree/f2807bc4cf174786eda30afd1749e9886201d5c7)
+- https://github.com/lukstei/slop-grader/blob/f2807bc4cf174786eda30afd1749e9886201d5c7/SKILL.md
+- https://github.com/lukstei/slop-grader/blob/f2807bc4cf174786eda30afd1749e9886201d5c7/skills/create-slop-grader-rules/SKILL.md
 
 ## Source
 
-https://github.com/lukstei/slop-grader/tree/f2807bc4cf174786eda30afd1749e9886201d5c7
+<https://github.com/lukstei/slop-grader/tree/f2807bc4cf174786eda30afd1749e9886201d5c7>

@@ -4,7 +4,7 @@
 
 ## 合集介绍
 
-Itqan 发布根目录套件路由和十二个技能，覆盖探索、定义、规划、构建、验证、评审、发布、设计、安全、评估和学习；产出保留在 engineering 工作区。
+Itqan 的官方插件包含十二个技能，覆盖调研、定义、规划、实施、验证、评审、发布、设计、安全、评估和学习。过程产物保存在工程工作区。
 
 ## 适用场景
 
@@ -18,8 +18,19 @@ Itqan 发布根目录套件路由和十二个技能，覆盖探索、定义、�
 
 ## 技能
 
-- [完整技能合集](https://github.com/saleh-alhaddad/itqan-engineering/tree/580dd46b04163a28d6a4cf89d4bc6bcf50531d45)
+- https://github.com/saleh-alhaddad/itqan-engineering/blob/580dd46b04163a28d6a4cf89d4bc6bcf50531d45/skills/engineer/SKILL.md
+- https://github.com/saleh-alhaddad/itqan-engineering/blob/580dd46b04163a28d6a4cf89d4bc6bcf50531d45/skills/define/SKILL.md
+- https://github.com/saleh-alhaddad/itqan-engineering/blob/580dd46b04163a28d6a4cf89d4bc6bcf50531d45/skills/blueprint/SKILL.md
+- https://github.com/saleh-alhaddad/itqan-engineering/blob/580dd46b04163a28d6a4cf89d4bc6bcf50531d45/skills/construct/SKILL.md
+- https://github.com/saleh-alhaddad/itqan-engineering/blob/580dd46b04163a28d6a4cf89d4bc6bcf50531d45/skills/verify/SKILL.md
+- https://github.com/saleh-alhaddad/itqan-engineering/blob/580dd46b04163a28d6a4cf89d4bc6bcf50531d45/skills/inspect/SKILL.md
+- https://github.com/saleh-alhaddad/itqan-engineering/blob/580dd46b04163a28d6a4cf89d4bc6bcf50531d45/skills/release/SKILL.md
+- https://github.com/saleh-alhaddad/itqan-engineering/blob/580dd46b04163a28d6a4cf89d4bc6bcf50531d45/skills/discover/SKILL.md
+- https://github.com/saleh-alhaddad/itqan-engineering/blob/580dd46b04163a28d6a4cf89d4bc6bcf50531d45/skills/design/SKILL.md
+- https://github.com/saleh-alhaddad/itqan-engineering/blob/580dd46b04163a28d6a4cf89d4bc6bcf50531d45/skills/harden/SKILL.md
+- https://github.com/saleh-alhaddad/itqan-engineering/blob/580dd46b04163a28d6a4cf89d4bc6bcf50531d45/skills/assess/SKILL.md
+- https://github.com/saleh-alhaddad/itqan-engineering/blob/580dd46b04163a28d6a4cf89d4bc6bcf50531d45/skills/learn/SKILL.md
 
 ## 来源
 
-https://github.com/saleh-alhaddad/itqan-engineering/tree/580dd46b04163a28d6a4cf89d4bc6bcf50531d45
+<https://github.com/saleh-alhaddad/itqan-engineering/tree/580dd46b04163a28d6a4cf89d4bc6bcf50531d45>

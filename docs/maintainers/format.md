@@ -11,8 +11,10 @@ Contributors submit collection READMEs and optional covers. CI generates website
 CI resolves the README's GitHub Skill links:
 
 - A `SKILL.md` file link includes that one Skill.
-- A directory or repository link recursively includes all contained `SKILL.md` files.
+- A directory or repository link finds Skill directories. A directory containing `SKILL.md` provides one entry and keeps its nested files as supporting resources. Explicit file links can include nested Skills separately.
 - Each source resolves to a fixed commit. Skill descriptions come unchanged from upstream; installation directories and license evidence come from the same commit.
+
+Name and description require author-provided values. Metadata reading normalizes missing quotes around unambiguous text fields while preserving their text. Display names are separate from installation directory names; installation names remain safe across platforms and distinguish different source directories.
 
 Generation keeps shallow Git source caches under `dist/upstream-repositories/`. It reads complete trees and Skill files from fixed commits and verifies their Git hashes. Later builds reuse these caches.
 
@@ -20,7 +22,7 @@ Generated JSON is a build artifact under `dist/`. Directory links define which S
 
 ## Stable data
 
-The first generation creates stable identities and an initial revision. The previous production snapshot is the baseline for subsequent generation. Unchanged collection input reuses its recorded source commits. Changed input is resolved again; stable identities and version history are retained. Trusted CI reads `current.json` and its snapshot from the published data address set in `CATALOG_DATA_BASE_URL`. Local builds use available cached data or an explicit baseline.
+The first generation creates stable identities and an initial revision. The previous production snapshot is the baseline for subsequent generation. Unchanged collection input and generation rules reuse recorded source commits. Changed input or generation rules are resolved again; stable identities and version history are retained. Trusted CI reads `current.json` and its snapshot from the published data address set in `CATALOG_DATA_BASE_URL`. Local builds use available cached data or an explicit baseline.
 
 ## Review and verification
 

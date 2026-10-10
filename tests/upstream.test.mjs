@@ -44,7 +44,7 @@ function upstream(files, { refs = { main: commit }, truncated = false, corrupt =
 }
 const resolve = (submission, options) => resolveSubmission(submission, { inputDigest, dates, ...options });
 
-test('repository and tree links expand all nested Skills, while blob links select one and overlaps deduplicate', async () => {
+test('repository and tree links discover standalone Skills, while blob links select one and overlaps deduplicate', async () => {
   const mock = upstream({ 'skills/first/SKILL.md': skill('first'), 'skills/deep/second/SKILL.md': skill('second'), 'elsewhere/SKILL.md': skill('elsewhere'), LICENSE: mit });
   const result = await resolve(record([
     'https://github.com/example/tools/tree/main/skills',
@@ -63,6 +63,84 @@ test('repository and tree links expand all nested Skills, while blob links selec
   await validateCollection(result.document, `${result.document.id}.json`, '.');
   const all = await resolve(record(['https://github.com/example/tools']), mock);
   assert.equal(all.document.skills.length, 3);
+});
+
+test('Azure onboard phases remain resources of their parent Skill for directory links', async () => {
+  // Microsoft azure-skills at cb1af2f0930ce2bd69fd4a627612eb76e171c17d:
+  // .github/plugins/azure-skills/skills/azure-app-onboard/{SKILL.md,deploy/SKILL.md}.
+  const directory = '.github/plugins/azure-skills/skills/azure-app-onboard';
+  const parent = '---\nname: azure-app-onboard\ndescription: "End-to-end orchestrator: from a business idea, app idea, or existing app to running Azure deployment with cost estimates and pre-deploy approval."\n---\n\n# Azure App Onboard\n\nRead [Deploy](deploy/SKILL.md).\n';
+  const phase = '# Deploy — IaC Execution & Health Verification\n\n| Parent | [azure-app-onboard](../SKILL.md) |\n\nInvoked by the `azure-app-onboard` orchestrator at Phase 4. Not directly user-routable.\n';
+  const mock = upstream({ [`${directory}/SKILL.md`]: parent, [`${directory}/deploy/SKILL.md`]: phase, [`${directory}/references/pipeline-rules.md`]: 'Parent workflow resources.' });
+  const result = await resolve(record([`https://github.com/microsoft/azure-skills/tree/main/${directory}`]), mock);
+  assert.deepEqual(result.document.skills.map(item => item.entry.entryPoint), [`${directory}/SKILL.md`]);
+  assert.equal(result.document.skills[0].installationItems[0].directory, directory);
+  assert.ok(!mock.calls.some(endpoint => endpoint.endsWith(`/git/blobs/${sha(phase)}`)), 'Nested resource metadata must not become an independent entry');
+  await validateCollection(result.document, `${result.document.id}.json`, '.');
+});
+
+test('explicit blob and directory links can select an independent nested Skill under a parent entry', async () => {
+  const files = { 'SKILL.md': skill('router'), 'skills/child/SKILL.md': skill('child'), 'skills/child/nested/SKILL.md': skill('nested') };
+  const repository = 'https://github.com/example/tools';
+  const root = await resolve(record([repository]), upstream(files));
+  assert.deepEqual(root.document.skills.map(item => item.name), ['router']);
+  const explicit = await resolve(record([repository, `${repository}/tree/main/skills/child`, `${repository}/blob/main/skills/child/nested/SKILL.md`]), upstream(files));
+  assert.deepEqual(explicit.document.skills.map(item => item.name), ['router', 'child', 'nested']);
+  assert.deepEqual(explicit.document.skills.map(item => item.installationItems[0].directory), ['.', 'skills/child', 'skills/child/nested']);
+});
+
+test('same author names across directories and repositories retain every Skill with stable installation names', async () => {
+  const files = { 'skills/first/SKILL.md': skill('same-name'), 'skills/second/SKILL.md': skill('same-name') };
+  const links = ['https://github.com/example/tools/tree/main/skills', 'https://github.com/another/tools/blob/main/skills/first/SKILL.md'];
+  const first = await resolve(record(links), upstream(files));
+  const reordered = await resolve(record([...links].reverse()), upstream(files));
+  assert.equal(first.document.skills.length, 3);
+  assert.deepEqual(first.document.skills.map(item => item.name), ['same-name', 'same-name', 'same-name']);
+  const installed = document => Object.fromEntries(document.skills.map(item => [item.id, item.installationItems[0].name]));
+  assert.deepEqual(installed(first.document), installed(reordered.document));
+  assert.equal(new Set(Object.values(installed(first.document))).size, 3);
+  assert.ok(Object.values(installed(first.document)).every(name => name !== 'same-name'));
+  await validateCollection(first.document, `${first.document.id}.json`, '.');
+});
+
+test('namespace names and Windows directory conflicts get safe installation aliases while display names remain original', async () => {
+  const names = ['stitch::react-components', 'Plan', 'plan', 'CON', 'NUL.txt', 'trailing.', 'question?', 'design|system', 'unchanged-name'];
+  const files = Object.fromEntries(names.map((name, index) => [`skills/item-${index}/SKILL.md`, skill(name)]));
+  const result = await resolve(record(['https://github.com/google-labs-code/stitch-skills']), upstream(files));
+  assert.deepEqual(result.document.skills.map(item => item.name), names);
+  const installationNames = result.document.skills.map(item => item.installationItems[0].name);
+  assert.equal(new Set(installationNames.map(name => name.toLowerCase())).size, names.length);
+  for (const name of installationNames) {
+    assert.ok(!/[<>:"/\\|?*%#\u0000-\u001f\u007f]/.test(name), `Unsafe installation directory ${name}`);
+    assert.ok(!/[. ]$/.test(name) && !/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(name), `Windows-reserved installation directory ${name}`);
+  }
+  assert.equal(installationNames.at(-1), 'unchanged-name');
+  assert.equal(result.document.verification.installation, 'not-tested');
+  for (const item of result.document.skills.slice(0, -1)) {
+    assert.match(item.resourceNotes, /desktop collection installation requires name mapping/);
+    assert.match(item.resourceNotes, /upstream setup instructions/);
+  }
+  assert.doesNotMatch(result.document.skills.at(-1).resourceNotes, /requires name mapping/);
+  await validateCollection(result.document, `${result.document.id}.json`, '.');
+});
+
+test('reading unquoted metadata prose records normalization while preserving the original description', async () => {
+  const description = 'Build the workflow: preserve original author prose.';
+  const source = `---\nname: useful\ndescription: ${description}\ncompatibility: Tools required: Node.js and a shell.\n---\n\n# Useful\n`;
+  const result = await resolve(record(['https://github.com/example/tools']), upstream({ 'skills/useful/SKILL.md': source }));
+  assert.equal(result.document.skills[0].originalDescription, description);
+  assert.equal(result.document.skills[0].summary, description);
+  assert.match(result.document.skills[0].resourceNotes, /Metadata scalar syntax normalized during read:/);
+  assert.match(result.document.skills[0].resourceNotes, /description/);
+  assert.match(result.document.skills[0].resourceNotes, /compatibility/);
+  assert.match(result.document.skills[0].resourceNotes, /upstream content unchanged/);
+});
+
+test('author display names with path separators use separate safe installation names', async () => {
+  const result = await resolve(record(['https://github.com/example/tools']), upstream({ 'skills/useful/SKILL.md': skill('design/system') }));
+  assert.equal(result.document.skills[0].name, 'design/system');
+  assert.match(result.document.skills[0].installationItems[0].name, /^[a-z0-9-]+$/);
+  await validateCollection(result.document, `${result.document.id}.json`, '.');
 });
 
 test('a branch containing slashes is resolved as the longest valid ref before directory expansion', async () => {
@@ -129,6 +207,27 @@ test('unchanged input reuses previous fixed commits and data without network req
   assert.notEqual(result.document, previous);
 });
 
+test('unchanged README input regenerates a cached collection created before the current entry rules', async () => {
+  const files = { 'skills/parent/SKILL.md': skill('parent'), 'skills/parent/phase/SKILL.md': skill('phase') };
+  const submission = record(['https://github.com/example/tools/tree/main/skills']);
+  const previous = (await resolve(submission, upstream(files))).document;
+  const nested = await resolve(record(['https://github.com/example/tools/blob/main/skills/parent/phase/SKILL.md']), upstream(files));
+  previous.skills.push(nested.document.skills[0]);
+  previous.sourceKeys = previous.sourceKeys.filter(key => !key.startsWith('generator:'));
+  previous.sourceKeys.push('historical-source');
+  previous.revision = 7;
+  const mock = upstream(files);
+  const result = await resolve(submission, { ...mock, previous });
+  assert.deepEqual(result.document.skills.map(item => item.name), ['parent']);
+  assert.ok(mock.calls.some(endpoint => endpoint.includes('/git/blobs/')));
+  assert.ok(result.document.sourceKeys.includes('generator:skill-entry-v1:useful-skills'));
+  assert.ok(result.document.sourceKeys.includes('historical-source'));
+  assert.equal(result.document.id, previous.id);
+  assert.equal(result.document.revision, 7);
+  assert.equal(result.document.createdAt, previous.createdAt);
+  assert.equal(result.document.sourceKeys.at(-1), `readme:${inputDigest}`);
+});
+
 test('returning to a historical README digest resolves the current input instead of reusing unrelated latest data', async () => {
   const mock = upstream({ 'skills/first/SKILL.md': skill('first') });
   const first = await resolve(record(['https://github.com/example/tools']), mock);
@@ -175,7 +274,6 @@ for (const [name, files, options, expected] of [
   ['invalid YAML frontmatter', { 'skills/first/SKILL.md': '---\nname: first\nname: second\ndescription: useful\n---\n' }, {}, /frontmatter/],
   ['missing description', { 'skills/first/SKILL.md': '---\nname: first\n---\n' }, {}, /description/],
   ['a truncated recursive tree', { 'skills/first/SKILL.md': skill('first') }, { truncated: true }, /truncated/],
-  ['conflicting installation names', { 'skills/first/SKILL.md': skill('same-name'), 'skills/second/SKILL.md': skill('same-name') }, {}, /installation name.*conflict/i],
   ['a symlink SKILL entry', { 'skills/first/SKILL.md': skill('first') }, {}, /regular file/],
 ]) {
   test(`rejects ${name} instead of silently publishing an incomplete or unsafe collection`, async () => {

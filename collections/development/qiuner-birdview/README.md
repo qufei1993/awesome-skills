@@ -18,8 +18,10 @@ Invoke Birdview explicitly for a project. Install birdview-review alongside the 
 
 ## Skills
 
-- [Complete Skill Library](https://github.com/Qiuner/birdview/tree/cdea5340f9710d71c9375e1ca99910c6f59c9704)
+- https://github.com/qiuner/birdview/blob/cdea5340f9710d71c9375e1ca99910c6f59c9704/SKILL.md
+- https://github.com/qiuner/birdview/blob/cdea5340f9710d71c9375e1ca99910c6f59c9704/review-skill/SKILL.md
+- https://github.com/qiuner/birdview/blob/cdea5340f9710d71c9375e1ca99910c6f59c9704/compatibility-audit/SKILL.md
 
 ## Source
 
-https://github.com/Qiuner/birdview/tree/cdea5340f9710d71c9375e1ca99910c6f59c9704
+<https://github.com/Qiuner/birdview/tree/cdea5340f9710d71c9375e1ca99910c6f59c9704>

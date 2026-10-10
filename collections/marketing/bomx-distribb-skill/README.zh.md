@@ -4,7 +4,7 @@
 
 ## 合集介绍
 
-根 Distribb 技能连接关键词研究、审查、主题集群、外链、优化与发布；官方 90-day-seo-sprint 配套技能把这些接口组织成阶段。
+Distribb 技能串联关键词研究、站点审查、主题集群、外链、搜索优化和发布。内部的九十天搜索优化流程按阶段组织这些任务。
 
 ## 适用场景
 
@@ -17,8 +17,8 @@
 
 ## 技能
 
-- [完整技能库](https://github.com/Bomx/distribb-skill/tree/ceb3846641f0b2cbf17674bfac55054604c7fddd)
+- https://github.com/bomx/distribb-skill/tree/ceb3846641f0b2cbf17674bfac55054604c7fddd
 
 ## 来源
 
-https://github.com/Bomx/distribb-skill/tree/ceb3846641f0b2cbf17674bfac55054604c7fddd
+<https://github.com/Bomx/distribb-skill/tree/ceb3846641f0b2cbf17674bfac55054604c7fddd>
