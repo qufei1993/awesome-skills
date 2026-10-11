@@ -1,14 +1,24 @@
 # Awesome Skills
 
+[![Awesome Skills — task-focused collections for AI agents](docs/assets/awesome-skills-banner.png)](https://aiskillshub.link/collections)
+
 Task-focused Skill collections for Skills Hub. Skills stay in their upstream repositories.
 
-[Chinese version](README.zh.md) · [Contribution guide](CONTRIBUTING.md) · [AI rules](AGENTS.md)
+[Website](https://aiskillshub.link) · [Browse collections](https://aiskillshub.link/collections) · [Contribute](CONTRIBUTING.md) · [中文](README.zh.md)
+
+## Start here
+
+1. **Find a collection**: browse the categories below or search the website for your task.
+2. **Explore its Skills**: read the overview, usage advice, and upstream links. Follow upstream installation instructions and check tool requirements and licenses. Manage your Skills with [Skills Hub](https://aiskillshub.link/download).
+3. **Share a collection**: submit a README using the [contribution guide](CONTRIBUTING.md), or [suggest a collection](https://github.com/qufei1993/awesome-skills/issues/new?template=collection.yml).
 
 ## Browse collections
 
 Browse published collections on the [Skills Hub website](https://aiskillshub.link/collections). The directory below lists collections included in this repository; inclusion does not mean publication or successful testing.
 
 After maintainers review and merge a PR, the publication workflow generates production data. Publication approval, source verification, installation tests, and workflow tests are separate states. Refer to the website and published data for their recorded results.
+
+[Development & Engineering](#development--engineering) · [Design & Visuals](#design--visuals) · [Product & Projects](#product--projects) · [Writing & Content](#writing--content) · [Marketing & Growth](#marketing--growth) · [Research & Learning](#research--learning) · [Data & Analysis](#data--analysis) · [Office & Productivity](#office--productivity) · [Audio & Video](#audio--video) · [Other & General](#other--general)
 
 <!-- catalog:start -->
 ### Development & Engineering
@@ -406,7 +416,6 @@ Before using an upstream Skill, check the license and requirements at its pinned
 - [Internal data](docs/maintainers/format.md)
 - [Data publication and local preview](docs/maintainers/deployment.md)
 - [Repository design](docs/design.md)
-
 - [Public repository maintenance](docs/maintainers/public-repository.md)
 
 </details>
