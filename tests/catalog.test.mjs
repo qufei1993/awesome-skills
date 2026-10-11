@@ -290,6 +290,22 @@ test('each root README links its matching collection README while preserving int
   assert.doesNotMatch(zh,/Planning|pending review|Development/);
 });
 
+test('README directories stay neutral without changing pending or approved publication records',async t=>{
+  const rootDir=await root(t);
+  await writeSubmission(rootDir);
+  await writeSubmission(rootDir,{language:'zh',...chinese});
+  await writeFile(path.join(rootDir,'README.zh.md'),'# 目录\n');
+  const pending=await preview(rootDir);
+  assert.equal(pending.records[0].review.status,'pending');
+  const before=await Promise.all(['README.md','README.zh.md'].map(name=>readFile(path.join(rootDir,name),'utf8')));
+  for(const text of before) assert.doesNotMatch(text,/pending review|待审核|approved|已审核/);
+  const approved=await buildCatalog({rootDir,resolveSources:true,reviewApproval:approval,request});
+  assert.equal(approved.records[0].review.status,'approved');
+  assert.equal(approved.records[0].verification.installation,'not-tested');
+  const after=await Promise.all(['README.md','README.zh.md'].map(name=>readFile(path.join(rootDir,name),'utf8')));
+  assert.deepEqual(after,before);
+});
+
 test('missing collection translations use slug and local status in the optional Chinese root README',async t=>{
   const rootDir=await root(t);
   await writeSubmission(rootDir);

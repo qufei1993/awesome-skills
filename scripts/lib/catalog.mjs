@@ -345,9 +345,8 @@ function directoryLine(record,language,rootDir) {
   const translated=typeof display?.title === 'string' && typeof display?.description === 'string';
   const label=translated ? display.title : data.slug;
   const description=translated ? ` — ${markdownText(display.description)}` : ` — ${language === 'en' ? 'Translation pending' : '待翻译'}`;
-  const review=data.review?.status === 'approved' ? '' : language === 'en' ? ' (pending review)' : '（待审核）';
   const file=record.browseFiles?.[language] ?? Object.values(record.browseFiles ?? {})[0] ?? record.file;
-  return `- [${markdownText(label)}](${path.relative(rootDir,file).split(path.sep).join("/")})${description}${review}`;
+  return `- [${markdownText(label)}](${path.relative(rootDir,file).split(path.sep).join("/")})${description}`;
 }
 async function readmeUpdates(rootDir,records) {
   const updates=[];
