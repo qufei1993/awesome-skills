@@ -70,3 +70,5 @@ npm run test:site -- --site ../skills-hub-web
 ```
 
 `VITE_COLLECTIONS_ALLOW_PREVIEW=true` allows preview data in local and test environments. See [data rules](format.md) for generation and review.
+
+The index searches collection titles, descriptions, categories, tags, and authors in both languages. Skill names, summaries, roles, and repository paths remain in per-collection details and are excluded from the search index.

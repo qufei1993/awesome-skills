@@ -594,21 +594,6 @@ export function indexItem(collection) {
     ),
   ];
   const english = collection.localizations?.en;
-  const englishSearchText = english
-    ? [
-        english.title ?? collection.title,
-        english.description ?? collection.description,
-        collection.category,
-        authorLabel,
-        ...(english.tags ?? collection.tags),
-        ...collection.skills.flatMap((skill) => [
-          skill.name,
-          english.skills?.[skill.id]?.summary ?? skill.summary,
-          english.skills?.[skill.id]?.role ?? skill.role ?? "",
-          skill.entry.repo,
-        ]),
-      ].join(" ")
-    : "";
   return {
     schemaVersion: 1,
     id: collection.id,
@@ -622,20 +607,16 @@ export function indexItem(collection) {
     authorLabel,
     itemCount: collection.skills.length,
     installationCount: installations.size,
-    searchText: [
+    searchText: [...new Set([
       collection.title,
       collection.description,
       collection.category,
       authorLabel,
       ...collection.tags,
-      ...collection.skills.flatMap((skill) => [
-        skill.name,
-        skill.summary,
-        skill.role || "",
-        skill.entry.repo,
-      ]),
-      englishSearchText,
-    ].join(" "),
+      english?.title,
+      english?.description,
+      ...(english?.tags ?? []),
+    ].filter(Boolean))].join(" "),
     ...(english
       ? {
           localizations: {
