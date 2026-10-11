@@ -1,47 +1,94 @@
 name: Publish catalog data
+
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
+
 permissions:
   contents: read
+  pull-requests: read
+
 concurrency:
   group: catalog-data-publication
   cancel-in-progress: false
+
 jobs:
-  reindex:
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/codex/compact-collection-search'
+  publish:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      CATALOG_DATA_BASE_URL: ${{ vars.CATALOG_DATA_BASE_URL }}
     steps:
       - uses: actions/checkout@v4
         with:
-          path: proposal
+          ref: ${{ github.sha }}
+          fetch-depth: 0
           persist-credentials: false
-      - uses: actions/checkout@v4
-        with:
-          ref: 25115bdbb23ce21a53a34e3b7d68ca5a4bd90154
-          path: baseline
-          persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-          cache-dependency-path: proposal/package-lock.json
-      - run: npm ci
-        working-directory: proposal
-      - run: ln -s "$GITHUB_WORKSPACE/proposal/node_modules" "$GITHUB_WORKSPACE/baseline/node_modules"
-      - run: node .github/scripts/reindex-once.mjs
-        working-directory: proposal
+      - name: Check latest main revision
+        id: latest
         env:
-          BASELINE_DIR: ../baseline
-          CATALOG_DATA_BASE_URL: ${{ vars.CATALOG_DATA_BASE_URL }}
-      - run: npm run deploy:data -- --dry-run
-        working-directory: proposal
-      - run: npm run deploy:data
-        working-directory: proposal
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          latest_revision="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)"
+          if [ "$latest_revision" = "$GITHUB_SHA" ]; then
+            echo 'publish=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'publish=false' >> "$GITHUB_OUTPUT"
+            echo 'A newer main revision will publish the data.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Check publication settings
+        if: steps.latest.outputs.publish == 'true'
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      - run: npm run test:data -- --url "$CATALOG_DATA_BASE_URL"
-        working-directory: proposal
+        run: |
+          node --input-type=module <<'NODE'
+          if (!/^[a-f0-9]{32}$/i.test(process.env.CLOUDFLARE_ACCOUNT_ID || '') || !process.env.CLOUDFLARE_API_TOKEN || !process.env.CATALOG_DATA_BASE_URL) {
+            throw new Error('Configure CLOUDFLARE_ACCOUNT_ID, CATALOG_DATA_BASE_URL and the CLOUDFLARE_API_TOKEN Actions secret before publishing.');
+          }
+          NODE
+      - uses: actions/setup-node@v4
+        if: steps.latest.outputs.publish == 'true'
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+        if: steps.latest.outputs.publish == 'true'
+      - run: npm run check
+        if: steps.latest.outputs.publish == 'true'
+      - run: npm run validate:publish -- --resolve-upstream
+        if: steps.latest.outputs.publish == 'true'
+      - name: Generate reviewed data and static files
+        if: steps.latest.outputs.publish == 'true'
+        id: package
+        run: |
+          npm run build -- --reviewed-main --output dist/collections --source-revision "$GITHUB_SHA"
+          npm run package:data -- --from dist/collections --output dist/assets
+          npm run deploy:data -- --dry-run
+      - name: Check latest main revision before deployment
+        if: steps.latest.outputs.publish == 'true' && steps.package.outputs.changed == 'true'
+        id: deploy
         env:
-          CATALOG_DATA_BASE_URL: ${{ vars.CATALOG_DATA_BASE_URL }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          latest_revision="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)"
+          if [ "$latest_revision" = "$GITHUB_SHA" ]; then
+            echo 'publish=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'publish=false' >> "$GITHUB_OUTPUT"
+            echo 'A newer main revision will deploy the data.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Deploy collection data
+        if: steps.deploy.outputs.publish == 'true'
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: npm run deploy:data
+      - name: Verify published files
+        if: steps.deploy.outputs.publish == 'true' || steps.latest.outputs.publish == 'true' && steps.package.outputs.changed == 'false'
+        run: |
+          npm run test:data -- --url "$CATALOG_DATA_BASE_URL"
+          echo "Verified collection data from $GITHUB_SHA on Workers Static Assets." >> "$GITHUB_STEP_SUMMARY"
