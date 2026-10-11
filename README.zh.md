@@ -2,9 +2,9 @@
 
 [![Awesome Skills：面向 AI 助手的任务型技能合集](docs/assets/awesome-skills-banner.png)](https://aiskillshub.link/collections)
 
-为 Skills Hub 整理面向具体任务的技能合集。Skills 保留在各自的上游仓库中。
+为 [Skills Hub 桌面应用](https://github.com/qufei1993/skills-hub) 整理面向具体任务的技能合集。桌面应用负责管理和同步 Agent Skills，本仓库维护合集目录；Skills 保留在各自的上游仓库中。
 
-[官网](https://aiskillshub.link) · [浏览合集](https://aiskillshub.link/collections) · [贡献指南](CONTRIBUTING.zh.md) · [英文版](README.md)
+[官网](https://aiskillshub.link) · [桌面应用](https://github.com/qufei1993/skills-hub) · [浏览合集](https://aiskillshub.link/collections) · [贡献指南](CONTRIBUTING.zh.md) · [英文版](README.md)
 
 ## 从这里开始
 

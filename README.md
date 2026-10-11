@@ -2,9 +2,9 @@
 
 [![Awesome Skills — task-focused collections for AI agents](docs/assets/awesome-skills-banner.png)](https://aiskillshub.link/collections)
 
-Task-focused Skill collections for Skills Hub. Skills stay in their upstream repositories.
+Task-focused Skill collections for [Skills Hub](https://github.com/qufei1993/skills-hub), the desktop app for managing and syncing Agent Skills. This repository maintains the collection directory; Skills stay in their upstream repositories.
 
-[Website](https://aiskillshub.link) · [Browse collections](https://aiskillshub.link/collections) · [Contribute](CONTRIBUTING.md) · [中文](README.zh.md)
+[Website](https://aiskillshub.link) · [Desktop app](https://github.com/qufei1993/skills-hub) · [Browse collections](https://aiskillshub.link/collections) · [Contribute](CONTRIBUTING.md) · [中文](README.zh.md)
 
 ## Start here
 
