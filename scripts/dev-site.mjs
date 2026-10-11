@@ -1,9 +1,10 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { startLocalPreview } from './lib/local-preview.mjs';
+import { rankCollections } from './lib/repository-ranking.mjs';
 
 const rootDir = fileURLToPath(new URL('../', import.meta.url));
-const options = { rootDir, siteDir: path.resolve(rootDir, '../skills-hub-web'), resolveSources: true };
+const options = { rootDir, siteDir: path.resolve(rootDir, '../skills-hub-web'), resolveSources: true, rankRecords: records => rankCollections(records, { rootDir }) };
 const args = process.argv.slice(2);
 for (let index = 0; index < args.length; index++) {
   const flag = args[index];

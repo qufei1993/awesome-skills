@@ -26,6 +26,33 @@ const preview=rootDir=>buildCatalog({rootDir,preview:true,resolveSources:true,re
 const previousMap=document=>new Map([[document.slug,structuredClone(document)]]);
 const chinese={title:'计划合集',description:'帮助制定实施计划。',overview:'先梳理任务，再制定计划。',scenarios:['规划功能'],usage:'先阅读计划，再开始实施。'};
 
+test('repository Star refresh reorders the website index while preserving pinned collection details',async t=>{
+  const rootDir=await root(t);
+  await writeSubmission(rootDir,{slug:'alpha',sourceUrl:'https://github.com/example/low',links:[`https://github.com/example/low/tree/${UPSTREAM_SHA}/skills`]});
+  await writeSubmission(rootDir,{slug:'zulu',sourceUrl:'https://github.com/example/high',links:[`https://github.com/example/high/tree/${UPSTREAM_SHA}/skills`]});
+  const upstream=fixtureUpstream({repositories:{
+    'example/low':{'skills/plan-work/SKILL.md':skillText('plan-work')},
+    'example/high':{'skills/plan-work/SKILL.md':skillText('plan-work')},
+  }});
+  let now=Date.parse('2026-10-11T00:00:00Z');
+  let counts={'example/low':10,'example/high':1000};
+  const rankRecords=async records=>{
+    const {rankCollections}=await import('../scripts/lib/repository-ranking.mjs');
+    return rankCollections(records,{rootDir,now,request:async repo=>counts[repo]});
+  };
+  const first=await buildCatalog({rootDir,preview:true,resolveSources:true,request:upstream,sourceRevision:UPSTREAM_SHA,rankRecords});
+  assert.deepEqual(first.index.collections.map(item=>item.slug),['zulu','alpha']);
+  await run(process.execPath,[cli,'build','--preview','--resolve-upstream','--source-revision',UPSTREAM_SHA],{cwd:rootDir});
+  assert.deepEqual(JSON.parse(await readFile(path.join(first.outputDir,'index.json'),'utf8')).collections.map(item=>item.slug),['zulu','alpha']);
+  const details=new Map(await Promise.all(first.records.map(async document=>[document.slug,await readFile(path.join(first.outputDir,`${document.id}.json`))])));
+  now+=25*60*60*1000;
+  counts={'example/low':2000,'example/high':1000};
+  const second=await buildCatalog({rootDir,preview:true,resolveSources:true,request:()=>{throw new Error('Ranking updates must reuse pinned Skill content');},sourceRevision:UPSTREAM_SHA,previousRecords:new Map(first.records.map(document=>[document.slug,document])),rankRecords});
+  assert.deepEqual(second.index.collections.map(item=>item.slug),['alpha','zulu']);
+  for(const document of second.records) assert.deepEqual(await readFile(path.join(second.outputDir,`${document.id}.json`)),details.get(document.slug));
+  await verifySnapshot({fromDir:second.outputDir,expectedRevision:UPSTREAM_SHA,allowPreview:true});
+});
+
 test('offline validation derives category and readable fields without resolving upstream',async t=>{
   const rootDir=await root(t);
   const {data}=await writeSubmission(rootDir,{category:'productivity'});

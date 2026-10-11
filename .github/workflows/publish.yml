@@ -55,6 +55,14 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+      - name: Restore repository Star counts
+        if: steps.latest.outputs.publish == 'true'
+        uses: actions/cache@v4
+        with:
+          path: dist/repository-stars.json
+          key: repository-stars-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            repository-stars-${{ runner.os }}-
       - run: npm ci
         if: steps.latest.outputs.publish == 'true'
       - run: npm run check

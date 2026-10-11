@@ -421,10 +421,11 @@ async function safeOutputParent(parent,root) {
     }
   }
 }
-export async function buildCatalog({rootDir,outputDir=path.join(rootDir,'dist/collections'),preview=false,baseDir,sourceRevision,resolveSources=false,previousRecords,reviewApproval,request}={}) {
+export async function buildCatalog({rootDir,outputDir=path.join(rootDir,'dist/collections'),preview=false,baseDir,sourceRevision,resolveSources=false,previousRecords,reviewApproval,request,rankRecords}={}) {
   if (sourceRevision !== undefined && !SHA.test(sourceRevision)) throw new Error('sourceRevision must be a full 40-character commit SHA');
   const all=await loadCatalog({rootDir,baseDir,mode:preview?'submission':'production',resolveSources,previousRecords,reviewApproval,request});
-  const selected=all.filter(r=>r.complete && r.document.status === 'active' && (preview || r.document.review.status === 'approved')).sort((a,b)=>(a.document.sortOrder ?? 0)-(b.document.sortOrder ?? 0)||a.document.slug.localeCompare(b.document.slug));
+  let selected=all.filter(r=>r.complete && r.document.status === 'active' && (preview || r.document.review.status === 'approved')).sort((a,b)=>(a.document.sortOrder ?? 0)-(b.document.sortOrder ?? 0)||a.document.slug.localeCompare(b.document.slug));
+  if (rankRecords) selected=await rankRecords(selected);
   const records=selected.map(r=>r.document);
   const index={schemaVersion:1,collections:records.map(indexItem)};
   const readmes=await readmeUpdates(rootDir,all);

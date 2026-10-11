@@ -20,6 +20,8 @@ Generation keeps shallow Git source caches under `dist/upstream-repositories/`. 
 
 Generated JSON is a build artifact under `dist/`. Directory links define which Skills the collection includes. The detailed data contract is in [site-contract.mjs](../../scripts/lib/site-contract.mjs).
 
+Website builds sort collections by their single source repository's GitHub Star count, highest first. Star counts are refreshed during builds after a 24-hour cache period. A failed refresh keeps the last known count. Collections with multiple source repositories use a stable fallback order. Sorting updates only the index order and preserves recorded Skill content and collection revisions. Local builds use the GitHub CLI (`gh`) to read public repository metadata; CI uses its existing GitHub token.
+
 ## Stable data
 
 The first generation creates stable identities and an initial revision. The previous production snapshot is the baseline for subsequent generation. Unchanged collection input and generation rules reuse recorded source commits. Changed input or generation rules are resolved again; stable identities and version history are retained. Trusted CI reads `current.json` and its snapshot from the published data address set in `CATALOG_DATA_BASE_URL`. Local builds use available cached data or an explicit baseline.

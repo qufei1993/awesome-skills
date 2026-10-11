@@ -11,7 +11,7 @@ import { startDataServer } from './data-server.mjs';
 
 const print = line => process.stdout.write(`${line}\n`);
 
-export async function startLocalPreview({ rootDir, siteDir, sitePort = 8775, dataPort = 8776, watch = true, sourceRevision, resolveSources = false, request, log = print }) {
+export async function startLocalPreview({ rootDir, siteDir, sitePort = 8775, dataPort = 8776, watch = true, sourceRevision, resolveSources = false, request, rankRecords, log = print }) {
   rootDir = path.resolve(rootDir);
   siteDir = path.resolve(siteDir);
   await access(path.join(siteDir, 'vite.config.ts'));
@@ -40,7 +40,7 @@ export async function startLocalPreview({ rootDir, siteDir, sitePort = 8775, dat
         },
         allowPreview: true,
       });
-      await buildCatalog({ rootDir, outputDir: snapshotDir, preview: true, sourceRevision, resolveSources, request });
+      await buildCatalog({ rootDir, outputDir: snapshotDir, preview: true, sourceRevision, resolveSources, request, rankRecords });
       lastPublication = await buildStaticPublication({ fromDir: snapshotDir, outDir: dataDir, previousSnapshot, allowPreview: true });
       notify();
       log(`已更新 ${lastPublication.count} 个合集；发布数据包含 ${lastPublication.imageCount} 张本地图片。`);

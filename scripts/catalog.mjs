@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process';
 import { buildCatalog, validateCatalog } from './lib/catalog.mjs';
 import { serializeContributionMarkdown } from './lib/contribution.mjs';
 import { loadPreviousSnapshot, mergedMainApproval } from './lib/generation-context.mjs';
+import { rankCollections } from './lib/repository-ranking.mjs';
 
 const help = `Usage: node scripts/catalog.mjs COMMAND [OPTIONS]
 
@@ -101,7 +102,7 @@ async function main() {
   if (sourceRevision === undefined) {
     try {sourceRevision=execFileSync('git',['rev-parse','HEAD'],{cwd:rootDir,encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();} catch { /* API permits local snapshots without a Git revision. */ }
   }
-  const result=await buildCatalog({rootDir,outputDir:o['--output'] ? path.resolve(rootDir,o['--output']) : undefined,preview:!!o['--preview'],baseDir,sourceRevision,...generation});
+  const result=await buildCatalog({rootDir,outputDir:o['--output'] ? path.resolve(rootDir,o['--output']) : undefined,preview:!!o['--preview'],baseDir,sourceRevision,...generation,rankRecords:records=>rankCollections(records,{rootDir})});
   console.log(`Exported ${result.records.length} ${o['--preview']?'preview':'production'} collections to ${result.outputDir}. ${result.incomplete.length} incomplete drafts skipped.`);
 }
 main().catch(error=>{console.error(error.message);process.exitCode=1;});
