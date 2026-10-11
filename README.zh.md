@@ -1,14 +1,24 @@
 # Awesome Skills
 
+[![Awesome Skills：面向 AI 助手的任务型技能合集](docs/assets/awesome-skills-banner.png)](https://aiskillshub.link/collections)
+
 为 Skills Hub 整理面向具体任务的技能合集。Skills 保留在各自的上游仓库中。
 
-[英文版](README.md) · [贡献指南](CONTRIBUTING.zh.md) · [规则中文说明](docs/rules.zh.md)
+[官网](https://aiskillshub.link) · [浏览合集](https://aiskillshub.link/collections) · [贡献指南](CONTRIBUTING.zh.md) · [英文版](README.md)
+
+## 从这里开始
+
+1. **找合集**：按下面的分类浏览，或在官网搜索你要完成的任务。
+2. **了解用法**：打开合集介绍，查看场景、使用建议和上游 Skill 链接；按上游说明安装，并确认适用工具与许可。可用 [Skills Hub](https://aiskillshub.link/download) 管理 Skills。
+3. **分享合集**：按[贡献指南](CONTRIBUTING.zh.md) 提交一份 README，或[提供收录建议](https://github.com/qufei1993/awesome-skills/issues/new?template=collection.yml)。
 
 ## 浏览合集
 
 在 [Skills Hub 官网](https://aiskillshub.link/collections) 浏览已发布合集。下面的目录列出仓库中收录的合集，不代表已经发布或通过实测。
 
 维护者通过 PR 审核后，发布流程生成正式数据。发布审核、来源核验、安装测试和工作流测试是不同状态；以官网及发布数据中的实际记录为准。
+
+[开发与工程](#开发与工程) · [设计与视觉](#设计与视觉) · [产品与项目](#产品与项目) · [写作与内容](#写作与内容) · [营销与增长](#营销与增长) · [研究与学习](#研究与学习) · [数据与分析](#数据与分析) · [办公与效率](#办公与效率) · [音视频制作](#音视频制作) · [其他与综合](#其他与综合)
 
 <!-- catalog:start -->
 ### 开发与工程
@@ -406,7 +416,6 @@
 - [内部数据说明](docs/maintainers/format.zh.md)
 - [数据发布与本地预览](docs/maintainers/deployment.zh.md)
 - [仓库整体方案](docs/design.zh.md)
-
 - [公开仓库维护](docs/maintainers/public-repository.zh.md)
 
 </details>
