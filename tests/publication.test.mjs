@@ -119,10 +119,10 @@ test('the read-only publication reader verifies every snapshot file', async t =>
   for (const [name, bytes] of source.files) assert.deepEqual(verified.files.get(name), bytes);
 });
 
-test('publishes and reads a bilingual index above 10 MiB through hosted checks and generation baselines', async t => {
+test('keeps a bilingual index small while publishing full skill details through hosted checks and generation baselines', async t => {
   const source = await snapshot(t, { skillCount:40 }), outDir = await directory(t);
-  assert.ok(source.files.get('index.json').length > 10 * 1024 * 1024);
-  assert.ok(source.files.get('index.json').length < 20 * 1024 * 1024);
+  assert.ok(source.files.get('index.json').length < 4096);
+  assert.ok(source.files.get(`${ID}.json`).length > 7 * 1024 * 1024);
   assert.ok(source.files.get(`${ID}.json`).length < 20 * 1024 * 1024);
   assert.ok([...source.files.values()].reduce((total, bytes) => total + bytes.length, 0) < 100 * 1024 * 1024);
   const detail = JSON.parse(source.files.get(`${ID}.json`));
@@ -145,9 +145,9 @@ test('publishes and reads a bilingual index above 10 MiB through hosted checks a
   for (const [name, bytes] of source.files) assert.deepEqual(baseline.files.get(name), bytes);
 });
 
-test('rejects an index above 20 MiB before writing a publication', async t => {
-  const source = await snapshot(t, { skillCount:54 }), outDir = await directory(t);
-  assert.ok(source.files.get('index.json').length > 20 * 1024 * 1024);
+test('rejects a detail file above 20 MiB before writing a publication', async t => {
+  const source = await snapshot(t, { skillCount:110 }), outDir = await directory(t);
+  assert.ok(source.files.get(`${ID}.json`).length > 20 * 1024 * 1024);
   await assert.rejects(verifySnapshotFiles(source.files), /Snapshot file body or size limit/i);
   await assert.rejects(buildStaticPublication({ fromDir:source.root, outDir }), /Snapshot file size or count limit/i);
   assert.deepEqual(await readdir(outDir), []);

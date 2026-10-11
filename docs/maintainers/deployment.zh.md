@@ -70,3 +70,5 @@ npm run test:site -- --site ../skills-hub-web
 ```
 
 `VITE_COLLECTIONS_ALLOW_PREVIEW=true` 允许本地和测试环境读取预览数据。生成与审核规则见[数据规则](format.zh.md)。
+
+索引仅搜索合集名称、简介、分类、标签和作者，包含中英文合集信息。内部 Skill 名称、描述、角色和仓库路径保留在各合集详情中，不进入搜索索引。
