@@ -220,6 +220,7 @@ After maintainers review and merge a PR, the publication workflow generates prod
 - [Taste Skill · Frontend Design](collections/design/taste/README.md) — Give AI-generated interfaces a stronger design direction, from typography and visual style to motion.
 - [UIZZE Skills](collections/design/uizze-uizze/README.md) — Build product-specific interfaces with design guidance and focused reference research.
 - [UX/UI Principles Skills](collections/design/uxuiprinciples-agent-skills/README.md) — Evaluate interfaces, user flows, and AI interactions using focused UX review workflows.
+- [Anatomy](collections/design/wheresryan22-anatomy/README.md) — Explain technical ideas through detailed, interactive isometric machines and instruments built with SVG.
 
 ### Product & Projects
 

@@ -220,6 +220,7 @@
 - [Taste Skill · 前端设计](collections/design/taste/README.zh.md) — 从排版、风格到动效，让 AI 生成的界面更有设计感。
 - [UIZZE 界面技能](collections/design/uizze-uizze/README.zh.md) — 结合设计指导与参考研究构建符合产品特点的界面。
 - [UX/UI Principles 技能](collections/design/uxuiprinciples-agent-skills/README.zh.md) — 通过专项 UX 评审检查界面、用户流程和 AI 交互。
+- [Anatomy](collections/design/wheresryan22-anatomy/README.zh.md) — 用 SVG 构建细节丰富、可交互的等距机械与仪器模型，解释技术概念。
 
 ### 产品与项目
 
