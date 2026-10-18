@@ -384,6 +384,7 @@
 - [Perso 视频配音技能](collections/media/perso-ai-perso-dubbing-plugin/README.zh.md) — 通过 Perso 流程为视频配音、处理字幕并制作短片。
 - [产品宣传视频](collections/media/product-video/README.zh.md) — 先明确需求，再制作画面，用 Skills 配合完成产品宣传视频。
 - [Remotion 技能合集](collections/media/remotion-dev-skills/README.zh.md) — 在 Remotion 中制作、预览和导出程序化视频。
+- [Sweety 手绘口播视频](collections/media/threerocks-sweety-handdraw-video/README.zh.md) — 把主题、文章或讲解稿制作成边画边讲的有声视频。
 
 ### 其他与综合
 

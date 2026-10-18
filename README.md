@@ -384,6 +384,7 @@ After maintainers review and merge a PR, the publication workflow generates prod
 - [Perso Dubbing Skills](collections/media/perso-ai-perso-dubbing-plugin/README.md) — Dub videos, prepare subtitles, and create short clips through Perso workflows.
 - [Product Promo Videos](collections/media/product-video/README.md) — Clarify the brief, build the visuals, and combine Skills to create a product promo video.
 - [Remotion Agent Skills](collections/media/remotion-dev-skills/README.md) — Create, preview, and render programmatic videos in Remotion.
+- [Sweety Handdraw Video](collections/media/threerocks-sweety-handdraw-video/README.md) — Turn a topic, article, or script into a narrated hand-drawn explainer video.
 
 ### Other & General
 
