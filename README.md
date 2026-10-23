@@ -183,6 +183,7 @@ After maintainers review and merge a PR, the publication workflow generates prod
 - [Kilo-Kit Skill Registry](collections/development/vodailocz-kilo-kit-mcp/README.md) — Skill routing, planning, verification, and knowledge workflows for coding agents.
 - [VoltAgent Skills](collections/development/voltagent-skills/README.md) — Build VoltAgent projects and consult framework patterns and version-matched documentation.
 - [AG Kit Skills](collections/development/vudovn-ag-kit/README.md) — Build applications with Antigravity’s project-level engineering toolkit.
+- [Vue Skills](collections/development/vuejs-ai-skills/README.md) — Develop Vue 3 applications with guidance for components, routing, state management, testing, and debugging.
 - [Weights & Biases Skills](collections/development/wandb-skills/README.md) — Guide coding agents through W&B experiment analysis, training research, and application tracing.
 - [Weaviate Agent Skills](collections/development/weaviate-agent-skills/README.md) — Build and query AI applications backed by Weaviate.
 - [Atlas Skills](collections/development/wede-wx-atlas/README.md) — Keep agent work tied to an explicit goal contract and reusable lessons.
