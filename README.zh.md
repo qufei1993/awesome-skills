@@ -183,6 +183,7 @@
 - [Kilo-Kit 技能 registry](collections/development/vodailocz-kilo-kit-mcp/README.zh.md) — 整理编码代理的技能路由、规划、验证与知识工作流。
 - [VoltAgent 技能包](collections/development/voltagent-skills/README.zh.md) — 建立 VoltAgent 项目并查阅框架模式与版本对应文档。
 - [AG Kit 技能合集](collections/development/vudovn-ag-kit/README.zh.md) — 使用 Antigravity 项目级工程工具包开发应用。
+- [Vue 开发技能合集](collections/development/vuejs-ai-skills/README.zh.md) — 为 Vue 3 应用开发提供组件、路由、状态管理、测试和调试指导。
 - [Weights & Biases 技能](collections/development/wandb-skills/README.zh.md) — 辅助编程 Agent 分析 W&B 实验、开展训练研究并接入应用追踪。
 - [Weaviate Agent 技能](collections/development/weaviate-agent-skills/README.zh.md) — 开发并查询使用 Weaviate 的 AI 应用。
 - [Atlas 目标约束技能](collections/development/wede-wx-atlas/README.zh.md) — 用明确的目标契约和可复用经验约束 Agent 工作。
