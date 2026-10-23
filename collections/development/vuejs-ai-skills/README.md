@@ -2,6 +2,8 @@
 
 Develop Vue 3 applications with guidance for components, routing, state management, testing, and debugging.
 
+![AI-generated Vue Skills collection cover](cover.webp)
+
 ## Overview
 
 This community collection from vuejs-ai includes eight Skills covering Vue 3 with Composition API and TypeScript, Options API, Vue Router, Pinia, testing, JSX, debugging, and reusable composables. The upstream project is an early experiment; check its guidance against your project and installed versions.
