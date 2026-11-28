@@ -52,16 +52,18 @@ For a project's first use, ask the agent to configure the project. Then choose r
 
 ## Skills
 
-- [Engineering Skills](https://github.com/mattpocock/skills/tree/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering)
-- [Misc Skills](https://github.com/mattpocock/skills/tree/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/misc)
-- [Productivity Skills](https://github.com/mattpocock/skills/tree/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/productivity)
+- [Engineering Skills](https://github.com/mattpocock/skills/tree/main/skills/engineering)
+- [Misc Skills](https://github.com/mattpocock/skills/tree/main/skills/misc)
+- [Productivity Skills](https://github.com/mattpocock/skills/tree/main/skills/productivity)
 
 ## Source
 
 https://github.com/mattpocock/skills
 ```
 
-Each link can point to one `SKILL.md` file (`blob/<ref>/…/SKILL.md`), a directory (`tree/<ref>/<path>`), or a whole GitHub repository. Plain URLs and Markdown links both work. CI, the repository's automated workflow, reads one Skill from a file link. For a directory or repository link, it finds Skill directories and reads their entry files. A directory containing `SKILL.md` is one Skill; its nested files remain supporting resources. Use a file link to list a nested Skill separately.
+Each link can point to one `SKILL.md` file (`blob/<ref>/…/SKILL.md`), a directory (`tree/<ref>/<path>`), or a whole GitHub repository. Plain URLs and Markdown links both work. You can paste a branch link such as `main` directly from GitHub. You can also use a tag or a full commit SHA to select a specific version. CI records the commit it resolves when it builds the collection.
+
+CI reads one Skill from a file link. For a directory or repository link, it finds Skill directories and reads their entry files. A directory containing `SKILL.md` is one Skill; its nested files remain supporting resources. Use a file link to list a nested Skill separately.
 
 README supplies the collection's title, summary, overview, scenarios, and usage. CI generates website data from the README and linked upstream Skills. It copies each Skill's upstream description and resolves its version and installation directory.
 

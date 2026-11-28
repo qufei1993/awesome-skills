@@ -52,16 +52,18 @@
 
 ## 技能
 
-- [工程技能](https://github.com/mattpocock/skills/tree/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/engineering)
-- [杂项技能](https://github.com/mattpocock/skills/tree/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/misc)
-- [办公效率技能](https://github.com/mattpocock/skills/tree/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/skills/productivity)
+- [工程技能](https://github.com/mattpocock/skills/tree/main/skills/engineering)
+- [杂项技能](https://github.com/mattpocock/skills/tree/main/skills/misc)
+- [办公效率技能](https://github.com/mattpocock/skills/tree/main/skills/productivity)
 
 ## 来源
 
 https://github.com/mattpocock/skills
 ```
 
-链接可以指向一个 `SKILL.md` 文件（`blob/<ref>/…/SKILL.md`）、目录（`tree/<ref>/<path>`）或整个 GitHub 仓库，可以直接写 URL 或 Markdown 链接。CI（仓库的自动检查与构建流程）从文件链接读取一个技能，从目录或仓库链接查找技能目录并读取入口。带有 `SKILL.md` 的目录作为一个技能，内部文件随它保留为辅助资源。要单独列出嵌套技能，使用该技能的文件链接。
+链接可以指向一个 `SKILL.md` 文件（`blob/<ref>/…/SKILL.md`）、目录（`tree/<ref>/<path>`）或整个 GitHub 仓库，可以直接写 URL 或 Markdown 链接。可以直接粘贴 GitHub 上的分支链接，例如示例中的 `main`。需要指定版本时，也可以使用标签或完整的提交 SHA。CI 在构建合集时会记录链接解析到的提交。
+
+CI 从文件链接读取一个技能，从目录或仓库链接查找技能目录并读取入口。带有 `SKILL.md` 的目录作为一个技能，内部文件随它保留为辅助资源。要单独列出嵌套技能，使用该技能的文件链接。
 
 README 提供合集的标题、短简介、介绍、场景和使用建议。CI 根据 README 和链接指向的上游技能生成官网数据。每个技能的简介直接采用上游内容，版本和安装目录由 CI 确定。
 
